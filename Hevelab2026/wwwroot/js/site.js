@@ -29,6 +29,7 @@
 
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-bs-theme', theme);
     if (themeIcon) {
       themeIcon.innerHTML = theme === 'dark' ? getSunSvg() : getMoonSvg();
     }
@@ -37,11 +38,32 @@
     }
   }
 
-  function toggleTheme() {
+  function toggleTheme(e) {
     var current = getTheme();
     var next = current === 'dark' ? 'light' : 'dark';
-    localStorage.setItem(THEME_KEY, next);
-    applyTheme(next);
+
+    // If the browser doesn't support View Transitions, or if it is not a pointer event:
+    if (!document.startViewTransition || !e || !e.clientX) {
+      localStorage.setItem(THEME_KEY, next);
+      applyTheme(next);
+      return;
+    }
+
+    var x = e.clientX;
+    var y = e.clientY;
+    var endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    document.documentElement.style.setProperty('--reveal-x', x + 'px');
+    document.documentElement.style.setProperty('--reveal-y', y + 'px');
+    document.documentElement.style.setProperty('--reveal-radius', endRadius + 'px');
+
+    document.startViewTransition(function () {
+      localStorage.setItem(THEME_KEY, next);
+      applyTheme(next);
+    });
   }
 
   /* ---- Palette ---- */

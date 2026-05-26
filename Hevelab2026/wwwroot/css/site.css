@@ -58,16 +58,16 @@
 
 /* Dark mode */
 [data-theme="dark"] {
-  --bg-app:       #020617;
-  --bg-sidebar:   #0f172a;
-  --bg-topbar:    #020617;
-  --bg-main:      #020617;
-  --text-primary:   #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-muted:     #64748b;
-  --border-color:   #1e293b;
-  --brand-name-color: #e2e8f0;
-  --sys-soft-bg: color-mix(in srgb, var(--sys-soft) 8%, #020617);
+  --bg-app:       #09090b; /* zinc-950 (negro profundo) */
+  --bg-sidebar:   #18181b; /* zinc-900 (plomo oscuro) */
+  --bg-topbar:    #18181b; /* zinc-900 (plomo oscuro) */
+  --bg-main:      #09090b; /* zinc-950 (negro profundo) */
+  --text-primary:   #f4f4f5; /* zinc-100 (gris plomo muy claro) */
+  --text-secondary: #cbd5e1; /* gris medio */
+  --text-muted:     #71717a; /* zinc-500 (plomo apagado) */
+  --border-color:   #27272a; /* zinc-800 (borde plomo) */
+  --brand-name-color: #f4f4f5;
+  --sys-soft-bg: color-mix(in srgb, var(--sys-soft) 8%, #09090b);
 }
 
 /* ---------- Reset & Base ---------- */
@@ -336,10 +336,24 @@ input, select, textarea {
 
 .hl-nav-link.active {
   background: var(--sys-soft);
-  color: var(--text-primary);
+  color: var(--sys-primary);
 }
 .hl-nav-link.active svg {
   color: var(--sys-primary);
+}
+[data-theme="dark"] .hl-nav-link.active,
+[data-bs-theme="dark"] .hl-nav-link.active {
+  background: #27272a !important;
+  background: color-mix(in srgb, var(--sys-primary) 15%, var(--bg-sidebar)) !important;
+  color: var(--sys-ring) !important;
+}
+[data-theme="dark"] .hl-nav-link.active svg,
+[data-bs-theme="dark"] .hl-nav-link.active svg {
+  color: var(--sys-ring) !important;
+}
+[data-theme="dark"] .hl-nav-link.active::before,
+[data-bs-theme="dark"] .hl-nav-link.active::before {
+  background: var(--sys-ring) !important;
 }
 .hl-nav-link.active::before {
   content: '';
@@ -659,4 +673,192 @@ input, select, textarea {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ==========================================================
+   HEVELAB — Premium Dark Mode & Bootstrap Enhancements
+   ========================================================== */
+
+/* Force text visibility by preventing Bootstrap's !important overrides */
+.text-dark {
+  color: var(--text-primary) !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Custom Metric Icon Wrappers (Light Mode default) - matches the quick access card style exactly */
+.hl-icon-wrap,
+.hl-icon-wrap-primary,
+.hl-icon-wrap-success,
+.hl-icon-wrap-warning,
+.hl-icon-wrap-danger,
+.hl-icon-wrap-info {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: var(--radius-md) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  background-color: var(--bg-app) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Dark Mode overrides for Icon Wrappers - matches the quick access card style exactly */
+[data-theme="dark"] .hl-icon-wrap,
+[data-bs-theme="dark"] .hl-icon-wrap,
+[data-theme="dark"] .hl-icon-wrap-primary,
+[data-bs-theme="dark"] .hl-icon-wrap-primary,
+[data-theme="dark"] .hl-icon-wrap-success,
+[data-bs-theme="dark"] .hl-icon-wrap-success,
+[data-theme="dark"] .hl-icon-wrap-warning,
+[data-bs-theme="dark"] .hl-icon-wrap-warning,
+[data-theme="dark"] .hl-icon-wrap-danger,
+[data-bs-theme="dark"] .hl-icon-wrap-danger,
+[data-theme="dark"] .hl-icon-wrap-info,
+[data-bs-theme="dark"] .hl-icon-wrap-info {
+  background-color: var(--bg-app) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Custom Premium Status Badges - matches the sidebar active link */
+.hl-status-badge {
+  display: inline-block !important;
+  padding: 4px 12px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-full) !important;
+  line-height: 1 !important;
+  background-color: var(--sys-soft) !important;
+  color: var(--sys-primary) !important;
+  border: 1px solid var(--sys-border) !important;
+}
+
+/* Dark Mode Status Badges - matches the sidebar active link exactly */
+[data-theme="dark"] .hl-status-badge,
+[data-bs-theme="dark"] .hl-status-badge {
+  background-color: #27272a !important; /* solid fallback (zinc-800) */
+  background-color: color-mix(in srgb, var(--sys-primary) 15%, var(--bg-sidebar)) !important;
+  color: var(--sys-ring) !important;
+  border: 1px solid #3f3f46 !important; /* solid fallback (zinc-700) */
+  border: 1px solid color-mix(in srgb, var(--sys-primary) 25%, var(--bg-sidebar)) !important;
+}
+
+/* Custom Accounting Badges (Light Mode) */
+.hl-badge-success {
+  background-color: #e6f4ea !important;
+  color: #137333 !important;
+  border: 1px solid #ceead6 !important;
+}
+.hl-badge-warning {
+  background-color: #fef7e0 !important;
+  color: #b06000 !important;
+  border: 1px solid #feebc8 !important;
+}
+.hl-badge-danger {
+  background-color: #fce8e6 !important;
+  color: #c5221f !important;
+  border: 1px solid #fad2cf !important;
+}
+
+/* Dark Mode Accounting Badges */
+[data-theme="dark"] .hl-badge-success {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+[data-theme="dark"] .hl-badge-warning {
+  background-color: rgba(245, 158, 11, 0.12) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.25) !important;
+}
+[data-theme="dark"] .hl-badge-danger {
+  background-color: rgba(239, 68, 68, 0.12) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.25) !important;
+}
+
+/* Custom Table Overrides */
+.table {
+  color: var(--text-primary) !important;
+}
+.table th, .table td {
+  border-color: var(--border-color) !important;
+}
+.table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  color: var(--text-primary) !important;
+}
+[data-theme="light"] .table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.015) !important;
+}
+
+/* Custom Timeline Points */
+.hl-timeline-point {
+  position: absolute;
+  left: -20px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background-color: var(--bg-topbar);
+  border-width: 3px;
+  border-style: solid;
+}
+.hl-timeline-point-success { border-color: #34d399 !important; }
+.hl-timeline-point-warning { border-color: #fbbf24 !important; }
+.hl-timeline-point-danger { border-color: #f87171 !important; }
+.hl-timeline-point-info { border-color: #60a5fa !important; }
+
+/* ==========================================================
+   HEVELAB — Premium Circular Blur Reveal Transition
+   ========================================================== */
+
+/* Register custom Houdini property for mask anims */
+@property --reveal-radius-animated {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* Custom View Transition setup */
+::view-transition-image-pair(root) {
+  isolation: auto;
+}
+
+::view-transition-old(root) {
+  animation: 450ms cubic-bezier(0.4, 0, 0.2, 1) both fade-out,
+             450ms cubic-bezier(0.4, 0, 0.2, 1) both blur-out;
+  z-index: 1;
+}
+
+/* Circular feathered reveal: dissolves and blends the two themes in a gorgeous gradient wave */
+::view-transition-new(root) {
+  animation: 700ms cubic-bezier(0.4, 0, 0.2, 1) both circle-reveal-gradient;
+  z-index: 2;
+  mask-image: radial-gradient(circle var(--reveal-radius-animated) at var(--reveal-x) var(--reveal-y), black 50%, rgba(0, 0, 0, 0.3) 80%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle var(--reveal-radius-animated) at var(--reveal-x) var(--reveal-y), black 50%, rgba(0, 0, 0, 0.3) 80%, transparent 100%);
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes blur-out {
+  from { filter: blur(0px); }
+  to { filter: blur(25px); }
+}
+
+@keyframes circle-reveal-gradient {
+  from {
+    --reveal-radius-animated: 0px;
+  }
+  to {
+    --reveal-radius-animated: calc(var(--reveal-radius) * 2.5);
+  }
 }
