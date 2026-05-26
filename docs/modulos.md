@@ -1,7 +1,7 @@
 # Cómo agregar un módulo nuevo a HeveLab
 
 > **Stack:** ASP.NET Core 8 MVC · C# · HTML · CSS vanilla · JS vanilla  
-> Sin React, sin Bootstrap, sin Tailwind.
+> Sin React, sin Tailwind. **Bootstrap nativo** está disponible para layouts, rejillas (grids) y componentes preconstruidos.
 
 ---
 
@@ -191,7 +191,8 @@ Si no se define `Breadcrumbs`, el topbar muestra solo el `ViewData["Title"]`.
 - ✅ Los íconos SVG van inline (sin librería externa)
 - ✅ JS propio del módulo va en `wwwroot/js/{modulo}.js` y se incluye con `@section Scripts`
 - ❌ No modificar `site.css` ni `site.js` para lógica específica de un módulo
-- ❌ No usar Bootstrap, React, ni frameworks externos sin coordinarlo con el equipo
+- ✅ Sí puedes usar las clases de utilidad y componentes nativos de **Bootstrap** para acelerar tu desarrollo y optimizar el rendimiento.
+- ❌ No usar React ni otros frameworks de JS del lado del cliente.
 
 ```html
 @* Incluir JS propio del módulo al final de la vista *@

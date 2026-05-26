@@ -134,7 +134,7 @@ input, select, textarea {
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
   transition: width var(--transition-slow), transform var(--transition-slow);
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Desktop collapsed */
@@ -159,6 +159,10 @@ input, select, textarea {
     top: 0;
     height: 100vh;
     transform: translateX(0) !important;
+  }
+  .hl-content,
+  .hl-sidebar.collapsed ~ .hl-content {
+    margin-left: 0 !important;
   }
 }
 
