@@ -76,6 +76,49 @@
 
                 <!-- (espacio para agregar más módulos aquí) -->
 
+
+                <!-- Compras -->
+                <div class="hl-nav-item-group">
+                    <button class="hl-nav-link w-100 border-0 bg-transparent text-start d-flex align-items-center justify-content-between"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#menuCompras"
+                            aria-expanded="true"
+                            aria-controls="menuCompras">
+                        <div class="d-flex align-items-center">
+                            <svg class="hl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <path d="M16 10a4 4 0 0 1-8 0"></path>
+                            </svg>
+                            <span class="hl-nav-label ms-2">Compras</span>
+                        </div>
+                        <svg class="hl-icon hl-icon-sm transition-transform" style="width: 12px; height: 12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+
+                    <div class="collapse show ms-4 ps-2 border-start" id="menuCompras" style="border-color: rgba(0,0,0,0.08) !important;">
+                        <ul class="list-unstyled m-0 p-0 d-flex flex-column gap-1 pt-1">
+                            <li>
+                                <a asp-controller="SolicitudDeCotizacion" asp-action="Index" class="hl-nav-link">
+                                    Solicitudes de cotización
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-controller="OrdenesDeCompra" asp-action="Index" class="hl-nav-link">
+                                    Órdenes de compra
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-controller="Proveedores" asp-action="Index" class="hl-nav-link">
+                                    Proveedores
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
                 <!-- SETTINGS section -->
                 <div class="hl-nav-settings-gap">
                     <div class="hl-nav-section-label">
