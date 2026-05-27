@@ -97,7 +97,7 @@ body::-webkit-scrollbar,
 body {
   background: var(--bg-app);
   color: var(--text-primary);
-  overflow: hidden;
+  overflow: hidden; /* Solo para el shell, el scroll va en .hl-main */
 }
 
 a { color: var(--sys-primary); text-decoration: none; }
@@ -112,6 +112,59 @@ button {
 
 input, select, textarea {
   font-family: inherit;
+}
+
+/* Fix Bootstrap input backgrounds in dark mode */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: var(--bg-sidebar);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .form-control::placeholder {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text-primary);
+  --bs-table-border-color: var(--border-color);
+  --bs-table-hover-bg: var(--sys-soft-bg);
+}
+[data-theme="dark"] .card {
+  background-color: var(--bg-sidebar);
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .card-header {
+  background-color: transparent;
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .card-footer {
+  background-color: var(--bg-app) !important;
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .table-light,
+[data-theme="dark"] .table-light > th {
+  --bs-table-bg: var(--bg-app);
+  background-color: var(--bg-app) !important;
+  color: var(--text-secondary) !important;
+}
+[data-theme="dark"] .btn-outline-secondary {
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .btn-outline-secondary:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .input-group-text {
+  background-color: var(--bg-sidebar);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .badge.bg-light {
+  background-color: var(--bg-app) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
 }
 
 /* ---------- Layout Shell ---------- */
@@ -367,14 +420,12 @@ input, select, textarea {
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  margin-left: var(--sidebar-width);
+  /* En desktop el sidebar es sticky dentro del flex → ya ocupa su espacio natural.
+     margin-left solo se necesita en mobile donde el sidebar es fixed (fuera del flujo). */
   transition: margin-left var(--transition-slow);
 }
 
-.hl-sidebar.collapsed ~ .hl-content {
-  margin-left: var(--sidebar-collapsed-w);
-}
-
+/* Mobile: sidebar es position:fixed → hl-content necesita offset manual */
 @media (max-width: 1023px) {
   .hl-content {
     margin-left: 0 !important;

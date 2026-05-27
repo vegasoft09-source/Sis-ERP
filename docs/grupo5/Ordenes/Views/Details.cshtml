@@ -1,0 +1,42 @@
+@model Hevelab2026.Models.OrdenVenta
+
+@{
+    ViewData["Title"] = "Detalle de Orden";
+    ViewData["Breadcrumbs"] = new[] {
+        ("Dashboard", "/"),
+        ("Ventas", "#"),
+        ("Órdenes", "/Ordenes")
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/ordenes.css" />
+}
+
+<div class="ordenes-container">
+
+    <div class="ordenes-header">
+        <div>
+            <h1>Detalle de Orden</h1>
+            <p>Información de la orden seleccionada.</p>
+        </div>
+
+        <a href="/Ordenes" class="btn-secundario">
+            Volver
+        </a>
+    </div>
+
+    <div class="form-card">
+
+        <p><strong>Número de pedido:</strong> @Model.NumeroPedido</p>
+        <p><strong>Fecha de creación:</strong> @Model.FechaCreacion</p>
+        <p><strong>Cliente:</strong> @Model.Cliente</p>
+        <p><strong>Razón social:</strong> @Model.RazonSocial</p>
+        <p><strong>RUC:</strong> @Model.Ruc</p>
+        <p><strong>Subtotal:</strong> $ @Model.Subtotal.ToString("N2")</p>
+        <p><strong>Total:</strong> $ @Model.Total.ToString("N2")</p>
+        <p><strong>Estado:</strong> @Model.Estado</p>
+
+    </div>
+
+</div>

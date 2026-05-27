@@ -1,0 +1,185 @@
+@using Hevelab2026.Models
+@{
+    var modo = (string)ViewBag.Modo;
+    var cliente = (Cliente?)ViewBag.Cliente;
+    // El breadcrumb y el título ya vienen del controlador
+    bool isJuridica = cliente != null && cliente.TipoCliente == "Persona Jurídica";
+    bool isNatural = cliente != null && cliente.TipoCliente == "Persona Natural";
+
+    bool isRuc = cliente != null && cliente.TipoDocumento == "RUC";
+    bool isDni = cliente != null && cliente.TipoDocumento == "DNI";
+    bool isCe = cliente != null && cliente.TipoDocumento == "CE";
+    bool isPasaporte = cliente != null && cliente.TipoDocumento == "Pasaporte";
+}
+
+<div class="container-fluid p-0" style="max-width: 900px; margin: 0 auto;">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0" style="color: var(--text-primary); font-weight: 700;">
+                @(modo == "Editar" ? "Editar Cliente" : "Nuevo Cliente")
+            </h1>
+            <p class="mb-0" style="color: var(--text-secondary); font-size: 0.875rem;">
+                @(modo == "Editar" ? "Modifique los campos de la ficha del cliente" : "Registre los datos para dar de alta un nuevo cliente")
+            </p>
+        </div>
+    </div>
+
+    <!-- Alert container for validation -->
+    <div id="formAlert" class="alert alert-danger d-none" role="alert">
+        <strong>Error:</strong> Por favor, corrija los campos marcados en rojo antes de enviar.
+    </div>
+
+    <!-- Form -->
+    <form id="clienteForm" method="post" action="/Clientes/GuardarCliente" novalidate>
+        @Html.AntiForgeryToken()
+        
+        @if (modo == "Editar" && cliente != null)
+        {
+            <input type="hidden" name="Id" value="@cliente.Id" />
+            <input type="hidden" name="id" value="@cliente.Id" />
+        }
+
+        <!-- Card 1: Identificación -->
+        <div class="card shadow-sm border mb-4" style="border-radius: 8px;">
+            <div class="card-header bg-transparent py-3" style="border-bottom: 1px solid var(--border-color);">
+                <h5 class="card-title mb-0" style="color: var(--text-primary); font-weight: 600; font-size: 1rem;">1. Identificación del Cliente</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    @if (modo == "Editar" && cliente != null)
+                    {
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-muted small">Código</label>
+                            <input type="text" class="form-control bg-light text-muted font-monospace fw-bold" value="@cliente.Codigo" readonly style="border-color: var(--border-color);" />
+                        </div>
+                        <div class="col-md-8"></div>
+                    }
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Tipo de Cliente</label>
+                        <select class="form-select" name="TipoCliente" id="TipoClienteSelect" style="border-color: var(--border-color); color: var(--text-primary);">
+                            <option value="Persona Jurídica" selected="@isJuridica">Persona Jurídica</option>
+                            <option value="Persona Natural" selected="@isNatural">Persona Natural</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Tipo de Documento</label>
+                        <select class="form-select" name="TipoDocumento" id="TipoDocumentoSelect" style="border-color: var(--border-color); color: var(--text-primary);">
+                            <option value="RUC" selected="@isRuc">RUC</option>
+                            <option value="DNI" selected="@isDni">DNI</option>
+                            <option value="CE" selected="@isCe">CE</option>
+                            <option value="Pasaporte" selected="@isPasaporte">Pasaporte</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">N° Documento <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="NumeroDocumento" id="NumeroDocumentoInput" required value="@(cliente != null ? cliente.NumeroDocumento : "")" style="border-color: var(--border-color); color: var(--text-primary);" />
+                        <div class="invalid-feedback">El número de documento es obligatorio.</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Razón Social / Nombres <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="RazonSocial" id="RazonSocialInput" required value="@(cliente != null ? cliente.RazonSocial : "")" style="border-color: var(--border-color); color: var(--text-primary);" />
+                        <div class="invalid-feedback">La Razón Social o Nombres son obligatorios.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Contacto -->
+        <div class="card shadow-sm border mb-4" style="border-radius: 8px;">
+            <div class="card-header bg-transparent py-3" style="border-bottom: 1px solid var(--border-color);">
+                <h5 class="card-title mb-0" style="color: var(--text-primary); font-weight: 600; font-size: 1rem;">2. Información de Contacto</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Teléfono</label>
+                        <input type="text" class="form-control" name="Telefono" id="TelefonoInput" value="@(cliente != null ? cliente.Telefono : "")" style="border-color: var(--border-color); color: var(--text-primary);" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Correo Electrónico <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" name="Email" id="EmailInput" required value="@(cliente != null ? cliente.Email : "")" style="border-color: var(--border-color); color: var(--text-primary);" />
+                        <div class="invalid-feedback">Ingrese un correo electrónico válido (ejemplo@dominio.com).</div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold text-muted small">Dirección</label>
+                        <input type="text" class="form-control" name="Direccion" id="DireccionInput" value="@(cliente != null ? cliente.Direccion : "")" style="border-color: var(--border-color); color: var(--text-primary);" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-muted small">Ciudad</label>
+                        <input type="text" class="form-control" name="Ciudad" id="CiudadInput" value="@(cliente != null ? cliente.Ciudad : "")" style="border-color: var(--border-color); color: var(--text-primary);" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Comercial -->
+        <div class="card shadow-sm border mb-4" style="border-radius: 8px;">
+            <div class="card-header bg-transparent py-3" style="border-bottom: 1px solid var(--border-color);">
+                <h5 class="card-title mb-0" style="color: var(--text-primary); font-weight: 600; font-size: 1rem;">3. Datos Comerciales</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Límite de Crédito (S/)</label>
+                        <input type="number" class="form-control" name="LimiteCredito" id="LimiteCreditoInput" min="0" step="0.01" value="@(cliente != null ? cliente.LimiteCredito.ToString("F2", System.Globalization.CultureInfo.InvariantCulture) : "0.00")" style="border-color: var(--border-color); color: var(--text-primary);" />
+                        <div class="invalid-feedback">El límite de crédito no puede ser menor a 0.</div>
+                    </div>
+
+                    @if (modo == "Editar" && cliente != null)
+                    {
+                        <div class="col-md-6 d-flex align-items-center mt-md-4">
+                            <div class="form-check form-switch p-0 ps-5 mt-2">
+                                <input type="checkbox" class="form-check-input" name="Activo" id="ActivoCheckbox" value="true" @(cliente.Activo ? "checked" : "") style="cursor: pointer; width: 2.5em; height: 1.25em; border-color: var(--border-color);" />
+                                <input type="hidden" name="Activo" value="false" /> <!-- Fallback para binding falso en MVC si no se marca -->
+                                <label class="form-check-label fw-semibold text-muted small ms-2" for="ActivoCheckbox" style="cursor: pointer;">Cliente Activo</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Buttons -->
+        <div class="d-flex justify-content-end align-items-center gap-2 mt-4 mb-5">
+            @if (modo == "Editar" && cliente != null)
+            {
+                <a href="/Clientes/Detalle/@cliente.Id" class="btn btn-outline-secondary" style="border-color: var(--border-color); color: var(--text-primary); border-radius: 6px; font-weight: 500;">
+                    Cancelar
+                </a>
+            }
+            else
+            {
+                <a href="/Clientes" class="btn btn-outline-secondary" style="border-color: var(--border-color); color: var(--text-primary); border-radius: 6px; font-weight: 500;">
+                    Cancelar
+                </a>
+            }
+            <button type="submit" class="btn" style="background: var(--sys-primary); color: var(--sys-on-primary); border: none; border-radius: 6px; font-weight: 500; padding: 0.5rem 1.75rem;">
+                Guardar Cliente
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Styles {
+    <style>
+        .card { border-color: var(--border-color); background: var(--bg-sidebar); }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--sys-primary) !important;
+            box-shadow: 0 0 0 0.25rem var(--sys-soft) !important;
+            color: var(--text-primary) !important;
+            background-color: var(--bg-sidebar) !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="~/js/clientes.js" asp-append-version="true"></script>
+}

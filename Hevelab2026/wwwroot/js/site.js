@@ -207,10 +207,57 @@
       });
     }
 
-    // Nav links close mobile sidebar on click
-    document.querySelectorAll('.hl-nav-link').forEach(function (link) {
+    // Only anchor nav links (not accordion buttons) should close mobile sidebar
+    document.querySelectorAll('.hl-nav-link:not(.hl-nav-group-btn)').forEach(function (link) {
       link.addEventListener('click', closeMobileSidebar);
     });
+
+    // Accordion sidebar toggling — separate from nav-link click
+    var groupBtns = document.querySelectorAll('.hl-nav-group-btn');
+    groupBtns.forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var expanded = btn.getAttribute('aria-expanded') === 'true';
+        var nextState = !expanded;
+
+        // Close all other accordions
+        groupBtns.forEach(function (other) {
+          if (other !== btn) {
+            other.setAttribute('aria-expanded', 'false');
+            var otherSub = other.nextElementSibling;
+            if (otherSub && otherSub.classList.contains('hl-nav-sub')) {
+              otherSub.style.display = 'none';
+            }
+          }
+        });
+
+        // Toggle current
+        btn.setAttribute('aria-expanded', nextState ? 'true' : 'false');
+        var subMenu = btn.nextElementSibling;
+        if (subMenu && subMenu.classList.contains('hl-nav-sub')) {
+          subMenu.style.display = nextState ? 'flex' : 'none';
+          subMenu.style.flexDirection = 'column';
+          subMenu.style.gap = '2px';
+        }
+      });
+    });
+
+    // Auto-expand accordion based on active sub-link path
+    var activePath = window.location.pathname.toLowerCase();
+    if (activePath.startsWith('/clientes') || activePath.startsWith('/cotizaciones') || activePath.startsWith('/ordenes')) {
+      var ventasBtn = document.querySelector('.hl-nav-group-btn[aria-label="Ventas"]');
+      if (ventasBtn) {
+        ventasBtn.setAttribute('aria-expanded', 'true');
+        var subMenu = ventasBtn.nextElementSibling;
+        if (subMenu && subMenu.classList.contains('hl-nav-sub')) {
+          subMenu.style.display = 'flex';
+          subMenu.style.flexDirection = 'column';
+          subMenu.style.gap = '2px';
+        }
+      }
+    }
   }
 
   if (document.readyState === 'loading') {

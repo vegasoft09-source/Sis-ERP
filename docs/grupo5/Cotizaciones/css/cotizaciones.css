@@ -1,0 +1,167 @@
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card{
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.card-header{
+    background: white !important;
+    border-bottom: 1px solid #f1f5f9;
+    border-radius: 18px 18px 0 0 !important;
+    padding: 25px;
+}
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.form-control,
+.form-select{
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    min-height: 50px;
+    font-size: 14px;
+}
+
+.form-control:focus,
+.form-select:focus{
+    border-color: #4f46e5;
+    box-shadow: none;
+}
+
+/* =========================================================
+   LABELS
+========================================================= */
+
+.form-label{
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* =========================================================
+   BOTONES
+========================================================= */
+
+.btn{
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-weight: 600;
+    border: none;
+}
+
+/* NUEVO */
+.btn-primary{
+    background: #4f46e5;
+}
+
+.btn-primary:hover{
+    background: #4338ca;
+}
+
+/* VER */
+.btn-info{
+    background: #eef2ff;
+    color: #4f46e5;
+}
+
+.btn-info:hover{
+    background: #dbeafe;
+    color: #4338ca;
+}
+
+/* EDITAR */
+.btn-warning{
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-warning:hover{
+    background: #e5e7eb;
+    color: #111827;
+}
+
+/* GUARDAR */
+.btn-success{
+    background: #10b981;
+}
+
+.btn-success:hover{
+    background: #059669;
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.table{
+    margin-bottom: 0;
+}
+
+/* HEADER BLANCO */
+.table thead th{
+    background: #ffffff !important;
+    color: #64748b !important;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 18px;
+}
+
+/* BODY */
+.table tbody td{
+    padding: 20px 18px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+}
+
+.table tbody tr:hover{
+    background: #fafafa;
+}
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.badge{
+    border-radius: 30px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* PENDIENTE */
+.bg-warning.text-dark{
+    background: #fef3c7 !important;
+    color: #92400e !important;
+}
+
+/* APROBADO */
+.bg-success{
+    background: #dcfce7 !important;
+    color: #166534 !important;
+}
+
+/* RECHAZADO */
+.bg-danger{
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+}
+
+/* =========================================================
+   SOMBRAS
+========================================================= */
+
+.shadow-lg{
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05) !important;
+}

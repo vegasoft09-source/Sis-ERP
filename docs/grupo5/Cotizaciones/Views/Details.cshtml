@@ -1,0 +1,105 @@
+@model Hevelab2026.Models.Cotizacion
+
+@{
+    ViewData["Title"] = "Detalle de Cotización";
+    ViewData["Breadcrumbs"] = new[] {
+        ("Dashboard", "/"),
+        ("Ventas", "#"),
+        ("Cotizaciones", "/Cotizaciones")
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/css/cotizaciones.css" />
+}
+
+<div class="container mt-5">
+
+
+    <div class="card shadow-lg border-0">
+
+        <div class="card-header bg-info text-white p-4">
+
+            <h2>
+                <i class="bi bi-eye-fill"></i>
+                Detalle de Cotización
+            </h2>
+
+        </div>
+
+        <div class="card-body p-5">
+
+            <div class="row">
+
+                <div class="col-md-6 mb-4">
+                    <h6 class="text-muted">Número Pedido</h6>
+                    <h4>@Model.NumeroPedido</h4>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <h6 class="text-muted">Cliente</h6>
+                    <h4>@Model.Cliente</h4>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <h6 class="text-muted">Razón Social</h6>
+                    <h4>@Model.RazonSocial</h4>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <h6 class="text-muted">RUC</h6>
+                    <h4>@Model.RUC</h4>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <h6 class="text-muted">Subtotal</h6>
+                    <h3 class="text-primary">
+                        S/. @Model.Subtotal
+                    </h3>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <h6 class="text-muted">Total</h6>
+                    <h3 class="text-success">
+                        S/. @Model.Total
+                    </h3>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <h6 class="text-muted">Estado</h6>
+
+                    <span class="badge bg-success p-3">
+                        @Model.Estado
+                    </span>
+                </div>
+
+            </div>
+
+            <hr>
+
+            <div class="mt-4">
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-warning btn-lg">
+
+                    <i class="bi bi-pencil-square"></i>
+                    Editar
+
+                </a>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary btn-lg">
+
+                    Volver
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

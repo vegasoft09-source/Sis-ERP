@@ -11,8 +11,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
     <!-- HeveLab CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
+
+    <style>
+      .hl-nav-group { display: flex; flex-direction: column; }
+      .hl-nav-group-btn { width: 100%; text-align: left; background: none; border: none; }
+      .hl-nav-sub { padding-left: 16px; display: flex; flex-direction: column; gap: 2px; }
+      .hl-nav-sub-link { font-size: 13px; padding-left: 12px; }
+      .hl-nav-chevron { transition: transform var(--transition); flex-shrink: 0; }
+      .hl-nav-group-btn[aria-expanded="true"] .hl-nav-chevron { transform: rotate(180deg); }
+    </style>
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -75,6 +88,32 @@
                 </a>
 
                 <!-- (espacio para agregar más módulos aquí) -->
+
+                <!-- Ventas -->
+                <div class="hl-nav-group">
+                  <button class="hl-nav-link hl-nav-group-btn" aria-label="Ventas" aria-expanded="false">
+                    <svg class="hl-icon" viewBox="0 0 24 24">
+                      <circle cx="9" cy="21" r="1"/>
+                      <circle cx="20" cy="21" r="1"/>
+                      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    <span class="hl-nav-label">Ventas</span>
+                    <svg class="hl-icon hl-nav-chevron" viewBox="0 0 24 24" style="margin-left:auto">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                  <div class="hl-nav-sub" style="display:none">
+                    <a href="/Clientes" class="hl-nav-link hl-nav-sub-link" aria-label="Clientes">
+                      <span class="hl-nav-label">Clientes</span>
+                    </a>
+                    <a href="/Cotizaciones" class="hl-nav-link hl-nav-sub-link" aria-label="Cotizaciones">
+                      <span class="hl-nav-label">Cotizaciones</span>
+                    </a>
+                    <a href="/Ordenes" class="hl-nav-link hl-nav-sub-link" aria-label="Órdenes">
+                      <span class="hl-nav-label">Órdenes</span>
+                    </a>
+                  </div>
+                </div>
 
                 <!-- SETTINGS section -->
                 <div class="hl-nav-settings-gap">
@@ -225,6 +264,9 @@
         </div><!-- /hl-content -->
 
     </div><!-- /hl-shell -->
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmGGG1BcvE0MdiA6+XiUnFD4iSl" crossorigin="anonymous"></script>
 
     <!-- Scripts -->
     <script src="~/js/site.js" asp-append-version="true"></script>

@@ -1,0 +1,121 @@
+@model Hevelab2026.Models.OrdenVenta
+
+@{
+    ViewData["Title"] = "Detalle de Orden";
+    ViewData["Breadcrumbs"] = new[] {
+        ("Dashboard", "/"),
+        ("Ventas", "#"),
+        ("Órdenes", "/Ordenes"),
+        (Model.NumeroPedido, "")
+    };
+}
+
+<div class="frm-wrap">
+    <div class="frm-header mb-4">
+        <a href="/Ordenes" class="frm-back">
+            <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Volver
+        </a>
+        <div>
+            <h1 class="frm-title">Detalle de Orden</h1>
+            <p class="frm-subtitle">Consulta de la orden de venta @Model.NumeroPedido</p>
+        </div>
+    </div>
+
+    <div class="frm-card mb-4">
+        <div class="frm-card-head">
+            <span class="frm-card-num">1</span>
+            Datos del Cliente
+        </div>
+        <div class="frm-card-body">
+            <div class="frm-grid">
+                <div class="frm-field frm-field--half">
+                    <label class="frm-label">Número de Pedido</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.NumeroPedido" readonly />
+                </div>
+                <div class="frm-field frm-field--half">
+                    <label class="frm-label">Fecha de Creación</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.FechaCreacion" readonly />
+                </div>
+                <div class="frm-field frm-field--third">
+                    <label class="frm-label">Cliente</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.Cliente" readonly />
+                </div>
+                <div class="frm-field frm-field--third">
+                    <label class="frm-label">Razón Social</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.RazonSocial" readonly />
+                </div>
+                <div class="frm-field frm-field--third">
+                    <label class="frm-label">RUC</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.Ruc" readonly />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="frm-card mb-4">
+        <div class="frm-card-head">
+            <span class="frm-card-num">2</span>
+            Condiciones Comerciales
+        </div>
+        <div class="frm-card-body">
+            <div class="frm-grid">
+                <div class="frm-field frm-field--third">
+                    <label class="frm-label">Moneda</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@(Model.Moneda == "PEN" ? "Soles (PEN)" : "Dólares (USD)")" readonly />
+                </div>
+                <div class="frm-field frm-field--third">
+                    <label class="frm-label">Condición de Pago</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.CondicionPago" readonly />
+                </div>
+                <div class="frm-field frm-field--third">
+                    <label class="frm-label">Vendedor</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.Vendedor" readonly />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="frm-card mb-4">
+        <div class="frm-card-head">
+            <span class="frm-card-num">3</span>
+            Montos y Totales
+        </div>
+        <div class="frm-card-body">
+            <div class="frm-grid">
+                <div class="frm-field frm-field--third">
+                    <label class="frm-label">Subtotal</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.Subtotal.ToString("N2")" readonly />
+                </div>
+                <div class="frm-field frm-field--third">
+                    <label class="frm-label">Descuento</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.Descuento.ToString("N2")" readonly />
+                </div>
+                <div class="frm-field frm-field--third">
+                    <label class="frm-label">Impuestos</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.Impuestos.ToString("N2")" readonly />
+                </div>
+                <div class="frm-field frm-field--third">
+                    <label class="frm-label">Total</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.Total.ToString("N2")" readonly />
+                </div>
+                <div class="frm-field frm-field--third">
+                    <label class="frm-label">Estado</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.Estado" readonly />
+                </div>
+                <div class="frm-field frm-field--full">
+                    <label class="frm-label">Notas</label>
+                    <input type="text" class="frm-input frm-input--readonly" value="@Model.Notas" readonly />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="frm-actions mb-5">
+        <a href="/Ordenes" class="frm-btn-cancel">Volver</a>
+        <a href="/Ordenes/Edit/@Model.NumeroPedido" class="frm-btn-save">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Editar Orden
+        </a>
+    </div>
+</div>
