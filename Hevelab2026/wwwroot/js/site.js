@@ -105,9 +105,13 @@
     var path = window.location.pathname.toLowerCase();
     var links = document.querySelectorAll('.hl-nav-link');
     links.forEach(function (link) {
+      // Limitar la detección de ruta activa solo a enlaces <a>
       link.classList.remove('active');
+      if (link.tagName.toLowerCase() !== 'a') return;
       var href = (link.getAttribute('href') || '').toLowerCase();
-      if (href && (path === href || (href !== '/' && path.startsWith(href)))) {
+      if (!href || href === '#') return;
+      // Comparar ruta exacta o prefijo (excepto la raíz)
+      if (path === href || (href !== '/' && path.startsWith(href))) {
         link.classList.add('active');
       }
     });
@@ -211,6 +215,46 @@
     document.querySelectorAll('.hl-nav-link').forEach(function (link) {
       link.addEventListener('click', closeMobileSidebar);
     });
+
+    // Menú Compras: toggle collapse vanilla (sin Bootstrap)
+    var btnMenuCompras = document.getElementById('btnMenuCompras');
+    var menuCompras = document.getElementById('menuCompras');
+    var iconMenuCompras = document.getElementById('iconMenuCompras');
+
+    function toggleMenuCompras(show) {
+      if (!menuCompras || !btnMenuCompras) return;
+      var isOpen = menuCompras.style.display !== 'none';
+      if (show !== undefined) {
+        // Forzar estado específico
+        menuCompras.style.display = show ? 'block' : 'none';
+        btnMenuCompras.setAttribute('aria-expanded', show);
+        if (iconMenuCompras) {
+          iconMenuCompras.style.transform = show ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+      } else {
+        // Toggle
+        menuCompras.style.display = isOpen ? 'none' : 'block';
+        btnMenuCompras.setAttribute('aria-expanded', !isOpen);
+        if (iconMenuCompras) {
+          iconMenuCompras.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      }
+    }
+
+    if (btnMenuCompras) {
+      btnMenuCompras.addEventListener('click', function () {
+        toggleMenuCompras();
+      });
+    }
+
+    // Auto-abrir menú Compras si estamos en una página de compras
+    var currentPath = window.location.pathname.toLowerCase();
+    var esCompras = currentPath.includes('/solicitud') || 
+                    currentPath.includes('/ordenes') || 
+                    currentPath.includes('/proveedores');
+    if (esCompras) {
+      toggleMenuCompras(true);
+    }
   }
 
   if (document.readyState === 'loading') {
