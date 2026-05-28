@@ -1,0 +1,572 @@
+﻿@model Producto
+
+@{
+    ViewData["Title"] = "Editar Producto";
+}
+
+<style>
+    .producto-edit-page {
+        width: 100%;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .producto-edit-card {
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-sm);
+        padding: 22px 26px;
+    }
+
+    .edit-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .edit-code-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+    }
+
+    .edit-code {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+
+    .edit-header h1 {
+        margin: 0 0 14px 0;
+        font-size: 36px;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.04em;
+    }
+
+    .edit-status-row {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .edit-check {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-secondary);
+    }
+
+        .edit-check input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--sys-primary);
+        }
+
+    .edit-header-right {
+        min-width: 360px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-start;
+        gap: 22px;
+        text-align: left;
+    }
+
+    .edit-group-info {
+        min-width: 180px;
+        padding-top: 4px;
+    }
+
+    .edit-product-image-box {
+        width: 130px;
+        height: 130px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .edit-product-image-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #f8fafc, #eef2ff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .edit-tabs {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        padding: 14px 0 0 0;
+        border-bottom: 1px solid var(--border-color);
+        overflow-x: auto;
+    }
+
+        .edit-tabs span {
+            position: relative;
+            padding-bottom: 13px;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+            .edit-tabs span.active {
+                color: var(--sys-primary);
+            }
+
+                .edit-tabs span.active::after {
+                    content: "";
+                    position: absolute;
+                    left: 0;
+                    bottom: -1px;
+                    width: 100%;
+                    height: 3px;
+                    border-radius: var(--radius-full);
+                    background: var(--sys-primary);
+                }
+
+    .edit-body {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 46px;
+        padding-top: 22px;
+    }
+
+    .edit-column {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .edit-row {
+        display: grid;
+        grid-template-columns: 170px minmax(0, 1fr);
+        align-items: center;
+        gap: 16px;
+        min-height: 42px;
+        margin-bottom: 12px;
+    }
+
+        .edit-row label {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .edit-row input,
+        .edit-row select,
+        .edit-row textarea {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: #f8fafc;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+        }
+
+        .edit-row input,
+        .edit-row select {
+            height: 38px;
+            padding: 0 12px;
+        }
+
+        .edit-row textarea {
+            min-height: 70px;
+            padding: 10px 12px;
+            resize: vertical;
+        }
+
+            .edit-row input:focus,
+            .edit-row select:focus,
+            .edit-row textarea:focus {
+                border-color: var(--sys-primary);
+                background: #ffffff;
+            }
+
+        .edit-row strong {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+    .radio-group {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+        .radio-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .radio-group input {
+            width: 15px;
+            height: 15px;
+            accent-color: var(--sys-primary);
+        }
+
+    .readonly-row {
+        background: #f8fafc;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 0 12px;
+    }
+
+    .edit-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12px;
+        margin-top: 14px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-descartar,
+    .btn-guardar-cambios {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 42px;
+        padding: 0 22px;
+        border-radius: var(--radius-lg);
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .btn-descartar {
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+
+        .btn-descartar:hover {
+            background: #f8fafc;
+            color: var(--text-primary);
+        }
+
+    .btn-guardar-cambios {
+        background: var(--sys-primary);
+        color: var(--sys-on-primary);
+    }
+
+        .btn-guardar-cambios:hover {
+            background: var(--sys-primary-hover);
+        }
+
+    @@media (max-width: 1200px) {
+        .edit-body {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .producto-edit-card {
+            padding: 18px;
+        }
+
+        .edit-header {
+            flex-direction: column;
+        }
+
+        .edit-header-right {
+            text-align: left;
+        }
+
+        .edit-header h1 {
+            font-size: 30px;
+        }
+
+        .edit-row {
+            grid-template-columns: 1fr;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .edit-actions {
+            flex-direction: column-reverse;
+        }
+
+        .btn-descartar,
+        .btn-guardar-cambios {
+            width: 100%;
+        }
+
+        .edit-header-right {
+            min-width: 100%;
+            width: 100%;
+            justify-content: space-between;
+            text-align: left;
+        }
+
+        .edit-product-image-box {
+            width: 110px;
+            height: 110px;
+        }
+    }
+</style>
+
+
+<div class="producto-edit-page">
+
+    <form asp-controller="Producto" asp-action="Edit" method="post" class="producto-edit-card">
+
+        <div class="edit-header">
+
+            <div class="edit-header-left">
+                <div class="edit-code-label">Código de producto</div>
+                <div class="edit-code">@Model.Sku</div>
+
+                <h1>@Model.Nombre</h1>
+
+                <div class="edit-status-row">
+                    <label class="edit-check">
+                        <input type="checkbox" checked />
+                        <span>Ventas</span>
+                    </label>
+
+                    <label class="edit-check">
+                        <input type="checkbox" />
+                        <span>Punto de venta</span>
+                    </label>
+
+                    <label class="edit-check">
+                        <input type="checkbox" checked />
+                        <span>Comprar</span>
+                    </label>
+
+                    <label class="edit-check">
+                        <input type="hidden" name="Disponible" value="false" />
+
+                        <input type="checkbox"
+                               name="Disponible"
+                               value="true"
+                               @(Model.Disponible ? "checked" : "") />
+                        <span>Disponible</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="edit-header-right">
+
+                <div class="edit-group-info">
+                    <div class="edit-code-label">Grupo de artículos</div>
+                    <div class="edit-code">@Model.Categoria</div>
+                </div>
+
+                <div class="edit-product-image-box">
+                    <div class="edit-product-image-placeholder">
+                        <span>Sin imagen</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="edit-tabs">
+            <span class="active">Información general</span>
+            <!--<span>Atributos y variantes</span>
+            <span>Ventas</span>
+            <span>Precios</span>
+            <span>Compras</span>
+            <span>Inventario</span>
+            <span>Contabilidad</span> -->
+        </div>
+
+        <div class="edit-body">
+
+            <div class="edit-column">
+
+                <input type="hidden" name="Sku" value="@Model.Sku" />
+
+                <div class="edit-row">
+                    <label>Tipo de producto</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="TipoProducto" checked />
+                            Bienes
+                        </label>
+
+                        <label>
+                            <input type="radio" name="TipoProducto" />
+                            Servicio
+                        </label>
+
+                        <label>
+                            <input type="radio" name="TipoProducto" />
+                            Combo
+                        </label>
+                    </div>
+                </div>
+
+                <div class="edit-row">
+                    <label for="unidad">Unidad</label>
+                    <select id="unidad" name="Unidad">
+                        <option value="@Model.Unidad">@Model.Unidad</option>
+                        <option value="Unidades">Unidades</option>
+                        <option value="Botellas">Botellas</option>
+                        <option value="Packs">Packs</option>
+                        <option value="Cajas">Cajas</option>
+                    </select>
+                </div>
+
+                <div class="edit-row">
+                    <label for="categoria">Categoría</label>
+                    <select id="categoria" name="Categoria">
+                        <option value="@Model.Categoria">@Model.Categoria</option>
+                        <option value="Productos Farmacéuticos y de Salud">Productos Farmacéuticos y de Salud</option>
+                        <option value="Bienestar y Cuidado Personal">Bienestar y Cuidado Personal</option>
+                        <option value="Limpiadores concentrados">Limpiadores concentrados</option>
+                    </select>
+                </div>
+
+                <div class="edit-row">
+                    <label for="presentacion">Presentación</label>
+                    <input type="text" id="presentacion" name="Presentacion" value="@Model.Presentacion" />
+                </div>
+
+                <div class="edit-row">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" name="Descripcion">@Model.Descripcion</textarea>
+                </div>
+
+                <div class="edit-row">
+                    <label for="ubicacionAlmacen">Ubicación en almacén</label>
+                    <input type="text" id="ubicacionAlmacen" name="UbicacionAlmacen" value="@Model.UbicacionAlmacen" />
+                </div>
+
+                <div class="edit-row">
+                    <label for="stockMinimo">Nivel de stock mínimo</label>
+                    <input type="number" id="stockMinimo" name="StockMinimo" value="@Model.StockMinimo" />
+                </div>
+
+                <div class="edit-row readonly-row">
+                    <label>Stock actual</label>
+                    <strong>@Model.Stock @Model.Unidad</strong>
+                </div>
+
+            </div>
+
+            <div class="edit-column">
+
+                <div class="edit-row">
+                    <label>Moneda</label>
+                    <strong>PEN</strong>
+                </div>
+
+                <div class="edit-row">
+                    <label for="precio">Precio de venta</label>
+                    <input id="precio" name="Precio" value="@Model.Precio" step="0.01" />
+                </div>
+
+                <div class="edit-row">
+                    <label for="stock">Stock</label>
+                    <input type="number" id="stock" name="Stock" value="@Model.Stock" />
+                </div>
+
+                <div class="edit-row">
+                    <label for="codigoBarras">Código de barras</label>
+                    <input type="text" id="codigoBarras" name="CodigoBarras" value="@Model.CodigoBarras" />
+                </div>
+
+                <div class="edit-row">
+                    <label for="nombre">Nombre del producto</label>
+                    <input type="text" id="nombre" name="Nombre" value="@Model.Nombre" />
+                </div>
+
+                <div class="edit-row">
+                    <label for="marca">Marca</label>
+                    <select id="marca" name="Marca">
+                        <option value="@Model.Marca">@Model.Marca</option>
+                        <option value="Genérico">Genérico</option>
+                        <option value="Medifarma">Medifarma</option>
+                        <option value="Inkafarma">Inkafarma</option>
+                        <option value="Laboratorio Portugal">Laboratorio Portugal</option>
+                    </select>
+                </div>
+
+                <div class="edit-row">
+                    <label for="proveedor">Proveedor</label>
+                    <select id="proveedor" name="Proveedor">
+                        <option value="@Model.Proveedor">@Model.Proveedor</option>
+                        <option value="Proveedor A">Proveedor A</option>
+                        <option value="Proveedor B">Proveedor B</option>
+                        <option value="Proveedor C">Proveedor C</option>
+                    </select>
+                </div>
+
+                <div class="edit-row">
+                    <label for="lote">Lote</label>
+                    <input type="text" id="lote" name="Lote" value="@Model.Lote" />
+                </div>
+
+                <div class="edit-row">
+                    <label for="pesoVolumen">Peso / Volumen</label>
+                    <input type="text" id="pesoVolumen" name="PesoVolumen" value="@Model.PesoVolumen" />
+                </div>
+
+                <div class="edit-row">
+                    <label for="unidadMedida">Unidad de medida</label>
+                    <select id="unidadMedida" name="UnidadMedida">
+                        <option value="@Model.UnidadMedida">@Model.UnidadMedida</option>
+                        <option value="ml">Mililitros</option>
+                        <option value="l">Litros</option>
+                        <option value="g">Gramos</option>
+                        <option value="kg">Kilogramos</option>
+                        <option value="unidad">Unidad</option>
+                    </select>
+                </div>
+
+                <div class="edit-row">
+                    <label for="fechaCaducidad">Fecha de caducidad</label>
+                    <input type="date"
+                           id="fechaCaducidad"
+                           name="FechaCaducidad"
+                           value="@(Model.FechaCaducidad.HasValue? Model.FechaCaducidad.Value.ToString("yyyy-MM-dd") : "")" />
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="edit-actions">
+            <a asp-controller="Producto" asp-action="Index" class="btn-descartar">
+                Descartar
+            </a>
+
+            <button type="submit" class="btn-guardar-cambios">
+                Guardar Cambios
+            </button>
+        </div>
+
+    </form>
+
+</div>
