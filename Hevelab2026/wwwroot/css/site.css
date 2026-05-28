@@ -120,7 +120,6 @@ input, select, textarea {
   height: 100vh;
   width: 100%;
   overflow: hidden;
-  position: relative;
 }
 
 /* ---------- Sidebar ---------- */
@@ -368,8 +367,12 @@ input, select, textarea {
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  margin-left: 0;
+  margin-left: var(--sidebar-width);
   transition: margin-left var(--transition-slow);
+}
+
+.hl-sidebar.collapsed ~ .hl-content {
+  margin-left: var(--sidebar-collapsed-w);
 }
 
 @media (max-width: 1023px) {
