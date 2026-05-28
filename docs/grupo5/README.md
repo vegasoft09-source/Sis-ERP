@@ -118,8 +118,10 @@ de módulos. Esta etapa corresponde a mockups funcionales con datos simulados, s
 
 ## Documentación por Módulo
 
-- [Módulo Ventas](./docs/MODULO_VENTAS.md)
-- [Sub-módulo Clientes](./docs/SUBMODULO_CLIENTES.md)
-- [Sub-módulo Cotizaciones](./docs/SUBMODULO_COTIZACIONES.md)
-- [Sub-módulo Órdenes](./docs/SUBMODULO_ORDENES.md)
-- [Módulo Reportes](./docs/MODULO_REPORTES.md)
+| Documento | Descripción |
+|-----------|-------------|
+| [analisis-modulo-ventas.md](./analisis-modulo-ventas.md) | **Análisis integrado** del módulo en `Hevelab2026`: estado, gaps, flujo y priorización |
+| [Documentación/MODULO_VENTAS.md](./Documentación/MODULO_VENTAS.md) | Planificación general Ventas (por completar) |
+| [Documentación/SUBMODULO_CLIENTES.md](./Documentación/SUBMODULO_CLIENTES.md) | Planificación Clientes |
+
+Copias de desarrollo del grupo: `ventas/`, `Cotizaciones/`, `Ordenes/` (referencia; la app integrada está en `Hevelab2026/`).
