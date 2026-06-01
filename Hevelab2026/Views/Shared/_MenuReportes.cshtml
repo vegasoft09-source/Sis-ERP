@@ -1,0 +1,30 @@
+@{
+    var activeMenu = ViewBag.ActiveMenu as string ?? "Ventas";
+}
+<div class="cl-card no-print" style="width: 250px; min-height: 500px; padding: 20px; flex-shrink: 0;">
+    <h3 style="font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
+        Módulos
+    </h3>
+    <div style="display: flex; flex-direction: column; gap: 5px;">
+        <a href="/Reportes/Ventas" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: 600; color: @(activeMenu == "Ventas" ? "#3730a3" : "var(--text-secondary)"); background: @(activeMenu == "Ventas" ? "#eef2ff" : "transparent"); text-decoration: none;">
+            <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            Ventas
+        </a>
+        <a href="/Reportes/Compras" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: 600; color: @(activeMenu == "Compras" ? "#3730a3" : "var(--text-secondary)"); background: @(activeMenu == "Compras" ? "#eef2ff" : "transparent"); text-decoration: none;">
+            <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            Compras
+        </a>
+        <a href="/Reportes/Inventario" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: 600; color: @(activeMenu == "Inventario" ? "#3730a3" : "var(--text-secondary)"); background: @(activeMenu == "Inventario" ? "#eef2ff" : "transparent"); text-decoration: none;">
+            <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2;"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            Inventario
+        </a>
+        <a href="/Reportes/Contabilidad" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: 600; color: @(activeMenu == "Contabilidad" ? "#3730a3" : "var(--text-secondary)"); background: @(activeMenu == "Contabilidad" ? "#eef2ff" : "transparent"); text-decoration: none;">
+            <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2;"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+            Contabilidad
+        </a>
+        <a href="/Reportes/Empleados" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: 600; color: @(activeMenu == "Empleados" ? "#3730a3" : "var(--text-secondary)"); background: @(activeMenu == "Empleados" ? "#eef2ff" : "transparent"); text-decoration: none;">
+            <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Empleados
+        </a>
+    </div>
+</div>

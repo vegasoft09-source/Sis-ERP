@@ -29,5 +29,9 @@ namespace Hevelab2026.Models
         public decimal Descuento { get; set; }
         public decimal Impuestos { get; set; }
         public string Notas { get; set; } = "";
+        public string Direccion { get; set; } = "";
+        public string MetodoPago { get; set; } = "PPD - Por definir";
+
+        public List<CotizacionItem> Items { get; set; } = new();
     }
 }

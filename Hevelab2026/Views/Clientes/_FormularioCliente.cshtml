@@ -1,0 +1,80 @@
+@using Hevelab2026.Models
+@{
+    var modo      = ViewBag.Modo as string ?? "Crear";
+    var cliente   = ViewBag.Cliente as Cliente;
+    var esDetalle = modo == "Detalle";
+    var esEditar  = modo == "Editar" && cliente != null;
+    var esCrear   = modo == "Crear";
+
+    bool esPersona = esCrear ? true : (cliente?.TipoCliente != "Persona Jurídica");
+    string Val(string? v) => string.IsNullOrWhiteSpace(v) ? "—" : v!;
+}
+
+<div class="cl-form@(esDetalle ? " cl-form--readonly" : "")" data-cl-mode="@modo.ToLower()">
+
+    <div class="cl-form__top">
+        <a href="@(esDetalle || esEditar ? "/Clientes/Detalle/" + cliente!.Id : "/Clientes")" class="cl-form__back">
+            <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Volver
+        </a>
+        <div class="cl-form__actions">
+            @if (esDetalle)
+            {
+                <a href="/Clientes" class="cl-form__btn cl-form__btn--ghost">Volver al listado</a>
+                <a href="/Clientes/Formulario/@cliente!.Id" class="cl-form__btn cl-form__btn--primary">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    Editar Cliente
+                </a>
+            }
+            else
+            {
+                <a href="@(esEditar ? "/Clientes/Detalle/" + cliente!.Id : "/Clientes")" class="cl-form__btn cl-form__btn--ghost">Cancelar</a>
+                <button type="submit" form="clienteForm" class="cl-form__btn cl-form__btn--primary">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    @(esEditar ? "Guardar Cambios" : "Registrar Cliente")
+                </button>
+            }
+        </div>
+    </div>
+
+    <div id="formAlert" class="cl-form__alert" role="alert">
+        <span id="formAlertMsg">Por favor corrija los campos marcados antes de enviar.</span>
+    </div>
+
+    @if (esDetalle)
+    {
+        <div id="clienteForm">
+            @await Html.PartialAsync("_ClienteCampos", cliente)
+        </div>
+    }
+    else
+    {
+        <form id="clienteForm" method="post" action="/Clientes/GuardarCliente" novalidate autocomplete="off">
+            @Html.AntiForgeryToken()
+            @if (esEditar)
+            {
+                <input type="hidden" name="Id" value="@cliente!.Id" />
+                <input type="hidden" name="id" value="@cliente!.Id" />
+            }
+            @await Html.PartialAsync("_ClienteCampos", cliente)
+        </form>
+    }
+
+    @if (esDetalle)
+    {
+        <div class="cl-form__metrics">
+            <div class="cl-form__metric">
+                <span class="cl-form__metric-label">Cotizaciones</span>
+                <div class="cl-form__metric-value">4</div>
+            </div>
+            <div class="cl-form__metric">
+                <span class="cl-form__metric-label">Órdenes</span>
+                <div class="cl-form__metric-value">2</div>
+            </div>
+            <div class="cl-form__metric">
+                <span class="cl-form__metric-label">Total Facturado</span>
+                <div class="cl-form__metric-value">S/ 12,400</div>
+            </div>
+        </div>
+    }
+</div>
