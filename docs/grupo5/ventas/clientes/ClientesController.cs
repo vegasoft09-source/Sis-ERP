@@ -341,6 +341,9 @@ namespace Hevelab2026.Controllers
                 clienteExistente.Direccion = cliente.Direccion;
                 clienteExistente.Ciudad = cliente.Ciudad;
                 clienteExistente.LimiteCredito = cliente.LimiteCredito;
+                clienteExistente.PuestoTrabajo = cliente.PuestoTrabajo;
+                clienteExistente.GrupoProveedor = cliente.GrupoProveedor;
+                clienteExistente.GrupoClientes = cliente.GrupoClientes;
                 clienteExistente.Activo = cliente.Activo;
 
                 return RedirectToAction(nameof(Detalle), new { id = clienteExistente.Id });

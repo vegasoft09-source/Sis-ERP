@@ -3,7 +3,7 @@ namespace Hevelab2026.Models;
 public class OrdenVenta
 {
     public string NumeroPedido { get; set; } = "";
-    public string FechaCreacion { get; set; } = "";
+    public DateTime FechaCreacion { get; set; }
     public string Cliente { get; set; } = "";
     public string RazonSocial { get; set; } = "";
     public string Ruc { get; set; } = "";
@@ -18,4 +18,6 @@ public class OrdenVenta
     public decimal Descuento { get; set; }
     public decimal Impuestos { get; set; }
     public string Notas { get; set; } = "";
+
+    public List<OrdenItem> Items { get; set; } = new();
 }

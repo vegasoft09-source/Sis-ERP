@@ -1,185 +1,226 @@
-@using Hevelab2026.Models
-@{
-    var modo = (string)ViewBag.Modo;
-    var cliente = (Cliente?)ViewBag.Cliente;
-    // El breadcrumb y el título ya vienen del controlador
-    bool isJuridica = cliente != null && cliente.TipoCliente == "Persona Jurídica";
-    bool isNatural = cliente != null && cliente.TipoCliente == "Persona Natural";
+@model Hevelab2026.Models.Cliente
 
-    bool isRuc = cliente != null && cliente.TipoDocumento == "RUC";
-    bool isDni = cliente != null && cliente.TipoDocumento == "DNI";
-    bool isCe = cliente != null && cliente.TipoDocumento == "CE";
-    bool isPasaporte = cliente != null && cliente.TipoDocumento == "Pasaporte";
+@{
+    ViewData["Title"] = ViewBag.Modo == "Crear" ? "Nuevo Cliente" : "Editar Cliente";
+    var cliente = ViewBag.Cliente as Hevelab2026.Models.Cliente;
+    var isEdit = ViewBag.Modo == "Editar";
 }
 
-<div class="container-fluid p-0" style="max-width: 900px; margin: 0 auto;">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0" style="color: var(--text-primary); font-weight: 700;">
-                @(modo == "Editar" ? "Editar Cliente" : "Nuevo Cliente")
-            </h1>
-            <p class="mb-0" style="color: var(--text-secondary); font-size: 0.875rem;">
-                @(modo == "Editar" ? "Modifique los campos de la ficha del cliente" : "Registre los datos para dar de alta un nuevo cliente")
-            </p>
-        </div>
-    </div>
-
-    <!-- Alert container for validation -->
-    <div id="formAlert" class="alert alert-danger d-none" role="alert">
-        <strong>Error:</strong> Por favor, corrija los campos marcados en rojo antes de enviar.
-    </div>
-
-    <!-- Form -->
-    <form id="clienteForm" method="post" action="/Clientes/GuardarCliente" novalidate>
-        @Html.AntiForgeryToken()
+<div class="frm-wrap" style="max-width: 1000px;">
+    
+    <!-- Topbar: Back & Analytics -->
+    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <a href="/Clientes" class="frm-back" style="background: transparent; border: none; font-weight: 700; color: var(--sys-primary);">
+            <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            REGRESAR
+        </a>
         
-        @if (modo == "Editar" && cliente != null)
-        {
-            <input type="hidden" name="Id" value="@cliente.Id" />
-            <input type="hidden" name="id" value="@cliente.Id" />
-        }
-
-        <!-- Card 1: Identificación -->
-        <div class="card shadow-sm border mb-4" style="border-radius: 8px;">
-            <div class="card-header bg-transparent py-3" style="border-bottom: 1px solid var(--border-color);">
-                <h5 class="card-title mb-0" style="color: var(--text-primary); font-weight: 600; font-size: 1rem;">1. Identificación del Cliente</h5>
+        <div class="frm-analytics" style="margin-bottom: 0;">
+            <div class="frm-analytic-item">
+                <span class="frm-analytic-label"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> OPORTUNIDADES</span>
+                <span class="frm-analytic-value">0</span>
             </div>
-            <div class="card-body p-4">
-                <div class="row g-3">
-                    @if (modo == "Editar" && cliente != null)
-                    {
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold text-muted small">Código</label>
-                            <input type="text" class="form-control bg-light text-muted font-monospace fw-bold" value="@cliente.Codigo" readonly style="border-color: var(--border-color);" />
-                        </div>
-                        <div class="col-md-8"></div>
-                    }
+            <div class="frm-analytic-item">
+                <span class="frm-analytic-label"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> VENTAS</span>
+                <span class="frm-analytic-value">42</span>
+            </div>
+            <div class="frm-analytic-item">
+                <span class="frm-analytic-label"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> FACTURADO</span>
+                <span class="frm-analytic-value">S/ 1,934.51</span>
+            </div>
+            <div class="frm-analytic-item">
+                <span class="frm-analytic-label" style="color: #e11d48;"><svg viewBox="0 0 24 24" style="color: #e11d48;"><path d="M3 3v18h18"/><line x1="18" y1="9" x2="13" y2="14"/><line x1="13" y1="14" x2="8" y2="9"/><line x1="8" y1="9" x2="3" y2="14"/></svg> ADEUDADO</span>
+                <span class="frm-analytic-value">S/ 2,203.20</span>
+            </div>
+            <div class="frm-analytic-item">
+                <span class="frm-analytic-label"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> REUNIONES</span>
+                <span class="frm-analytic-value">0</span>
+            </div>
+            <div class="frm-analytic-item">
+                <span class="frm-analytic-label"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> TAREAS</span>
+                <span class="frm-analytic-value">0</span>
+            </div>
+            <div class="frm-analytic-item">
+                <span class="frm-analytic-label"><svg viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg> TICKETS</span>
+                <span class="frm-analytic-value">0</span>
+            </div>
+        </div>
+    </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-muted small">Tipo de Cliente</label>
-                        <select class="form-select" name="TipoCliente" id="TipoClienteSelect" style="border-color: var(--border-color); color: var(--text-primary);">
-                            <option value="Persona Jurídica" selected="@isJuridica">Persona Jurídica</option>
-                            <option value="Persona Natural" selected="@isNatural">Persona Natural</option>
+    <form method="post" action="/Clientes/GuardarCliente">
+        @Html.AntiForgeryToken()
+        @if (isEdit) { <input type="hidden" name="Id" value="@cliente.Id" /> }
+        
+        <div class="frm-panel-clean">
+            
+            <div style="display: flex; gap: 40px;">
+                <!-- Avatar area -->
+                <div style="width: 150px; display: flex; flex-direction: column; align-items: center; gap: 15px; padding-top: 20px;">
+                    <div style="width: 120px; height: 120px; border-radius: 50%; border: 2px dashed var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: #f8fafc;">
+                        <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <span style="font-size: 10px; font-weight: 800; color: var(--sys-primary); text-transform: uppercase; cursor: pointer;">Agregar una fotografía</span>
+                </div>
+
+                <!-- Form fields -->
+                <div style="flex: 1;">
+                    <div class="frm-radio-group">
+                        <label class="frm-radio">
+                            <input type="radio" name="TipoCliente" value="Persona Natural" @(isEdit && cliente.TipoCliente == "Persona Natural" ? "checked" : (isEdit ? "" : "checked"))>
+                            <div class="frm-radio-circle"></div>
+                            <span>Persona</span>
+                        </label>
+                        <label class="frm-radio">
+                            <input type="radio" name="TipoCliente" value="Persona Jurídica" @(isEdit && cliente.TipoCliente == "Persona Jurídica" ? "checked" : "")>
+                            <div class="frm-radio-circle"></div>
+                            <span>Empresa</span>
+                        </label>
+                    </div>
+
+                    <div class="frm-grid">
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Nombre Completo / Razón Social</label>
+                            <input type="text" name="RazonSocial" class="frm-input" value="@(isEdit ? cliente.RazonSocial : "")" required />
+                        </div>
+
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Correo Electrónico</label>
+                            <input type="email" name="Email" class="frm-input" value="@(isEdit ? cliente.Email : "")" />
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Puesto de trabajo</label>
+                            <input type="text" name="PuestoTrabajo" class="frm-input" placeholder="Por ejemplo, director de ventas" value="@(isEdit ? cliente.PuestoTrabajo : "")" />
+                        </div>
+
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Número de Identificación</label>
+                            <input type="text" name="NumeroDocumento" class="frm-input" value="@(isEdit ? cliente.NumeroDocumento : "")" />
+                            <input type="hidden" name="TipoDocumento" value="@(isEdit ? cliente.TipoDocumento : "DNI/RUC")" />
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Grupo Proveedor</label>
+                            <select name="GrupoProveedor" class="frm-input frm-select">
+                                <option value="">Seleccionar...</option>
+                                @if (isEdit && cliente.GrupoProveedor == "Nacional") { <option value="Nacional" selected>Nacional</option> } else { <option value="Nacional">Nacional</option> }
+                                @if (isEdit && cliente.GrupoProveedor == "Extranjero") { <option value="Extranjero" selected>Extranjero</option> } else { <option value="Extranjero">Extranjero</option> }
+                            </select>
+                        </div>
+
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Grupo Clientes</label>
+                            <select name="GrupoClientes" class="frm-input frm-select">
+                                <option value="">Seleccionar...</option>
+                                @if (isEdit && cliente.GrupoClientes == "VIP") { <option value="VIP" selected>VIP</option> } else { <option value="VIP">VIP</option> }
+                                @if (isEdit && cliente.GrupoClientes == "Regular") { <option value="Regular" selected>Regular</option> } else { <option value="Regular">Regular</option> }
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Código</label>
+                            <input type="text" name="Codigo" class="frm-input" value="@(isEdit ? cliente.Codigo : "")" @(isEdit ? "readonly class='frm-input frm-input--readonly'" : "") />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dirección de entrega -->
+            <div style="margin-top: 40px;">
+                <h3 style="font-size: 16px; font-weight: 800; color: var(--sys-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.5;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Dirección de entrega
+                </h3>
+                
+                <div class="frm-grid">
+                    <div class="frm-field frm-field--full">
+                        <label class="frm-label">Dirección</label>
+                        <input type="text" name="Direccion" class="frm-input" value="@(isEdit ? cliente.Direccion : "")" />
+                    </div>
+                    
+                    <div class="frm-field" style="grid-column: span 1;">
+                        <label class="frm-label">Distrito</label>
+                        <input type="text" class="frm-input" />
+                    </div>
+                    <div class="frm-field" style="grid-column: span 1;">
+                        <label class="frm-label">Provincia</label>
+                        <input type="text" class="frm-input" value="@(isEdit ? cliente.Ciudad : "")" />
+                        <input type="hidden" name="Ciudad" value="@(isEdit ? cliente.Ciudad : "")" />
+                    </div>
+                    <div class="frm-field" style="grid-column: span 1;">
+                        <label class="frm-label">ZIP</label>
+                        <input type="text" class="frm-input" />
+                    </div>
+                    <div class="frm-field" style="grid-column: span 1;">
+                        <label class="frm-label">País</label>
+                        <select class="frm-input frm-select">
+                            <option>Perú</option>
+                            <option>Costa Rica</option>
+                            <option>México</option>
                         </select>
                     </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-muted small">Tipo de Documento</label>
-                        <select class="form-select" name="TipoDocumento" id="TipoDocumentoSelect" style="border-color: var(--border-color); color: var(--text-primary);">
-                            <option value="RUC" selected="@isRuc">RUC</option>
-                            <option value="DNI" selected="@isDni">DNI</option>
-                            <option value="CE" selected="@isCe">CE</option>
-                            <option value="Pasaporte" selected="@isPasaporte">Pasaporte</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-muted small">N° Documento <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="NumeroDocumento" id="NumeroDocumentoInput" required value="@(cliente != null ? cliente.NumeroDocumento : "")" style="border-color: var(--border-color); color: var(--text-primary);" />
-                        <div class="invalid-feedback">El número de documento es obligatorio.</div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-muted small">Razón Social / Nombres <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="RazonSocial" id="RazonSocialInput" required value="@(cliente != null ? cliente.RazonSocial : "")" style="border-color: var(--border-color); color: var(--text-primary);" />
-                        <div class="invalid-feedback">La Razón Social o Nombres son obligatorios.</div>
-                    </div>
                 </div>
+            </div>
+
+            <!-- Tabs -->
+        <div style="margin-top: 40px;">
+            <div class="frm-tabs" id="cliente-tabs">
+                <button type="button" class="frm-tab active" data-target="tab-contacts">Contacts</button>
+                <button type="button" class="frm-tab" data-target="tab-sales">Sales</button>
+                <button type="button" class="frm-tab" data-target="tab-accounting">Contabilidad</button>
+                <button type="button" class="frm-tab" data-target="tab-assign">Asignación de socio</button>
+                <button type="button" class="frm-tab" data-target="tab-notes">Notes</button>
+            </div>
+            
+            <div id="tab-contacts" class="frm-tab-content" style="display: block;">
+                <table class="frm-table-clean" id="tbl-contacts">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>NOMBRE</th>
+                            <th>RAZÓN SOCIAL</th>
+                            <th>DISTRITO</th>
+                            <th>CORREO ELECTRÓNICO</th>
+                            <th>TELÉFONO</th>
+                            <th>ACTIVIDADES</th>
+                            <th>PAÍS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-contacts">
+                        <tr id="row-add-contact">
+                            <td colspan="8">
+                                <button type="button" onclick="addContactMock()" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                                    <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                                    AGREGAR CONTACTO
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="tab-sales" class="frm-tab-content" style="display: none; padding: 40px 20px; text-align: center; color: var(--text-muted); background: #f8fafc; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 32px; height: 32px; stroke: currentColor; fill: none; stroke-width: 1.5; margin-bottom: 10px;"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <div>No hay ventas registradas para este cliente.</div>
+            </div>
+            <div id="tab-accounting" class="frm-tab-content" style="display: none; padding: 40px 20px; text-align: center; color: var(--text-muted); background: #f8fafc; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 32px; height: 32px; stroke: currentColor; fill: none; stroke-width: 1.5; margin-bottom: 10px;"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                <div>Sin información contable.</div>
+            </div>
+            <div id="tab-assign" class="frm-tab-content" style="display: none; padding: 40px 20px; text-align: center; color: var(--text-muted); background: #f8fafc; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 32px; height: 32px; stroke: currentColor; fill: none; stroke-width: 1.5; margin-bottom: 10px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <div>No hay socios asignados.</div>
+            </div>
+            <div id="tab-notes" class="frm-tab-content" style="display: none; padding: 40px 20px; text-align: center; color: var(--text-muted); background: #f8fafc; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 32px; height: 32px; stroke: currentColor; fill: none; stroke-width: 1.5; margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <div>Sin notas adicionales.</div>
             </div>
         </div>
 
-        <!-- Card 2: Contacto -->
-        <div class="card shadow-sm border mb-4" style="border-radius: 8px;">
-            <div class="card-header bg-transparent py-3" style="border-bottom: 1px solid var(--border-color);">
-                <h5 class="card-title mb-0" style="color: var(--text-primary); font-weight: 600; font-size: 1rem;">2. Información de Contacto</h5>
-            </div>
-            <div class="card-body p-4">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-muted small">Teléfono</label>
-                        <input type="text" class="form-control" name="Telefono" id="TelefonoInput" value="@(cliente != null ? cliente.Telefono : "")" style="border-color: var(--border-color); color: var(--text-primary);" />
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-muted small">Correo Electrónico <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" name="Email" id="EmailInput" required value="@(cliente != null ? cliente.Email : "")" style="border-color: var(--border-color); color: var(--text-primary);" />
-                        <div class="invalid-feedback">Ingrese un correo electrónico válido (ejemplo@dominio.com).</div>
-                    </div>
-
-                    <div class="col-md-8">
-                        <label class="form-label fw-semibold text-muted small">Dirección</label>
-                        <input type="text" class="form-control" name="Direccion" id="DireccionInput" value="@(cliente != null ? cliente.Direccion : "")" style="border-color: var(--border-color); color: var(--text-primary);" />
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold text-muted small">Ciudad</label>
-                        <input type="text" class="form-control" name="Ciudad" id="CiudadInput" value="@(cliente != null ? cliente.Ciudad : "")" style="border-color: var(--border-color); color: var(--text-primary);" />
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- Card 3: Comercial -->
-        <div class="card shadow-sm border mb-4" style="border-radius: 8px;">
-            <div class="card-header bg-transparent py-3" style="border-bottom: 1px solid var(--border-color);">
-                <h5 class="card-title mb-0" style="color: var(--text-primary); font-weight: 600; font-size: 1rem;">3. Datos Comerciales</h5>
-            </div>
-            <div class="card-body p-4">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-muted small">Límite de Crédito (S/)</label>
-                        <input type="number" class="form-control" name="LimiteCredito" id="LimiteCreditoInput" min="0" step="0.01" value="@(cliente != null ? cliente.LimiteCredito.ToString("F2", System.Globalization.CultureInfo.InvariantCulture) : "0.00")" style="border-color: var(--border-color); color: var(--text-primary);" />
-                        <div class="invalid-feedback">El límite de crédito no puede ser menor a 0.</div>
-                    </div>
-
-                    @if (modo == "Editar" && cliente != null)
-                    {
-                        <div class="col-md-6 d-flex align-items-center mt-md-4">
-                            <div class="form-check form-switch p-0 ps-5 mt-2">
-                                <input type="checkbox" class="form-check-input" name="Activo" id="ActivoCheckbox" value="true" @(cliente.Activo ? "checked" : "") style="cursor: pointer; width: 2.5em; height: 1.25em; border-color: var(--border-color);" />
-                                <input type="hidden" name="Activo" value="false" /> <!-- Fallback para binding falso en MVC si no se marca -->
-                                <label class="form-check-label fw-semibold text-muted small ms-2" for="ActivoCheckbox" style="cursor: pointer;">Cliente Activo</label>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <!-- Form Buttons -->
-        <div class="d-flex justify-content-end align-items-center gap-2 mt-4 mb-5">
-            @if (modo == "Editar" && cliente != null)
-            {
-                <a href="/Clientes/Detalle/@cliente.Id" class="btn btn-outline-secondary" style="border-color: var(--border-color); color: var(--text-primary); border-radius: 6px; font-weight: 500;">
-                    Cancelar
-                </a>
-            }
-            else
-            {
-                <a href="/Clientes" class="btn btn-outline-secondary" style="border-color: var(--border-color); color: var(--text-primary); border-radius: 6px; font-weight: 500;">
-                    Cancelar
-                </a>
-            }
-            <button type="submit" class="btn" style="background: var(--sys-primary); color: var(--sys-on-primary); border: none; border-radius: 6px; font-weight: 500; padding: 0.5rem 1.75rem;">
-                Guardar Cliente
+        <div class="frm-actions mb-5" style="justify-content: flex-start; padding-left: 20px;">
+            <button type="submit" class="frm-btn-save" style="background: #3730a3; border-radius: 8px;">
+                Guardar
             </button>
+            <a href="/Clientes" class="frm-btn-cancel" style="background: #fff; border-radius: 8px;">Cancelar</a>
         </div>
     </form>
 </div>
-
-@section Styles {
-    <style>
-        .card { border-color: var(--border-color); background: var(--bg-sidebar); }
-        .form-control:focus, .form-select:focus {
-            border-color: var(--sys-primary) !important;
-            box-shadow: 0 0 0 0.25rem var(--sys-soft) !important;
-            color: var(--text-primary) !important;
-            background-color: var(--bg-sidebar) !important;
-        }
-    </style>
-}
-
-@section Scripts {
-    <script src="~/js/clientes.js" asp-append-version="true"></script>
-}
