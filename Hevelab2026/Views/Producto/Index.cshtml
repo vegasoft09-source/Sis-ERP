@@ -1,0 +1,362 @@
+﻿@{
+    ViewData["Title"] = "Productos";
+}
+
+<style>
+    .productos-page {
+        width: 100%;
+        max-width: 100%;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .productos-content {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .productos-header {
+        margin-bottom: 24px;
+    }
+
+    .productos-header h1 {
+            margin: 0;
+            font-size: 40px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.04em;
+    }
+
+    .productos-header p {
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+    }
+
+    .productos-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        margin-bottom: 32px;
+        padding: 14px;
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .productos-search {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .productos-search input {
+            width: 100%;
+            height: 48px;
+            padding: 0 18px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: #f8fafc;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+    }
+
+    .productos-search input:focus {
+                border-color: var(--sys-primary);
+                background: #ffffff;
+    }
+
+    .productos-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .btn-producto {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 48px;
+        min-width: 160px;
+        padding: 0 22px;
+        border-radius: var(--radius-lg);
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background var(--transition), color var(--transition), border-color var(--transition);
+    }
+
+    .btn-nuevo {
+        background: var(--sys-primary);
+        color: var(--sys-on-primary);
+    }
+
+    .btn-nuevo:hover {
+            background: var(--sys-primary-hover);
+            color: var(--sys-on-primary);
+    }
+
+    .btn-filtrar {
+        background: #ffffff;
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-filtrar:hover {
+            background: #f8fafc;
+            color: var(--text-primary);
+    }
+
+    .productos-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 18px;
+        width: 100%;
+    }
+
+    .producto-card {
+        min-width: 0;
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+        .producto-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+    .producto-placeholder {
+        height: 145px;
+        background: linear-gradient(135deg, #f8fafc, #eef2ff);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .producto-body {
+        padding: 14px;
+    }
+
+    .producto-sku {
+        margin-bottom: 8px;
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .producto-nombre {
+        min-height: 50px;
+        margin-bottom: 14px;
+        color: var(--text-primary);
+        font-size: 17px;
+        font-weight: 800;
+        line-height: 1.25;
+    }
+
+    .producto-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
+
+    .producto-label {
+        color: var(--text-muted);
+        font-weight: 700;
+    }
+
+    .producto-precio {
+        color: var(--text-primary);
+        font-weight: 800;
+    }
+
+    .producto-stock {
+        color: var(--sys-primary);
+        font-weight: 800;
+        text-align: right;
+    }
+
+    .producto-stock-bajo {
+        color: #ef4444;
+        font-weight: 800;
+        text-align: right;
+    }
+
+    .productos-footer {
+        margin-top: 32px;
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .productos-paginacion {
+        margin-top: 16px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .page-btn {
+        width: 40px;
+        height: 40px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        background: #ffffff;
+        color: var(--text-primary);
+        font-weight: 700;
+    }
+
+        .page-btn.active {
+            background: var(--sys-primary);
+            color: var(--sys-on-primary);
+            border-color: var(--sys-primary);
+        }
+
+    @@media (max-width: 1300px) {
+        .productos-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 1050px) {
+        .productos-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .productos-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .productos-actions {
+            width: 100%;
+        }
+
+        .btn-producto {
+            flex: 1;
+        }
+
+        .productos-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .productos-header h1 {
+            font-size: 32px;
+        }
+    }
+
+    @@media (max-width: 520px) {
+        .productos-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .producto-card-link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+
+        .producto-card-link:hover {
+            color: inherit;
+        }
+</style>
+
+<div class="productos-page">
+    <div class="productos-content">
+
+        <div class="productos-header">
+            <h1>Productos</h1>
+            <p>Gestiona tu inventario, precios y trazabilidad de productos.</p>
+        </div>
+
+        <div class="productos-toolbar">
+            <div class="productos-search">
+                <input type="text"
+                       id="txtBuscarProducto"
+                       placeholder="Buscar productos por nombre o SKU..." />
+            </div>
+
+            <div class="productos-actions">
+                <a asp-controller="Producto" asp-action="Create" class="btn-producto btn-nuevo">
+                    + Nuevo Producto
+                </a>
+
+                <button class="btn-producto btn-filtrar" type="button">
+                    Filtrar
+                </button>
+            </div>
+        </div>
+
+        <div class="productos-grid" id="productosGrid">
+
+            @foreach (var producto in Model)
+            {
+                var claseStock = producto.Stock < 0 ? "producto-stock-bajo" : "producto-stock";
+
+                <a asp-controller="Producto"
+                   asp-action="Edit"
+                   asp-route-sku="@producto.Sku"
+                   class="producto-card producto-card-link"
+                   data-sku="@producto.Sku.ToLower()"
+                   data-nombre="@producto.Nombre.ToLower()">
+
+                    <div class="producto-placeholder"></div>
+
+                    <div class="producto-body">
+                        <div class="producto-sku">SKU: @producto.Sku</div>
+
+                        <div class="producto-nombre">
+                            @producto.Nombre
+                        </div>
+
+                        <div class="producto-info">
+                            <span class="producto-label">Precio</span>
+                            <span class="producto-precio">S/ @producto.Precio.ToString("0.00")</span>
+                        </div>
+
+                        <div class="producto-info">
+                            <span class="producto-label">A la mano</span>
+                            <span class="@claseStock">
+                                @producto.Stock @producto.Unidad
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            }
+
+        </div>
+
+        <div class="productos-footer">
+            <div id="productosContador">Mostrando @Model.Count de @Model.Count productos</div>
+
+            <div class="productos-paginacion">
+                <button class="page-btn" type="button">&lt;</button>
+                <button class="page-btn active" type="button">1</button>
+                <button class="page-btn" type="button">&gt;</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/productos.js"></script>
+}

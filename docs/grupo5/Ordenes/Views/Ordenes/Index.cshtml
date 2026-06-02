@@ -1,0 +1,193 @@
+@model List<Hevelab2026.Models.OrdenVenta>
+
+@{
+    ViewData["Title"] = "Órdenes de Venta";
+    ViewData["Breadcrumbs"] = new[] {
+        ("Dashboard", "/"),
+        ("Ventas", "#"),
+        ("Órdenes", "/Ordenes")
+    };
+}
+
+    <!-- KPI ROW -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="cl-kpi">
+                <div class="cl-kpi__icon cl-kpi__icon--blue">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
+                <div>
+                    <div class="cl-kpi__label">TOTAL ÓRDENES</div>
+                    <div class="cl-kpi__value">@Model.Count()</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="cl-kpi">
+                <div class="cl-kpi__icon cl-kpi__icon--green">
+                    <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div>
+                    <div class="cl-kpi__label">FACTURADAS</div>
+                    <div class="cl-kpi__value" style="color: #16a34a;">@Model.Count(o => o.Estado == "FACTURADO POR COMPLETO")</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="cl-kpi">
+                <div class="cl-kpi__icon cl-kpi__icon--primary">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                    <div class="cl-kpi__label">POR FACTURAR</div>
+                    <div class="cl-kpi__value" style="color:var(--sys-primary);">@Model.Count(o => o.Estado == "POR FACTURAR")</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="cl-kpi">
+                <div class="cl-kpi__icon cl-kpi__icon--gray">
+                    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </div>
+                <div>
+                    <div class="cl-kpi__label">BORRADORES</div>
+                    <div class="cl-kpi__value">@Model.Count(o => o.Estado == "BORRADOR")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <div>
+            <h1 class="cl-title">Órdenes de Venta</h1>
+            <p class="cl-subtitle">Gestiona y realiza seguimiento a tus propuestas comerciales.</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="cl-btn-secondary no-print">
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Subir
+            </button>
+            <a href="/Ordenes/Create" class="cl-btn-primary no-print">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Nueva Orden
+            </a>
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="cl-filters mb-3 no-print">
+        <form method="get" action="/Ordenes" class="d-flex flex-wrap gap-2 align-items-center" style="width: 100%;">
+            <div class="cl-search" style="flex: 1;">
+                <svg class="cl-search__ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <input type="text" name="fecha" value="@ViewBag.Fecha" placeholder="Rango de fecha..." class="cl-search__input" />
+            </div>
+
+            <div class="cl-search" style="flex: 2;">
+                <svg class="cl-search__ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" name="busqueda" value="@ViewBag.Busqueda" placeholder="Buscar cliente..." class="cl-search__input" />
+            </div>
+
+            <select name="estado" class="cl-select" style="flex: 1;">
+                <!option value="TODOS" @(ViewBag.Estado == "TODOS" || ViewBag.Estado == null ? "selected" : "")>Todos los estados</!option>
+                <!option value="BORRADOR" @(ViewBag.Estado == "BORRADOR" ? "selected" : "")>Borrador</!option>
+                <!option value="POR FACTURAR" @(ViewBag.Estado == "POR FACTURAR" ? "selected" : "")>Por facturar</!option>
+                <!option value="FACTURADO POR COMPLETO" @(ViewBag.Estado == "FACTURADO POR COMPLETO" ? "selected" : "")>Facturado</!option>
+            </select>
+
+            <button type="submit" class="cl-btn-secondary">
+                <svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                Filtrar
+            </button>
+        </form>
+    </div>
+
+    <!-- TABLA -->
+    <div class="cl-card">
+        <div class="cl-table-wrap">
+            <table class="cl-table">
+                <thead>
+                    <tr>
+                        <th class="cl-th" style="width:120px;">Número</th>
+                        <th class="cl-th">Cliente</th>
+                        <th class="cl-th cl-hide-sm">RUC/DNI</th>
+                        <th class="cl-th cl-hide-sm">Cond. Pago</th>
+                        <th class="cl-th cl-hide-md">Razón Social</th>
+                        <th class="cl-th cl-hide-sm">Fecha</th>
+                        <th class="cl-th cl-hide-sm" style="text-align: right;">Impuestos</th>
+                        <th class="cl-th" style="text-align: right;">Total</th>
+                        <th class="cl-th" style="text-align: center;">Estado</th>
+                        <th class="cl-th no-print" style="width:100px; text-align: center;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="10" class="cl-empty" style="text-align:center; padding: 40px; color: var(--text-muted);">
+                                <svg viewBox="0 0 24 24" style="width:40px; height:40px; stroke:currentColor; fill:none; margin-bottom:10px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <br/>
+                                No se encontraron órdenes con los filtros aplicados.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var orden in Model)
+                        {
+                            <tr class="cl-tr" style="cursor: pointer;" ondblclick="window.location.href='/Ordenes/Details/@orden.NumeroPedido'" title="Doble clic para ver detalle">
+                                <td class="cl-td"><a href="/Ordenes/Details/@orden.NumeroPedido" class="cl-code" style="color:var(--sys-primary);">@orden.NumeroPedido</a></td>
+                                <td class="cl-td" style="font-weight: 600; color: var(--text-primary);">@orden.Cliente</td>
+                                <td class="cl-td cl-hide-sm"><span class="cl-mono">@orden.Ruc</span></td>
+                                <td class="cl-td cl-hide-sm" style="color: var(--text-secondary);">@orden.CondicionPago</td>
+                                <td class="cl-td cl-hide-md" style="color: var(--text-muted); font-size: 11.5px;"><em>@orden.RazonSocial</em></td>
+                                <td class="cl-td cl-hide-sm">@orden.FechaCreacion.ToString("dd/MMM/yyyy")</td>
+                                <td class="cl-td cl-hide-sm" style="text-align: right; font-weight: 600;">@(orden.Moneda == "PEN" ? "S/ " : "$")@orden.Impuestos.ToString("N2")</td>
+                                <td class="cl-td" style="text-align: right; font-weight: 800; color: var(--text-primary);">@(orden.Moneda == "PEN" ? "S/ " : "$")@orden.Total.ToString("N2")</td>
+                                <td class="cl-td" style="text-align: center;">
+                                    @if (orden.Estado == "BORRADOR")
+                                    {
+                                        <span class="cl-badge cl-badge--gray">BORRADOR</span>
+                                    }
+                                    else if (orden.Estado == "POR FACTURAR")
+                                    {
+                                        <span class="cl-badge cl-badge--blue">POR FACTURAR</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="cl-badge cl-badge--green">FACTURADO</span>
+                                    }
+                                </td>
+                                <td class="cl-td no-print" style="text-align: center;">
+                                    <div class="cl-actions">
+                                        <a href="/Ordenes/Details/@orden.NumeroPedido" class="cl-act" title="Ver Detalle">
+                                            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        </a>
+                                        <a href="/Ordenes/Edit/@orden.NumeroPedido" class="cl-act" title="Editar">
+                                            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+        <!-- PAGINATION -->
+        <div class="cl-foot">
+            <span>Mostrando <strong>@Model.Count</strong> órdenes de venta</span>
+            <div class="frm-page-numbers" style="display:flex; gap:5px;">
+                <button type="button" class="cl-act"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+                <button type="button" class="cl-act" style="background:var(--sys-primary); color:white; border-color:var(--sys-primary);">1</button>
+                <button type="button" class="cl-act">2</button>
+                <button type="button" class="cl-act">3</button>
+                <span style="display:flex; align-items:flex-end; padding:0 5px;">...</span>
+                <button type="button" class="cl-act">25</button>
+                <button type="button" class="cl-act"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+            </div>
+        </div>
+    </div>

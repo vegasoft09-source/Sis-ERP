@@ -1,0 +1,234 @@
+@model Hevelab2026.Models.Auth.LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+@* ═══════ PANEL IZQUIERDO: Brand ═══════ *@
+<div class="auth-left">
+    <div class="brand-block">
+        <div class="auth-brand-inner">
+            @* Si tienes logo usa la imagen; si no, usa los puntos *@
+            <img src="~/img/Logos/vission.png"
+                 alt="HeveLab"
+                 class="brand-logo"
+                 onerror="this.style.display='none'; document.getElementById('brandDots').style.display='grid';" />
+            <div class="brand-dots" id="brandDots" style="display:none;">
+                <span></span><span></span>
+                <span></span><span></span>
+                <span></span><span></span>
+            </div>
+        </div>
+        <span class="brand-name">HeveLab</span>
+    </div>
+</div>
+
+@* ═══════ DIVISOR ═══════ *@
+<div class="auth-divider"></div>
+
+@* ═══════ PANEL DERECHO: Formulario ═══════ *@
+<div class="auth-right">
+    <div class="auth-form-wrap">
+
+        @* Error de credenciales *@
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+        {
+            <div class="auth-error" role="alert">
+                @foreach (var err in ViewData.ModelState[string.Empty]!.Errors)
+                {
+                    <span>@err.ErrorMessage</span>
+                }
+            </div>
+        }
+
+        @* Encabezado de Avatar de Usuario *@
+        <div class="auth-avatar-header">
+            <div class="auth-avatar-icon">
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+            </div>
+            <h1 class="auth-form-title">Bienvenido</h1>
+            <p class="auth-form-subtitle">Ingresa tus credenciales para continuar</p>
+        </div>
+
+        @* Alerta de Notificación de Soporte *@
+        <div id="supportAlert" class="auth-support-alert" style="display: none;">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="12" y1="16" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
+                <line x1="12" y1="8" x2="12.01" y2="8" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>Se ha enviado una notificación al área de soporte técnico. Serás contactado a la brevedad.</span>
+        </div>
+
+        <form id="loginForm" method="post" action="/Auth/Login" novalidate>
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ReturnUrl" />
+
+            @* Usuario *@
+            <div class="auth-field">
+                <input asp-for="NombreUsuario"
+                       id="NombreUsuario"
+                       class="auth-input @(ViewData.ModelState["NombreUsuario"]?.Errors.Count > 0 ? "is-invalid" : "")"
+                       placeholder="Usuario"
+                       autocomplete="username"
+                       autofocus
+                       spellcheck="false" />
+                <span asp-validation-for="NombreUsuario"
+                      style="color:#ef4444;font-size:.78rem;display:block;margin-top:.35rem;padding-left:.25rem;"></span>
+            </div>
+
+            @* Contraseña *@
+            <div class="auth-field">
+                <input asp-for="Contrasena"
+                       id="Contrasena"
+                       type="password"
+                       class="auth-input auth-input-has-toggle @(ViewData.ModelState["Contrasena"]?.Errors.Count > 0 ? "is-invalid" : "")"
+                       placeholder="Contraseña"
+                       autocomplete="current-password" />
+                <button type="button"
+                        id="pwdToggle"
+                        class="auth-pwd-toggle"
+                        aria-label="Mostrar contraseña">
+                    <svg id="eyeIcon" viewBox="0 0 24 24">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </button>
+                <span asp-validation-for="Contrasena"
+                      style="color:#ef4444;font-size:.78rem;display:block;margin-top:.35rem;padding-left:.25rem;"></span>
+            </div>
+
+            @* Botón *@
+            <button type="submit" id="btnLogin" class="auth-btn">
+                Ingresar
+            </button>
+        </form>
+
+        @* Links inferiores *@
+        <div class="auth-links">
+            <a href="#" id="btnSoporte">Soporte Técnico</a>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    /* Cabecera del Avatar de Usuario */
+    .auth-avatar-header {
+        text-align: center;
+        margin-bottom: 1.8rem;
+        animation: authAlertIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .auth-avatar-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(37, 99, 235, 0.05);
+        border: 1px solid rgba(37, 99, 235, 0.12);
+        color: var(--accent);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.8rem;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.04);
+        transition: transform 0.3s ease;
+    }
+    .auth-avatar-icon:hover {
+        transform: scale(1.05);
+    }
+    .auth-form-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.25rem;
+        letter-spacing: -0.01em;
+    }
+    .auth-form-subtitle {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+    }
+
+    /* Logo o dots al lado del nombre */
+    .auth-brand-inner {
+        display: flex;
+        align-items: center;
+    }
+    .brand-logo {
+        height: 48px;
+        width: auto;
+        object-fit: contain;
+        margin-right: .6rem;
+    }
+    .brand-dots {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+        margin-right: .85rem;
+    }
+    .brand-dots span {
+        width: 9px; height: 9px;
+        border-radius: 50%;
+        background: var(--accent);
+        display: block;
+    }
+    /* Alerta de notificación de soporte */
+    .auth-support-alert {
+        background: rgba(37, 99, 235, 0.06);
+        border: 1px solid rgba(37, 99, 235, 0.25);
+        border-radius: var(--radius);
+        padding: .85rem 1.1rem;
+        font-size: .84rem;
+        color: #1e40af;
+        margin-bottom: 1.2rem;
+        display: flex;
+        gap: .75rem;
+        align-items: flex-start;
+    }
+    .auth-support-alert svg {
+        flex-shrink: 0;
+        color: var(--accent);
+        margin-top: 2px;
+    }
+    
+    @@keyframes authAlertIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Toggle visibilidad contraseña
+        const pwdToggle = document.getElementById('pwdToggle');
+        const pwdInput  = document.getElementById('Contrasena');
+        const eyeIcon   = document.getElementById('eyeIcon');
+        const svgOpen   = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+        const svgClosed = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+
+        pwdToggle.addEventListener('click', () => {
+            const isPassword = pwdInput.type === 'password';
+            pwdInput.type     = isPassword ? 'text' : 'password';
+            eyeIcon.innerHTML = isPassword ? svgClosed : svgOpen;
+        });
+
+        // Anti-doble envío
+        document.getElementById('loginForm').addEventListener('submit', function () {
+            const btn    = document.getElementById('btnLogin');
+            btn.disabled = true;
+            btn.textContent = 'Verificando...';
+        });
+
+        // Soporte Técnico alerta
+        const btnSoporte = document.getElementById('btnSoporte');
+        const supportAlert = document.getElementById('supportAlert');
+        btnSoporte.addEventListener('click', (e) => {
+            e.preventDefault();
+            supportAlert.style.display = 'flex';
+            supportAlert.style.animation = 'authAlertIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both';
+        });
+    </script>
+}

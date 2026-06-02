@@ -1,0 +1,297 @@
+@model Hevelab2026.Models.OrdenVenta
+
+@{
+    ViewData["Title"] = "Detalle de Orden";
+}
+
+<div class="frm-wrap" style="max-width: 1100px;">
+    
+    <!-- Topbar: Back & Breadcrumb & Stepper -->
+    <div class="no-print" style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 15px; font-weight: 800; font-size: 13px;">
+            <a href="/Ordenes" class="frm-back no-print" style="background: transparent; border: none; color: #3730a3; display: flex; align-items: center; gap: 5px;">
+                <svg viewBox="0 0 24 24" style="width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2;"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Regresar
+            </a>
+            <div style="color: var(--text-muted); display: flex; gap: 10px;">
+                <svg viewBox="0 0 24 24" style="width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <svg viewBox="0 0 24 24" style="width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2;"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                <svg viewBox="0 0 24 24" style="width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+        </div>
+        
+        <div class="frm-stepper" style="background: #e2e8f0; padding: 4px; border-radius: 6px;">
+            <span class="frm-step active" style="font-size: 11px; padding: 4px 12px; background: white; border-radius: 4px; box-shadow: var(--shadow-sm); color: var(--text-primary);">COTIZACIÓN</span>
+            <span class="frm-step" style="color: var(--text-muted); font-size: 11px; padding: 4px 12px; border: none;">COTIZACIÓN ENVIADA</span>
+            <span class="frm-step" style="color: var(--text-muted); font-size: 11px; padding: 4px 12px; border: none;">ORDEN DE VENTA</span>
+        </div>
+    </div>
+
+    <!-- Botonera -->
+    <div class="no-print" style="display: flex; gap: 10px; margin-bottom: 30px; align-items: center;">
+        <button class="frm-btn-save" style="background: #3730a3; border-radius: 8px; font-size: 13px; font-weight: 800;">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Confirmar
+        </button>
+        <button class="frm-btn-cancel" style="background: #e2e8f0; border: none; color: #475569; border-radius: 8px; font-size: 13px; font-weight: 800;">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Enviar
+        </button>
+        <button class="frm-btn-cancel" style="background: #e2e8f0; border: none; color: #475569; border-radius: 8px; font-size: 13px; font-weight: 800;" onclick="window.print()">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Imprimir
+        </button>
+        <button class="frm-btn-cancel" style="background: transparent; border: none; color: #e11d48; border-radius: 8px; font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 5px;">
+            <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; color: #e11d48;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            Cancelar
+        </button>
+    </div>
+
+    <!-- Main Panel -->
+    <div class="frm-panel-clean" style="padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+        
+        <!-- Header Info -->
+        <div style="margin-bottom: 40px; display: flex; gap: 40px;">
+            <!-- Col 1 -->
+            <div style="flex: 2;">
+                <div style="margin-bottom: 25px;">
+                    <div class="frm-label" style="font-size: 10px; margin-bottom: 8px; color: var(--text-muted);">ID DE COTIZACIÓN</div>
+                    <div style="font-size: 32px; font-weight: 900; color: #3730a3;">@Model.NumeroPedido</div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="frm-label" style="font-size: 10px; margin-bottom: 8px; color: var(--text-muted);">CLIENTE</div>
+                    <div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">@Model.Cliente</div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="frm-label" style="font-size: 10px; margin-bottom: 8px; color: var(--text-muted);">RUC</div>
+                    <div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">@Model.Ruc</div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="frm-label" style="font-size: 10px; margin-bottom: 8px; color: var(--text-muted);">DIRECCIÓN</div>
+                    <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">Av. Reforma 405, Ciudad de México</div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="frm-label" style="font-size: 10px; margin-bottom: 8px; color: var(--text-muted);">FECHA DE EMISIÓN</div>
+                    <div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">24 de Mayo, 2024</div>
+                </div>
+            </div>
+
+            <!-- Col 2 -->
+            <div style="flex: 1;">
+                <div style="margin-bottom: 20px; margin-top: 60px;">
+                    <div class="frm-label" style="font-size: 10px; margin-bottom: 8px; color: var(--text-muted);">MÉTODO DE PAGO</div>
+                    <div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">@Model.CondicionPago</div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="frm-label" style="font-size: 10px; margin-bottom: 8px; color: var(--text-muted);">MONEDA</div>
+                    <div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">@(Model.Moneda == "PEN" ? "PEN - Soles" : "MXN - Peso Mexicano")</div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="frm-label" style="font-size: 10px; margin-bottom: 8px; color: var(--text-muted);">VENDEDOR</div>
+                    <div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">@Model.Vendedor</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: LÍNEAS DE FACTURA -->
+        <div style="margin-top: 30px;">
+            <div class="frm-label" style="font-size: 11px; margin-bottom: 15px; color: var(--text-secondary);">DETALLE DE PRODUCTOS Y SERVICIOS</div>
+            
+            <table class="frm-table-clean" style="margin-bottom: 0; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color); width: 100%;">
+                <thead>
+                    <tr>
+                        <th style="font-size: 10px; padding: 15px;">ITEM</th>
+                        <th style="font-size: 10px; padding: 15px;">CÓDIGO</th>
+                        <th style="font-size: 10px; padding: 15px;">DESCRIPCIÓN</th>
+                        <th style="font-size: 10px; padding: 15px; text-align: center;">STOCK</th>
+                        <th style="font-size: 10px; padding: 15px; text-align: right;">CANTIDAD</th>
+                        <th style="font-size: 10px; padding: 15px; text-align: right;">DESCUENTO</th>
+                        <th style="font-size: 10px; padding: 15px;">UNIDAD</th>
+                        <th style="font-size: 10px; padding: 15px; text-align: right;">PRECIO UNITARIO</th>
+                        <th style="font-size: 10px; padding: 15px; text-align: right;">PRECIO IGV</th>
+                        <th style="font-size: 10px; padding: 15px; text-align: right;">IMPORTE</th>
+                    </tr>
+                </thead>
+                <tbody style="background: white;" id="products-tbody">
+                    <!-- Ejemplo fila 1 -->
+                    <tr>
+                        <td style="font-size: 12px; color: var(--text-muted);">1</td>
+                        <td style="font-size: 12px; font-weight: 800; color: #3730a3;">MAT-0092</td>
+                        <td>
+                            <div style="font-size: 12px; font-weight: 800; color: var(--text-primary);">Vigueta de Acero Estructural</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Calibre 14, 6m galvanizado</div>
+                        </td>
+                        <td style="font-size: 12px; font-weight: 700; text-align: center; color: var(--text-primary);">150.00</td>
+                        <td style="text-align: right;"><input type="number" value="50" style="width: 60px; text-align: right; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-weight: 800; font-size: 12px;" /></td>
+                        <td style="font-size: 12px; font-weight: 700; text-align: right; color: var(--text-primary);">0.00%</td>
+                        <td style="font-size: 11px; font-weight: 800; color: var(--text-muted);">UND</td>
+                        <td style="font-size: 12px; font-weight: 800; text-align: right; color: var(--text-primary);">$1,240</td>
+                        <td style="font-size: 12px; font-weight: 800; text-align: right; color: var(--text-primary);">$9,920.00</td>
+                        <td style="font-size: 13px; font-weight: 900; text-align: right; color: var(--text-primary);">$62,000.00</td>
+                    </tr>
+                    <!-- Ejemplo fila 2 -->
+                    <tr>
+                        <td style="font-size: 12px; color: var(--text-muted);">2</td>
+                        <td style="font-size: 12px; font-weight: 800; color: #3730a3;">CON-0155</td>
+                        <td>
+                            <div style="font-size: 12px; font-weight: 800; color: var(--text-primary);">Concreto Premezclado f'c=250</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Resistencia estándar, con bomba</div>
+                        </td>
+                        <td style="font-size: 12px; font-weight: 700; text-align: center; color: var(--text-primary);">500.00</td>
+                        <td style="text-align: right;"><input type="number" value="12" style="width: 60px; text-align: right; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-weight: 800; font-size: 12px;" /></td>
+                        <td style="font-size: 12px; font-weight: 700; text-align: right; color: var(--text-primary);">5.00%</td>
+                        <td style="font-size: 11px; font-weight: 800; color: var(--text-muted);">M3</td>
+                        <td style="font-size: 12px; font-weight: 800; text-align: right; color: var(--text-primary);">$2,150</td>
+                        <td style="font-size: 12px; font-weight: 800; text-align: right; color: var(--text-primary);">$3,921.60</td>
+                        <td style="font-size: 13px; font-weight: 900; text-align: right; color: var(--text-primary);">$24,510.00</td>
+                    </tr>
+                    <!-- Ejemplo fila 3 -->
+                    <tr>
+                        <td style="font-size: 12px; color: var(--text-muted);">3</td>
+                        <td style="font-size: 12px; font-weight: 800; color: #3730a3;">SRV-0004</td>
+                        <td>
+                            <div style="font-size: 12px; font-weight: 800; color: var(--text-primary);">Asesoría Técnica Especializada</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Revisión planos y cálculo carga</div>
+                        </td>
+                        <td style="font-size: 12px; font-weight: 700; text-align: center; color: var(--text-muted);">--</td>
+                        <td style="text-align: right;"><input type="number" value="5" style="width: 60px; text-align: right; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-weight: 800; font-size: 12px;" /></td>
+                        <td style="font-size: 12px; font-weight: 700; text-align: right; color: var(--text-primary);">0.00%</td>
+                        <td style="font-size: 11px; font-weight: 800; color: var(--text-muted);">HRS</td>
+                        <td style="font-size: 12px; font-weight: 800; text-align: right; color: var(--text-primary);">$850</td>
+                        <td style="font-size: 12px; font-weight: 800; text-align: right; color: var(--text-primary);">$680.00</td>
+                        <td style="font-size: 13px; font-weight: 900; text-align: right; color: var(--text-primary);">$4,250.00</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="padding: 15px 20px; border-top: none; display: flex; gap: 20px; background: white;">
+                <button type="button" class="no-print" onclick="document.getElementById('modal-productos').style.display='flex'" style="background:none; border:none; color:#3730a3; font-size:10px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                    <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> AGREGAR UN PRODUCTO
+                </button>
+                <button type="button" class="no-print" style="background:none; border:none; color:#3730a3; font-size:10px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                    <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> AGREGAR UNA SECCIÓN
+                </button>
+                <button type="button" class="no-print" style="background:none; border:none; color:#3730a3; font-size:10px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                    <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> AGREGAR UNA NOTA
+                </button>
+                <button type="button" class="no-print" style="background:none; border:none; color:#3730a3; font-size:10px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                    <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> CATÁLOGO
+                </button>
+            </div>
+
+            <!-- Footer Totales -->
+            <div style="display: flex; justify-content: space-between; margin-top: 40px; align-items: flex-end;">
+                <div style="flex: 1; padding-right: 40px;">
+                    <div style="border-left: 4px solid #3730a3; padding-left: 15px;">
+                        <div style="font-size: 11px; font-weight: 800; color: #3730a3; text-transform: uppercase; margin-bottom: 5px;">NOTAS IMPORTANTES</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; font-weight: 500;">
+                            Los precios mostrados no incluyen flete fuera del área metropolitana. La entrega se realiza en un periodo de 3 a 5 días hábiles una vez confirmado el anticipo del 50%. Vigencia de cotización: 15 días.
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="width: 300px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size: 12px; font-weight: 700; padding: 0 15px;">
+                        <span style="color:var(--text-muted);">Subtotal:</span>
+                        <span style="color:var(--text-primary); font-weight: 800;">$90,760.00</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size: 12px; font-weight: 700; padding: 0 15px;">
+                        <span style="color:var(--text-muted);">IVA / IGV (16%):</span>
+                        <span style="color:var(--text-primary); font-weight: 800;">$14,521.60</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-size: 12px; font-weight: 700; padding: 0 15px;">
+                        <span style="color:var(--text-muted);">Retención:</span>
+                        <span style="color:var(--text-primary); font-weight: 800;">$0.00</span>
+                    </div>
+
+                    <div style="background: #eef2ff; padding: 15px 25px; border-radius: 12px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:11px; font-weight:800; color:#3730a3; text-transform:uppercase;">TOTAL COTIZADO</span>
+                        <span style="font-size:24px; font-weight:900; color:#312e81;">$105,281.60</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: right; margin-top: 50px; font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">
+                DOCUMENTO GENERADO DIGITALMENTE POR HEVELAB ERP - S00934
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Buscar Productos -->
+<div id="modal-productos" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:12px; width:100%; max-width:800px; padding:30px; box-shadow:0 10px 30px rgba(0,0,0,0.15);">
+        
+        <div style="position: relative; margin-bottom: 20px;">
+            <svg viewBox="0 0 24 24" style="position:absolute; left:15px; top:12px; width:18px; height:18px; stroke:var(--text-muted); fill:none; stroke-width:2;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Buscar por código o descripción..." style="width:100%; padding:12px 15px 12px 40px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; font-family:inherit; outline:none;" />
+        </div>
+
+        <table class="frm-table-clean" style="margin-bottom: 30px;">
+            <thead style="background: #f8fafc;">
+                <tr>
+                    <th style="width: 50px;"></th>
+                    <th style="font-size: 10px;">CÓDIGO</th>
+                    <th style="font-size: 10px;">DESCRIPCIÓN</th>
+                    <th style="font-size: 10px; text-align: center;">STOCK</th>
+                    <th style="font-size: 10px;">UNIDAD</th>
+                    <th style="font-size: 10px; text-align: right;">PRECIO UNITARIO</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="radio" name="prod" style="width:16px; height:16px; accent-color: #3730a3;"></td>
+                    <td style="font-weight: 800; color: #3730a3;">IND-882-X</td>
+                    <td style="font-weight: 700; color: var(--text-primary);">Motor Eléctrico Trifásico 10HP</td>
+                    <td style="font-weight: 800; text-align: center;">12.00</td>
+                    <td style="font-weight: 700; color: var(--text-muted);">PZA</td>
+                    <td style="font-weight: 800; text-align: right;">$1,450.00</td>
+                </tr>
+                <tr>
+                    <td><input type="radio" name="prod" style="width:16px; height:16px; accent-color: #3730a3;"></td>
+                    <td style="font-weight: 800; color: #3730a3;">VAL-001-B</td>
+                    <td style="font-weight: 700; color: var(--text-primary);">Válvula de Control 2" Inox</td>
+                    <td style="font-weight: 800; text-align: center;">45.00</td>
+                    <td style="font-weight: 700; color: var(--text-muted);">PZA</td>
+                    <td style="font-weight: 800; text-align: right;">$280.00</td>
+                </tr>
+                <tr style="background: #f8fafc;">
+                    <td><input type="radio" name="prod" checked style="width:16px; height:16px; accent-color: #3730a3;"></td>
+                    <td style="font-weight: 800; color: #3730a3;">TUB-GP-04</td>
+                    <td style="font-weight: 700; color: var(--text-primary);">Tubería Galvanizada 4" Cédula 40</td>
+                    <td style="font-weight: 800; text-align: center;">120.00</td>
+                    <td style="font-weight: 700; color: var(--text-muted);">MTS</td>
+                    <td style="font-weight: 800; text-align: right;">$42.50</td>
+                </tr>
+                <tr>
+                    <td><input type="radio" name="prod" style="width:16px; height:16px; accent-color: #3730a3;"></td>
+                    <td style="font-weight: 800; color: #3730a3;">FIL-HE-99</td>
+                    <td style="font-weight: 700; color: var(--text-primary);">Filtro HEPA Industrial</td>
+                    <td style="font-weight: 800; text-align: center; color: #e11d48;">3.00</td>
+                    <td style="font-weight: 700; color: var(--text-muted);">KIT</td>
+                    <td style="font-weight: 800; text-align: right;">$185.00</td>
+                </tr>
+                <tr>
+                    <td><input type="radio" name="prod" style="width:16px; height:16px; accent-color: #3730a3;"></td>
+                    <td style="font-weight: 800; color: #3730a3;">CAB-CO-10</td>
+                    <td style="font-weight: 700; color: var(--text-primary);">Cable Cobre Calibre 10 AWG</td>
+                    <td style="font-weight: 800; text-align: center;">500.00</td>
+                    <td style="font-weight: 700; color: var(--text-muted);">MTS</td>
+                    <td style="font-weight: 800; text-align: right;">$18.25</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="display: flex; justify-content: flex-end; gap: 15px;">
+            <button type="button" onclick="document.getElementById('modal-productos').style.display='none'" style="background: transparent; border: none; font-weight: 800; font-size: 13px; color: var(--text-secondary); cursor: pointer;">Cancelar</button>
+            <button type="button" onclick="document.getElementById('modal-productos').style.display='none'" style="background: #3730a3; border: none; padding: 12px 24px; border-radius: 8px; color: white; font-weight: 800; font-size: 13px; cursor: pointer;">Agregar seleccionados</button>
+        </div>
+    </div>
+</div>

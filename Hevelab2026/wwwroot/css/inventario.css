@@ -1,0 +1,62 @@
+﻿/* Grupo de navegación con submenú */
+.hl-nav-group {
+    width: 100%;
+}
+
+/* Botón padre: Inventario */
+.hl-nav-parent {
+    width: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* Flecha del submenú */
+.hl-submenu-arrow {
+    margin-left: auto;
+    transition: transform 0.2s ease;
+}
+
+/* Contenedor del submenú */
+.hl-submenu {
+    display: none;
+    margin-left: 34px;
+    margin-top: 6px;
+    padding-left: 10px;
+    border-left: 2px solid var(--sys-border);
+}
+
+/* Cuando el grupo está abierto */
+.hl-nav-group.open .hl-submenu {
+    display: block;
+}
+
+/* Rotar flecha cuando está abierto */
+.hl-nav-group.open .hl-submenu-arrow {
+    transform: rotate(180deg);
+}
+
+/* Links internos */
+.hl-submenu-link {
+    display: block;
+    padding: 9px 12px;
+    margin-bottom: 4px;
+    border-radius: 10px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+    .hl-submenu-link:hover {
+        background: var(--sys-soft-bg);
+        color: var(--sys-primary);
+    }
+
+    /* Subcategoría activa */
+    .hl-submenu-link.active {
+        background: var(--sys-soft);
+        color: var(--sys-primary);
+        font-weight: 600;
+    }
