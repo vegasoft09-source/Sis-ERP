@@ -38,4 +38,8 @@ public interface ICompraService
     Task<IReadOnlyList<SolicitudCotizacionVm>> GetSolicitudesAsync(CancellationToken ct = default);
     Task<IReadOnlyList<OrdenCompraVm>> GetOrdenesCompraAsync(CancellationToken ct = default);
     Task<IReadOnlyList<ProveedorVm>> GetProveedoresAsync(string? search, CancellationToken ct = default);
+    Task<int> CrearProveedorAsync(int empresaId, string razonSocial, string tipoDoc, string numeroDoc,
+        string? telefono, string? email, string? direccion, CancellationToken ct = default);
+    Task<int> CrearSolicitudAsync(int empresaId, int proveedorId, string? referencia, DateTime? fechaLimite,
+        decimal total, string? observaciones, int? compradorId, CancellationToken ct = default);
 }

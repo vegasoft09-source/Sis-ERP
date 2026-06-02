@@ -1,4 +1,5 @@
 using Hevelab2026.Data;
+using Hevelab2026.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hevelab2026.Services.Compras;
@@ -12,7 +13,38 @@ public class CompraService : ICompraService
     public async Task<IReadOnlyList<SolicitudCotizacionVm>> GetSolicitudesAsync(CancellationToken ct = default)
     {
         if (_db.IsMySql)
-            return Array.Empty<SolicitudCotizacionVm>();
+        {
+            var borradorIds = await _db.EstadosPedidoCompra
+                .Where(e => e.Codigo == "BORRADOR" || e.Nombre.Contains("Borrador") || e.Nombre.Contains("Nuevo"))
+                .Select(e => e.Id)
+                .ToListAsync(ct);
+
+            var q = _db.PedidosCompra
+                .Include(p => p.Proveedor)
+                .Include(p => p.EstadoPedido)
+                .AsNoTracking();
+
+            if (borradorIds.Count > 0)
+                q = q.Where(p => borradorIds.Contains(p.EstadoPedidoCompraId)
+                    || p.NumeroDocumento.StartsWith("SOL")
+                    || p.NumeroDocumento.StartsWith("RFQ"));
+            else
+                q = q.Where(p => p.NumeroDocumento.StartsWith("SOL") || p.NumeroDocumento.StartsWith("RFQ"));
+
+            return await q.OrderByDescending(p => p.FechaEmision)
+                .Select(p => new SolicitudCotizacionVm
+                {
+                    Id = p.Id,
+                    Referencia = p.NumeroDocumento,
+                    Proveedor = p.Proveedor != null ? p.Proveedor.RazonSocial : "",
+                    Comprador = "",
+                    FechaCreacion = p.FechaEmision,
+                    FechaLimite = null,
+                    Total = p.Total,
+                    Estado = p.EstadoPedido != null ? p.EstadoPedido.Nombre : "Borrador"
+                })
+                .ToListAsync(ct);
+        }
 
         return await _db.SolicitudesCotizacion
             .Include(s => s.Proveedor)
@@ -32,12 +64,26 @@ public class CompraService : ICompraService
             .ToListAsync(ct);
     }
 
-    public async Task<IReadOnlyList<OrdenCompraVm>> GetOrdenesCompraAsync(CancellationToken ct = default) =>
-        await _db.PedidosCompra
+    public async Task<IReadOnlyList<OrdenCompraVm>> GetOrdenesCompraAsync(CancellationToken ct = default)
+    {
+        var borradorIds = await _db.EstadosPedidoCompra
+            .Where(e => e.Codigo == "BORRADOR" || e.Nombre.Contains("Borrador"))
+            .Select(e => e.Id)
+            .ToListAsync(ct);
+
+        var q = _db.PedidosCompra
             .Include(p => p.Proveedor)
             .Include(p => p.EstadoPedido)
-            .AsNoTracking()
-            .OrderByDescending(p => p.FechaEmision)
+            .AsNoTracking();
+
+        if (borradorIds.Count > 0)
+            q = q.Where(p => !borradorIds.Contains(p.EstadoPedidoCompraId)
+                && !p.NumeroDocumento.StartsWith("SOL")
+                && !p.NumeroDocumento.StartsWith("RFQ"));
+        else
+            q = q.Where(p => !p.NumeroDocumento.StartsWith("SOL") && !p.NumeroDocumento.StartsWith("RFQ"));
+
+        return await q.OrderByDescending(p => p.FechaEmision)
             .Select(p => new OrdenCompraVm
             {
                 Id = p.Id,
@@ -48,6 +94,7 @@ public class CompraService : ICompraService
                 Estado = p.EstadoPedido != null ? p.EstadoPedido.Nombre : ""
             })
             .ToListAsync(ct);
+    }
 
     public async Task<IReadOnlyList<ProveedorVm>> GetProveedoresAsync(string? search, CancellationToken ct = default)
     {
@@ -67,5 +114,80 @@ public class CompraService : ICompraService
             Email = s.Correo,
             Activo = s.Activo
         }).ToListAsync(ct);
+    }
+
+    public async Task<int> CrearProveedorAsync(int empresaId, string razonSocial, string tipoDoc, string numeroDoc,
+        string? telefono, string? email, string? direccion, CancellationToken ct = default)
+    {
+        var count = await _db.Socios.CountAsync(s => s.EmpresaId == empresaId && s.EsProveedor, ct);
+        var entity = new Socio
+        {
+            EmpresaId = empresaId,
+            Codigo = $"PRO-{(count + 1):D3}",
+            RazonSocial = razonSocial.Trim(),
+            TipoDocumento = tipoDoc,
+            NumeroDocumento = numeroDoc.Trim(),
+            Telefono = telefono,
+            Correo = email,
+            Direccion = direccion,
+            EsProveedor = true,
+            EsCliente = false,
+            Activo = true
+        };
+        _db.Socios.Add(entity);
+        await _db.SaveChangesAsync(ct);
+        return entity.Id;
+    }
+
+    public async Task<int> CrearSolicitudAsync(int empresaId, int proveedorId, string? referencia, DateTime? fechaLimite,
+        decimal total, string? observaciones, int? compradorId, CancellationToken ct = default)
+    {
+        if (!_db.IsMySql)
+        {
+            var sol = new SolicitudCotizacion
+            {
+                EmpresaId = empresaId,
+                ProveedorId = proveedorId,
+                NumeroReferencia = referencia ?? $"SOL-{DateTime.UtcNow:yyyyMMddHHmm}",
+                FechaLimite = fechaLimite,
+                TotalEstimado = total,
+                Observaciones = observaciones,
+                Comprador = compradorId?.ToString(),
+                Estado = "NUEVO"
+            };
+            _db.SolicitudesCotizacion.Add(sol);
+            await _db.SaveChangesAsync(ct);
+            return sol.Id;
+        }
+
+        var estadoId = await _db.EstadosPedidoCompra
+            .Where(e => e.Codigo == "BORRADOR" || e.Nombre.Contains("Borrador"))
+            .Select(e => e.Id)
+            .FirstOrDefaultAsync(ct);
+
+        if (estadoId == 0)
+        {
+            var est = new EstadoPedidoCompra { Nombre = "Borrador", Codigo = "BORRADOR", Secuencia = 1 };
+            _db.EstadosPedidoCompra.Add(est);
+            await _db.SaveChangesAsync(ct);
+            estadoId = est.Id;
+        }
+
+        var count = await _db.PedidosCompra.CountAsync(ct);
+        var pedido = new PedidoCompra
+        {
+            EmpresaId = empresaId,
+            ProveedorId = proveedorId,
+            CompradorId = compradorId,
+            EstadoPedidoCompraId = estadoId,
+            NumeroDocumento = referencia ?? $"SOL-{(count + 1):D4}",
+            FechaEmision = DateTime.UtcNow,
+            Total = total,
+            Subtotal = total,
+            Observaciones = observaciones
+        };
+        _db.PedidosCompra.Add(pedido);
+        await _db.SaveChangesAsync(ct);
+        return pedido.Id;
     }
 }

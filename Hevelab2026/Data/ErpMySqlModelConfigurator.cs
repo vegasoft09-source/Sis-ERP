@@ -62,6 +62,10 @@ public static class ErpMySqlModelConfigurator
             e.Property(x => x.ContrasenaHash).HasColumnName("contrasena");
             e.Property(x => x.NombreUsuario).HasColumnName("nombre_usuario");
             e.Property(x => x.UltimoAcceso).HasColumnName("ultimo_acceso");
+            e.Property(x => x.Foto).HasColumnName("foto");
+            e.Property(x => x.Idioma).HasColumnName("idioma");
+            e.Property(x => x.ZonaHoraria).HasColumnName("zona_horaria");
+            e.Property(x => x.DepartamentoEmpresaId).HasColumnName("departamento_empresa_id");
             e.Property(x => x.CreadoEn).HasColumnName("creado_en");
             e.Property(x => x.ActualizadoEn).HasColumnName("actualizado_en");
             e.HasIndex(x => x.NombreUsuario).IsUnique();

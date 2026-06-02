@@ -50,12 +50,16 @@ public class Usuario : EmpresaEntity
 {
     public int RolId { get; set; }
     public Rol? Rol { get; set; }
+    public int? DepartamentoEmpresaId { get; set; }
     public string Nombre { get; set; } = string.Empty;
     public string Apellido { get; set; } = string.Empty;
     public string NombreUsuario { get; set; } = string.Empty;
     public string Correo { get; set; } = string.Empty;
     public string ContrasenaHash { get; set; } = string.Empty;
     public string? Telefono { get; set; }
+    public string? Foto { get; set; }
+    public string Idioma { get; set; } = "es-PE";
+    public string ZonaHoraria { get; set; } = "America/Lima";
     public DateTime? UltimoAcceso { get; set; }
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpira { get; set; }

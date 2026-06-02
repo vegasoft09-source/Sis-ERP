@@ -41,6 +41,10 @@ public class WebAuthService : IWebAuthService
             Apellido = usuario.Apellido,
             NombreUsuario = usuario.NombreUsuario,
             Correo = usuario.Correo,
+            Telefono = usuario.Telefono,
+            Foto = usuario.Foto,
+            Idioma = usuario.Idioma,
+            ZonaHoraria = usuario.ZonaHoraria,
             Permisos = permisos
         };
     }

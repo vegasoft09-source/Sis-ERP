@@ -1,0 +1,48 @@
+@model Hevelab2026.Models.Compras.ProveedorFormModel
+@{
+    ViewData["Title"] = "Nuevo proveedor";
+}
+
+<div class="max-w-2xl mx-auto space-y-6">
+    <h2 class="text-xl font-bold text-slate-900">Registrar proveedor</h2>
+    <form method="post" class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+        @Html.AntiForgeryToken()
+        <div>
+            <label asp-for="RazonSocial" class="block text-xs font-bold text-slate-500 uppercase mb-1"></label>
+            <input asp-for="RazonSocial" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm" />
+            <span asp-validation-for="RazonSocial" class="text-red-500 text-xs"></span>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label asp-for="TipoDocumento" class="block text-xs font-bold text-slate-500 uppercase mb-1"></label>
+                <select asp-for="TipoDocumento" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">
+                    <option value="RUC">RUC</option>
+                    <option value="DNI">DNI</option>
+                </select>
+            </div>
+            <div>
+                <label asp-for="NumeroDocumento" class="block text-xs font-bold text-slate-500 uppercase mb-1"></label>
+                <input asp-for="NumeroDocumento" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm" />
+                <span asp-validation-for="NumeroDocumento" class="text-red-500 text-xs"></span>
+            </div>
+        </div>
+        <div>
+            <label asp-for="Telefono" class="block text-xs font-bold text-slate-500 uppercase mb-1"></label>
+            <input asp-for="Telefono" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm" />
+        </div>
+        <div>
+            <label asp-for="Email" class="block text-xs font-bold text-slate-500 uppercase mb-1"></label>
+            <input asp-for="Email" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm" />
+        </div>
+        <div>
+            <label asp-for="Direccion" class="block text-xs font-bold text-slate-500 uppercase mb-1"></label>
+            <input asp-for="Direccion" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm" />
+        </div>
+        <div class="flex gap-3 justify-end">
+            <a href="/Proveedores" class="px-4 py-2 text-sm font-semibold text-slate-600">Cancelar</a>
+            <button type="submit" class="px-5 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-xl">Guardar</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

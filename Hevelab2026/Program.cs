@@ -8,7 +8,9 @@ using Hevelab2026.Services.Inventario;
 using Hevelab2026.Services.Productos;
 using Hevelab2026.Services.Socios;
 using Hevelab2026.Services.Ventas;
+using Hevelab2026.Services.Config;
 using Hevelab2026.Services.Dashboard;
+using Hevelab2026.Services.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -87,6 +89,9 @@ builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IPedidoVentaService, PedidoVentaService>();
 builder.Services.AddScoped<ICompraService, CompraService>();
 builder.Services.AddScoped<IInventarioService, InventarioService>();
+builder.Services.AddScoped<IPerfilService, PerfilService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]!;
 builder.Services.AddAuthentication(options =>

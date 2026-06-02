@@ -12,5 +12,9 @@ public class UsuarioSesion
     public string NombreCompleto => $"{Nombre} {Apellido}".Trim();
     public string NombreUsuario { get; set; } = string.Empty;
     public string Correo { get; set; } = string.Empty;
+    public string? Telefono { get; set; }
+    public string? Foto { get; set; }
+    public string Idioma { get; set; } = "es-PE";
+    public string ZonaHoraria { get; set; } = "America/Lima";
     public List<string> Permisos { get; set; } = new();
 }

@@ -24,8 +24,10 @@ public class PedidoVentaService : IPedidoVentaService
             .Include(p => p.Cliente)
             .Include(p => p.EstadoPedido)
             .Include(p => p.Vendedor)
-            .Where(p => p.NumeroDocumento.StartsWith("COT") || p.NumeroDocumento.StartsWith("cot"))
             .AsNoTracking();
+
+        if (!_db.IsMySql)
+            q = q.Where(p => p.NumeroDocumento.StartsWith("COT") || p.NumeroDocumento.StartsWith("cot"));
 
         if (!string.IsNullOrWhiteSpace(cliente))
         {
@@ -63,8 +65,15 @@ public class PedidoVentaService : IPedidoVentaService
         else
         {
             var estadoId = await _db.EstadosPedidoVenta
-                .Where(e => e.Codigo == "PENDIENTE" || e.Nombre == "Pendiente")
-                .Select(e => e.Id).FirstAsync(ct);
+                .Where(e => e.Codigo == "PENDIENTE" || e.Nombre.Contains("Pendiente"))
+                .Select(e => e.Id).FirstOrDefaultAsync(ct);
+            if (estadoId == 0)
+            {
+                var est = new EstadoPedidoVenta { Nombre = "Pendiente", Codigo = "PENDIENTE", Secuencia = 1 };
+                _db.EstadosPedidoVenta.Add(est);
+                await _db.SaveChangesAsync(ct);
+                estadoId = est.Id;
+            }
             var count = await _db.PedidosVenta.CountAsync(ct);
             entity = new PedidoVenta
             {
@@ -105,8 +114,10 @@ public class PedidoVentaService : IPedidoVentaService
         var cot = await _db.PedidosVenta.FirstOrDefaultAsync(p => p.Id == cotizacionId, ct)
             ?? throw new NotFoundException("Cotización no encontrada");
 
-        var convertido = await _db.EstadosPedidoVenta.FirstAsync(e => e.Codigo == "CONVERTIDO", ct);
-        cot.EstadoPedidoVentaId = convertido.Id;
+        var convertido = await _db.EstadosPedidoVenta
+            .FirstOrDefaultAsync(e => e.Codigo == "CONVERTIDO" || e.Nombre.Contains("Convertido"), ct);
+        if (convertido != null)
+            cot.EstadoPedidoVentaId = convertido.Id;
         cot.TipoDocumento = "orden";
         await _uow.SaveChangesAsync(ct);
         return cot.Id;

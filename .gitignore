@@ -36,6 +36,7 @@ pnpm-debug.log*
 
 ## Secretos locales (usar appsettings.Development.example.json)
 **/appsettings.Development.json
+Hevelab2026/wwwroot/uploads/
 
 ## Ignore OS files
 .DS_Store

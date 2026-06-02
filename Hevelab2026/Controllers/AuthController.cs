@@ -70,7 +70,11 @@ public class AuthController : Controller
             new("EmpresaNombre", sesion.EmpresaNombre),
             new(ClaimTypes.Role, sesion.RolNombre),
             new("RolId", sesion.RolId.ToString()),
-            new(ClaimTypes.Email, sesion.Correo)
+            new(ClaimTypes.Email, sesion.Correo),
+            new("Telefono", sesion.Telefono ?? ""),
+            new("Foto", sesion.Foto ?? ""),
+            new("Idioma", sesion.Idioma),
+            new("ZonaHoraria", sesion.ZonaHoraria)
         };
         foreach (var permiso in sesion.Permisos)
             claims.Add(new Claim("Permiso", permiso));

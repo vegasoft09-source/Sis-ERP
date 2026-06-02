@@ -5,6 +5,7 @@ using Hevelab2026.Domain.Entities;
 using Hevelab2026.DTOs.Socios;
 using Hevelab2026.Models;
 using Hevelab2026.Repositories;
+using Hevelab2026.Services.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hevelab2026.Services.Socios;
@@ -13,11 +14,13 @@ public class SocioService : ISocioService
 {
     private readonly IUnitOfWork _uow;
     private readonly ApplicationDbContext _db;
+    private readonly ICurrentUserService _currentUser;
 
-    public SocioService(IUnitOfWork uow, ApplicationDbContext db)
+    public SocioService(IUnitOfWork uow, ApplicationDbContext db, ICurrentUserService currentUser)
     {
         _uow = uow;
         _db = db;
+        _currentUser = currentUser;
     }
 
     public async Task<PagedResult<SocioResponseDto>> GetClientesAsync(PagedQuery query, string? estado, CancellationToken ct = default)
@@ -62,8 +65,9 @@ public class SocioService : ISocioService
             .FirstOrDefaultAsync(ct);
     }
 
-    public async Task<SocioResponseDto> CreateClienteAsync(SocioCreateDto dto, int empresaId = 1, CancellationToken ct = default)
+    public async Task<SocioResponseDto> CreateClienteAsync(SocioCreateDto dto, int empresaId = 0, CancellationToken ct = default)
     {
+        if (empresaId <= 0) empresaId = _currentUser.EmpresaId;
         var maxId = await _db.Socios.Where(s => s.EmpresaId == empresaId).CountAsync(ct);
         var entity = new Socio
         {

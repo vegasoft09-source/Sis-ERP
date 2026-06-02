@@ -3,6 +3,7 @@ using Hevelab2026.Data;
 using Hevelab2026.Domain.Entities;
 using Hevelab2026.Models;
 using Hevelab2026.Repositories;
+using Hevelab2026.Services.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hevelab2026.Services.Productos;
@@ -11,11 +12,13 @@ public class ProductoService : IProductoService
 {
     private readonly ApplicationDbContext _db;
     private readonly IUnitOfWork _uow;
+    private readonly ICurrentUserService _currentUser;
 
-    public ProductoService(ApplicationDbContext db, IUnitOfWork uow)
+    public ProductoService(ApplicationDbContext db, IUnitOfWork uow, ICurrentUserService currentUser)
     {
         _db = db;
         _uow = uow;
+        _currentUser = currentUser;
     }
 
     public async Task<IReadOnlyList<Producto>> GetAllAsync(string? search, CancellationToken ct = default)
@@ -46,7 +49,9 @@ public class ProductoService : IProductoService
         if (await _db.Productos.AnyAsync(p => p.CodigoProducto == model.Sku, ct))
             throw new ConflictException($"Ya existe el producto {model.Sku}");
 
-        var empresaId = await _db.Empresas.Select(e => e.Id).FirstAsync(ct);
+        var empresaId = _currentUser.EmpresaId;
+        if (!await _db.Empresas.AnyAsync(e => e.Id == empresaId, ct))
+            empresaId = await _db.Empresas.Select(e => e.Id).FirstAsync(ct);
         var almacenId = await _db.Almacenes.Where(a => a.EmpresaId == empresaId).Select(a => a.Id).FirstAsync(ct);
 
         var entity = new ProductoEntity
