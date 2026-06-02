@@ -17,8 +17,5 @@ namespace Hevelab2026.Models
         public decimal LimiteCredito { get; set; }
         public bool Activo { get; set; }
         public DateTime FechaRegistro { get; set; }
-        public string PuestoTrabajo { get; set; } = string.Empty;
-        public string GrupoProveedor { get; set; } = string.Empty;
-        public string GrupoClientes { get; set; } = string.Empty;
     }
 }
