@@ -63,11 +63,116 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // ─── FORMULARIO NUEVA ETAPA ──────────────────────────────────────────────
+    const frmNuevaEtapa = document.getElementById('frmNuevaEtapa');
+    if (frmNuevaEtapa) {
+        frmNuevaEtapa.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nuevaEtapa = {
+                nombre: document.getElementById('etapaNombre').value.trim(),
+                secuencia: parseInt(document.getElementById('etapaSecuencia').value),
+                probabilidad: parseInt(document.getElementById('etapaProbabilidad').value),
+                esGanado: document.getElementById('etapaGanado').value === 'true',
+                esPerdido: document.getElementById('etapaPerdido').value === 'true'
+            };
+
+            try {
+                const response = await fetch('/api/Crm/etapas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevaEtapa)
+                });
+
+                if (response.ok) {
+                    frmNuevaEtapa.reset();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevaEtapa'));
+                    if (modal) modal.hide();
+                    await cargarEtapas();
+                    alert('Etapa guardada exitosamente.');
+                } else {
+                    alert(`Error: ${await response.text()}`);
+                }
+            } catch (err) {
+                console.error('Error al guardar etapa:', err);
+            }
+        });
+    }
+
+    // ─── FORMULARIO NUEVA ETIQUETA ───────────────────────────────────────────
+    const frmNuevaEtiqueta = document.getElementById('frmNuevaEtiqueta');
+    if (frmNuevaEtiqueta) {
+        frmNuevaEtiqueta.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nuevaEtiqueta = {
+                nombre: document.getElementById('etiquetaNombre').value.trim(),
+                color: document.getElementById('etiquetaColor').value
+            };
+
+            try {
+                const response = await fetch('/api/Crm/etiquetas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevaEtiqueta)
+                });
+
+                if (response.ok) {
+                    frmNuevaEtiqueta.reset();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevaEtiqueta'));
+                    if (modal) modal.hide();
+                    await cargarEtiquetas();
+                    alert('Etiqueta guardada exitosamente.');
+                } else {
+                    alert(`Error: ${await response.text()}`);
+                }
+            } catch (err) {
+                console.error('Error al guardar etiqueta:', err);
+            }
+        });
+    }
+
+    // ─── FORMULARIO NUEVA ACTIVIDAD ──────────────────────────────────────────
+    const frmNuevaActividad = document.getElementById('frmNuevaActividad');
+    if (frmNuevaActividad) {
+        frmNuevaActividad.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nuevaActividad = {
+                leadId: parseInt(document.getElementById('actividadLead').value),
+                usuarioId: 1, // Usuario actual placeholder
+                usuarioNombre: "Administrador (Tú)", // Placeholder
+                tipo: document.getElementById('actividadTipo').value,
+                titulo: document.getElementById('actividadTitulo').value.trim(),
+                descripcion: document.getElementById('actividadDescripcion').value.trim(),
+                fechaProgramada: document.getElementById('actividadFecha').value
+            };
+
+            try {
+                const response = await fetch('/api/Crm/actividades', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevaActividad)
+                });
+
+                if (response.ok) {
+                    frmNuevaActividad.reset();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevaActividad'));
+                    if (modal) modal.hide();
+                    alert('Actividad guardada exitosamente.');
+                } else {
+                    alert(`Error: ${await response.text()}`);
+                }
+            } catch (err) {
+                console.error('Error al guardar actividad:', err);
+            }
+        });
+    }
+
 });
 
 // ─── INICIALIZACIÓN PRINCIPAL ─────────────────────────────────────────────────
 async function inicializar() {
     await cargarEtapas();   // Arma columnas Kanban + llena select del modal
+    await cargarEtiquetas();
     await cargarLeads();    // Llena tarjetas Kanban + tabla Lista
 }
 
@@ -115,8 +220,51 @@ async function cargarEtapas() {
                 });
         }
 
+        // 3. Llenar tabla de etapas
+        const tbEtapas = document.getElementById('tbEtapas');
+        if (tbEtapas) {
+            tbEtapas.innerHTML = '';
+            etapasGlobales.forEach(e => {
+                const estadoStr = e.esGanado ? "Ganado" : e.esPerdido ? "Perdido" : "En Proceso";
+                tbEtapas.innerHTML += `
+                    <tr>
+                        <td>${e.id}</td>
+                        <td><strong>${e.nombre}</strong></td>
+                        <td>${e.secuencia}</td>
+                        <td>${e.probabilidad}%</td>
+                        <td>${estadoStr}</td>
+                    </tr>
+                `;
+            });
+        }
+
     } catch (err) {
         console.error('Error al cargar etapas:', err);
+    }
+}
+
+// ─── CARGAR ETIQUETAS ────────────────────────────────────────────────────────
+async function cargarEtiquetas() {
+    try {
+        const res = await fetch('/api/Crm/etiquetas');
+        if (!res.ok) return;
+        const etiquetas = await res.json();
+
+        const tbEtiquetas = document.getElementById('tbEtiquetas');
+        if (tbEtiquetas) {
+            tbEtiquetas.innerHTML = '';
+            etiquetas.forEach(e => {
+                tbEtiquetas.innerHTML += `
+                    <tr>
+                        <td>${e.id}</td>
+                        <td><strong>${e.nombre}</strong></td>
+                        <td><span style="display:inline-block;width:15px;height:15px;background-color:${e.color};border-radius:50%;vertical-align:middle;margin-right:5px;"></span>${e.color}</td>
+                    </tr>
+                `;
+            });
+        }
+    } catch (err) {
+        console.error('Error al cargar etiquetas:', err);
     }
 }
 
@@ -144,6 +292,11 @@ async function cargarLeads() {
         // Llenar Kanban y tabla lista
         const tbLista = document.getElementById('tbLeadsList');
         if (tbLista) tbLista.innerHTML = '';
+
+        const selectActividadLead = document.getElementById('actividadLead');
+        if (selectActividadLead) {
+            selectActividadLead.innerHTML = '<option value="">Seleccione un lead...</option>';
+        }
 
         if (leads.length === 0) {
             if (tbLista) tbLista.innerHTML = `<tr><td colspan="6" class="text-center py-4">No hay leads registrados.</td></tr>`;
@@ -206,6 +359,11 @@ async function cargarLeads() {
                         </button>
                     </td>`;
                 tbLista.appendChild(tr);
+            }
+
+            // Llenar select de leads para el modal de actividades
+            if (selectActividadLead) {
+                selectActividadLead.innerHTML += `<option value="${lead.id}">${lead.nombreNegocio}</option>`;
             }
         });
 

@@ -62,6 +62,8 @@
             <button class="frm-tab active" data-target="#tab-pipeline">Pipeline (Kanban)</button>
             <button class="frm-tab" data-target="#tab-list">Lista de Leads</button>
             <button class="frm-tab" data-target="#tab-actividades">Mis Actividades</button>
+            <button class="frm-tab" data-target="#tab-etapas">Etapas</button>
+            <button class="frm-tab" data-target="#tab-etiquetas">Etiquetas</button>
         </div>
 
         <!-- Tab: Kanban Pipeline -->
@@ -94,6 +96,16 @@
 
         <!-- Tab: Actividades -->
         <div id="tab-actividades" class="tab-content" style="display: none;">
+            <div class="tab-section-header">
+                <span class="tab-section-title">Mis Actividades</span>
+                <button class="frm-btn-save frm-btn-sm" id="btnNuevaActividad" data-bs-toggle="modal" data-bs-target="#modalNuevaActividad">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nueva Actividad
+                </button>
+            </div>
             <div class="table-responsive">
                 <table class="frm-table-clean">
                     <thead>
@@ -107,6 +119,64 @@
                     </thead>
                     <tbody id="tbActividades">
                         <!-- Llenado vía JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Etapas -->
+        <div id="tab-etapas" class="tab-content" style="display: none;">
+            <div class="tab-section-header">
+                <span class="tab-section-title">Lista de Etapas</span>
+                <button class="frm-btn-save frm-btn-sm" id="btnNuevaEtapa" data-bs-toggle="modal" data-bs-target="#modalNuevaEtapa">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nueva Etapa
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre de Etapa</th>
+                            <th>Secuencia</th>
+                            <th>Probabilidad</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbEtapas">
+                        <!-- Llenado dinámicamente vía JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Etiquetas -->
+        <div id="tab-etiquetas" class="tab-content" style="display: none;">
+            <div class="tab-section-header">
+                <span class="tab-section-title">Lista de Etiquetas</span>
+                <button class="frm-btn-save frm-btn-sm" id="btnNuevaEtiqueta" data-bs-toggle="modal" data-bs-target="#modalNuevaEtiqueta">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nueva Etiqueta
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre de Etiqueta</th>
+                            <th>Color</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbEtiquetas">
+                        <!-- Llenado dinámicamente vía JS -->
                     </tbody>
                 </table>
             </div>
@@ -181,6 +251,133 @@
           <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
             <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
             <button type="submit" class="frm-btn-save">Guardar Lead</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nueva Etapa -->
+<div class="modal fade" id="modalNuevaEtapa" tabindex="-1" aria-labelledby="modalNuevaEtapaLabel" aria-hidden="true" data-bs-theme="light">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+      <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+        <h5 class="modal-title" id="modalNuevaEtapaLabel" style="font-weight: 700; font-size: 1.1rem;">Nueva Etapa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form id="frmNuevaEtapa">
+          <div class="modal-body p-4">
+              <div class="frm-grid">
+                  <div class="frm-field frm-field--full">
+                      <label class="frm-label">Nombre de Etapa <span class="frm-req">*</span></label>
+                      <input type="text" class="frm-input" id="etapaNombre" placeholder="Ej: Negociación" required>
+                  </div>
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Secuencia <span class="frm-req">*</span></label>
+                      <input type="number" class="frm-input" id="etapaSecuencia" value="1" required>
+                  </div>
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Probabilidad (%) <span class="frm-req">*</span></label>
+                      <input type="number" class="frm-input" id="etapaProbabilidad" min="0" max="100" value="50" required>
+                  </div>
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Es Ganado</label>
+                      <select class="frm-input frm-select" id="etapaGanado">
+                          <option value="false">No</option>
+                          <option value="true">Sí</option>
+                      </select>
+                  </div>
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Es Perdido</label>
+                      <select class="frm-input frm-select" id="etapaPerdido">
+                          <option value="false">No</option>
+                          <option value="true">Sí</option>
+                      </select>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+            <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="frm-btn-save">Guardar Etapa</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nueva Etiqueta -->
+<div class="modal fade" id="modalNuevaEtiqueta" tabindex="-1" aria-labelledby="modalNuevaEtiquetaLabel" aria-hidden="true" data-bs-theme="light">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+      <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+        <h5 class="modal-title" id="modalNuevaEtiquetaLabel" style="font-weight: 700; font-size: 1.1rem;">Nueva Etiqueta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form id="frmNuevaEtiqueta">
+          <div class="modal-body p-4">
+              <div class="frm-grid">
+                  <div class="frm-field frm-field--full">
+                      <label class="frm-label">Nombre de Etiqueta <span class="frm-req">*</span></label>
+                      <input type="text" class="frm-input" id="etiquetaNombre" placeholder="Ej: Cliente VIP" required>
+                  </div>
+                  <div class="frm-field frm-field--full">
+                      <label class="frm-label">Color <span class="frm-req">*</span></label>
+                      <input type="color" class="frm-input" id="etiquetaColor" value="#6c757d" required>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+            <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="frm-btn-save">Guardar Etiqueta</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nueva Actividad -->
+<div class="modal fade" id="modalNuevaActividad" tabindex="-1" aria-labelledby="modalNuevaActividadLabel" aria-hidden="true" data-bs-theme="light">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+      <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+        <h5 class="modal-title" id="modalNuevaActividadLabel" style="font-weight: 700; font-size: 1.1rem;">Nueva Actividad</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form id="frmNuevaActividad">
+          <div class="modal-body p-4">
+              <div class="frm-grid">
+                  <div class="frm-field frm-field--full">
+                      <label class="frm-label">Lead (Negocio) <span class="frm-req">*</span></label>
+                      <select class="frm-input frm-select" id="actividadLead" required>
+                          <option value="">Cargando leads...</option>
+                      </select>
+                  </div>
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Tipo <span class="frm-req">*</span></label>
+                      <select class="frm-input frm-select" id="actividadTipo" required>
+                          <option value="LLAMADA">Llamada</option>
+                          <option value="CORREO">Correo</option>
+                          <option value="REUNION">Reunión</option>
+                          <option value="TAREA">Tarea</option>
+                      </select>
+                  </div>
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Fecha Programada <span class="frm-req">*</span></label>
+                      <input type="datetime-local" class="frm-input" id="actividadFecha" required>
+                  </div>
+                  <div class="frm-field frm-field--full">
+                      <label class="frm-label">Título <span class="frm-req">*</span></label>
+                      <input type="text" class="frm-input" id="actividadTitulo" placeholder="Ej: Llamada de seguimiento" required>
+                  </div>
+                  <div class="frm-field frm-field--full">
+                      <label class="frm-label">Descripción</label>
+                      <textarea class="frm-input" id="actividadDescripcion" rows="2"></textarea>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+            <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="frm-btn-save">Guardar Actividad</button>
           </div>
       </form>
     </div>
