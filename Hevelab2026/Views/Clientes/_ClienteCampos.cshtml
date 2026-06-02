@@ -1,0 +1,272 @@
+@model Cliente?
+@using Hevelab2026.Models
+@{
+    var modo      = ViewData["Modo"] as string ?? ViewBag.Modo as string ?? "Crear";
+    var esDetalle = modo == "Detalle";
+    var esEditar  = modo == "Editar" && Model != null;
+    var esCrear   = modo == "Crear";
+
+    bool esPersona = esCrear ? true : (Model?.TipoCliente != "Persona Jurídica");
+    string Val(string? v) => string.IsNullOrWhiteSpace(v) ? "—" : v!;
+}
+
+<!-- Tipo: Persona / Empresa -->
+<div class="cl-form__entity-type">
+    @if (esDetalle)
+    {
+        <span class="cl-form__radio">
+            <input type="radio" disabled @(esPersona ? "checked" : "") /> Persona
+        </span>
+        <span class="cl-form__radio">
+            <input type="radio" disabled @(!esPersona ? "checked" : "") /> Empresa
+        </span>
+    }
+    else
+    {
+        <label class="cl-form__radio">
+            <input type="radio" name="tipoEntidadRadio" id="radioPersona" value="persona" @(esPersona ? "checked" : "") />
+            Persona
+        </label>
+        <label class="cl-form__radio">
+            <input type="radio" name="tipoEntidadRadio" id="radioEmpresa" value="empresa" @(!esPersona ? "checked" : "") />
+            Empresa
+        </label>
+        <input type="hidden" name="TipoCliente" id="TipoClienteHidden" value="@(esPersona ? "Persona Natural" : "Persona Jurídica")" />
+        <input type="hidden" name="TipoDocumento" id="TipoDocumentoHidden" value="@(Model?.TipoDocumento ?? (esPersona ? "DNI" : "RUC"))" />
+    }
+</div>
+
+<div class="cl-form__body">
+    <!-- Avatar -->
+    <div class="cl-form__avatar-wrap">
+        <div class="cl-form__avatar">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        @if (!esDetalle)
+        {
+            <button type="button" class="cl-form__photo-btn" id="btnAddPhoto">Agregar una fotografía</button>
+        }
+    </div>
+
+    <!-- Campos principales -->
+    <div class="cl-form__fields">
+
+        <div class="cl-form__field cl-form__field--full">
+            <label class="cl-form__label" for="RazonSocialInput">Nombre completo / Razón social</label>
+            @if (esDetalle)
+            {
+                <span class="cl-form__value">@Val(Model?.RazonSocial)</span>
+            }
+            else
+            {
+                <input type="text" class="cl-form__input" name="RazonSocial" id="RazonSocialInput" required
+                       value="@(Model?.RazonSocial ?? "")" placeholder="Nombre completo o razón social" autocomplete="off" />
+                <span class="cl-form__err" id="razonErr">Este campo es obligatorio.</span>
+            }
+        </div>
+
+        <div class="cl-form__field">
+            <label class="cl-form__label" for="EmailInput">Correo electrónico</label>
+            @if (esDetalle)
+            {
+                <span class="cl-form__value">@Val(Model?.Email)</span>
+            }
+            else
+            {
+                <input type="email" class="cl-form__input" name="Email" id="EmailInput" required
+                       value="@(Model?.Email ?? "")" placeholder="correo@empresa.com" autocomplete="off" />
+                <span class="cl-form__err" id="emailErr">Ingrese un correo electrónico válido.</span>
+            }
+        </div>
+
+        <div class="cl-form__field">
+            <label class="cl-form__label" for="PuestoTrabajoInput">Puesto de trabajo</label>
+            @if (esDetalle)
+            {
+                <span class="cl-form__value">@Val(Model?.PuestoTrabajo)</span>
+            }
+            else
+            {
+                <input type="text" class="cl-form__input" name="PuestoTrabajo" id="PuestoTrabajoInput"
+                       value="@(Model?.PuestoTrabajo ?? "")" placeholder="Por ejemplo, director de ventas" autocomplete="off" />
+            }
+        </div>
+
+        <div class="cl-form__field">
+            <label class="cl-form__label" for="NumeroDocumentoInput">
+                Número de identificación
+                <span class="cl-form__label-hint" title="DNI, RUC u otro documento">i</span>
+            </label>
+            @if (esDetalle)
+            {
+                <span class="cl-form__value">@Val(Model?.NumeroDocumento)</span>
+            }
+            else
+            {
+                <input type="text" class="cl-form__input" name="NumeroDocumento" id="NumeroDocumentoInput" required
+                       value="@(Model?.NumeroDocumento ?? "")" inputmode="numeric"
+                       placeholder="Número de documento" autocomplete="off" />
+                <span class="cl-form__hint" id="docHint">8 dígitos numéricos (DNI)</span>
+                <span class="cl-form__err" id="docErr"></span>
+            }
+        </div>
+
+        <div class="cl-form__field">
+            <label class="cl-form__label" for="GrupoProveedorSelect">Grupo proveedor</label>
+            @if (esDetalle)
+            {
+                <span class="cl-form__value">@Val(Model?.GrupoProveedor)</span>
+            }
+            else
+            {
+                <select class="cl-form__select" name="GrupoProveedor" id="GrupoProveedorSelect">
+                    <option value="" selected="@(string.IsNullOrEmpty(Model?.GrupoProveedor))">Seleccionar...</option>
+                    <option value="Nacional" selected="@(Model?.GrupoProveedor == "Nacional")">Nacional</option>
+                    <option value="Internacional" selected="@(Model?.GrupoProveedor == "Internacional")">Internacional</option>
+                    <option value="Local" selected="@(Model?.GrupoProveedor == "Local")">Local</option>
+                </select>
+            }
+        </div>
+
+        <div class="cl-form__field">
+            <label class="cl-form__label" for="GrupoClientesSelect">Grupo clientes</label>
+            @if (esDetalle)
+            {
+                <span class="cl-form__value">@Val(Model?.GrupoClientes)</span>
+            }
+            else
+            {
+                <select class="cl-form__select" name="GrupoClientes" id="GrupoClientesSelect">
+                    <option value="" selected="@(string.IsNullOrEmpty(Model?.GrupoClientes))">Seleccionar...</option>
+                    <option value="Corporativo" selected="@(Model?.GrupoClientes == "Corporativo")">Corporativo</option>
+                    <option value="Retail" selected="@(Model?.GrupoClientes == "Retail")">Retail</option>
+                    <option value="Gobierno" selected="@(Model?.GrupoClientes == "Gobierno")">Gobierno</option>
+                </select>
+            }
+        </div>
+
+        <div class="cl-form__field">
+            <label class="cl-form__label" for="CodigoInput">Código</label>
+            @if (esDetalle)
+            {
+                <span class="cl-form__value">@Val(Model?.Codigo)</span>
+            }
+            else if (esEditar)
+            {
+                <input type="text" class="cl-form__input" id="CodigoInput" value="@Model!.Codigo" readonly />
+            }
+            else
+            {
+                <input type="text" class="cl-form__input" id="CodigoInput" readonly placeholder="Se asignará al guardar" />
+            }
+        </div>
+
+    </div>
+</div>
+
+<!-- Información adicional -->
+<div class="cl-form__extra">
+    <p class="cl-form__extra-title">Información adicional</p>
+    <div class="cl-form__fields">
+
+        <div class="cl-form__field">
+            <label class="cl-form__label" for="TelefonoInput">Teléfono</label>
+            @if (esDetalle)
+            {
+                <span class="cl-form__value">@Val(Model?.Telefono)</span>
+            }
+            else
+            {
+                <input type="tel" class="cl-form__input" name="Telefono" id="TelefonoInput"
+                       value="@(Model?.Telefono ?? "")" maxlength="9" inputmode="numeric"
+                       placeholder="987654321" autocomplete="off" />
+                <span class="cl-form__err" id="telErr">Debe tener exactamente 9 dígitos numéricos.</span>
+            }
+        </div>
+
+        <div class="cl-form__field">
+            <label class="cl-form__label" for="CiudadInput">Ciudad</label>
+            @if (esDetalle)
+            {
+                <span class="cl-form__value">@Val(Model?.Ciudad)</span>
+            }
+            else
+            {
+                <input type="text" class="cl-form__input" name="Ciudad" id="CiudadInput"
+                       value="@(Model?.Ciudad ?? "")" placeholder="Lima, Cusco…" autocomplete="off" />
+            }
+        </div>
+
+        <div class="cl-form__field cl-form__field--full">
+            <label class="cl-form__label" for="DireccionInput">Dirección</label>
+            @if (esDetalle)
+            {
+                <span class="cl-form__value">@Val(Model?.Direccion)</span>
+            }
+            else
+            {
+                <input type="text" class="cl-form__input" name="Direccion" id="DireccionInput"
+                       value="@(Model?.Direccion ?? "")" placeholder="Calle, número, urbanización…" autocomplete="off" />
+            }
+        </div>
+
+        <div class="cl-form__field">
+            <label class="cl-form__label" for="LimiteCreditoInput">Límite de crédito (S/)</label>
+            @if (esDetalle)
+            {
+                <span class="cl-form__value">@((Model?.LimiteCredito ?? 0).ToString("N2"))</span>
+            }
+            else
+            {
+                <input type="number" class="cl-form__input" name="LimiteCredito" id="LimiteCreditoInput"
+                       min="0" step="0.01" value="@((Model?.LimiteCredito ?? 0).ToString(System.Globalization.CultureInfo.InvariantCulture))"
+                       placeholder="0.00" />
+                <span class="cl-form__err" id="creditErr">El límite no puede ser negativo.</span>
+            }
+        </div>
+
+        @if (esDetalle)
+        {
+            <div class="cl-form__field">
+                <label class="cl-form__label">Estado</label>
+                @if (Model!.Activo)
+                {
+                    <span class="cl-form__estado cl-form__estado--activo">Activo</span>
+                }
+                else
+                {
+                    <span class="cl-form__estado cl-form__estado--inactivo">Inactivo</span>
+                }
+            </div>
+            <div class="cl-form__field">
+                <label class="cl-form__label">Fecha de registro</label>
+                <span class="cl-form__value">@Model!.FechaRegistro.ToString("dd/MM/yyyy")</span>
+            </div>
+        }
+        else if (esEditar)
+        {
+            <div class="cl-form__field">
+                <label class="cl-form__switch-wrap" for="ActivoCheckbox">
+                    <span>Cliente activo</span>
+                    <span class="cl-form__switch">
+                        <input type="checkbox" name="Activo" id="ActivoCheckbox" value="true" @(Model!.Activo ? "checked" : "") />
+                        <input type="hidden" name="Activo" value="false" />
+                        <span class="cl-form__switch-track"></span>
+                    </span>
+                </label>
+            </div>
+        }
+
+    </div>
+</div>
+
+<!-- Tipo documento avanzado (oculto, sincronizado por JS) -->
+@if (!esDetalle)
+{
+    <select class="d-none" id="TipoDocumentoSelect" aria-hidden="true">
+        <option value="DNI">DNI</option>
+        <option value="RUC">RUC</option>
+        <option value="CE">CE</option>
+        <option value="Pasaporte">Pasaporte</option>
+    </select>
+}

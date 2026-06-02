@@ -1,0 +1,208 @@
+@model List<Hevelab2026.Models.OrdenVenta>
+
+@{
+    ViewData["Title"] = "Órdenes de Venta";
+    ViewData["Breadcrumbs"] = new[] {
+        ("Dashboard", "/"),
+        ("Ventas", "#"),
+        ("Órdenes", "/Ordenes")
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/ordenes.css" />
+}
+
+<div class="ordenes-container">
+
+    <div class="ordenes-header">
+        <div>
+            <h1>Órdenes de Venta</h1>
+            <p>Gestiona y realiza seguimiento a tus propuestas comerciales.</p>
+        </div>
+
+        <a href="/Ordenes/Create" class="btn-nuevo">
+            <span>+</span>
+            Nuevo
+        </a>
+    </div>
+
+    <form method="get" action="/Ordenes" class="filtros-card">
+
+        <div class="filtro-grupo">
+            <label>FECHA</label>
+            <div class="input-box">
+                <span>📅</span>
+                <input type="text"
+                       name="fecha"
+                       value="@ViewBag.Fecha"
+                       placeholder="Ejemplo: 24/10/2023" />
+            </div>
+        </div>
+
+        <div class="filtro-grupo">
+            <label>CLIENTE / RAZÓN SOCIAL</label>
+            <div class="input-box">
+                <span>🔍</span>
+                <input type="text"
+                       name="busqueda"
+                       value="@ViewBag.Busqueda"
+                       placeholder="Buscar cliente o razón social..." />
+            </div>
+        </div>
+
+        <div class="filtro-grupo">
+            <label>ESTADO</label>
+
+            <select name="estado">
+                @if (ViewBag.Estado == "TODOS" || ViewBag.Estado == null)
+                {
+                    <option value="TODOS" selected>Todos los estados</option>
+                }
+                else
+                {
+                    <option value="TODOS">Todos los estados</option>
+                }
+
+                @if (ViewBag.Estado == "BORRADOR")
+                {
+                    <option value="BORRADOR" selected>Borrador</option>
+                }
+                else
+                {
+                    <option value="BORRADOR">Borrador</option>
+                }
+
+                @if (ViewBag.Estado == "POR FACTURAR")
+                {
+                    <option value="POR FACTURAR" selected>Por facturar</option>
+                }
+                else
+                {
+                    <option value="POR FACTURAR">Por facturar</option>
+                }
+
+                @if (ViewBag.Estado == "FACTURADO POR COMPLETO")
+                {
+                    <option value="FACTURADO POR COMPLETO" selected>Facturado por completo</option>
+                }
+                else
+                {
+                    <option value="FACTURADO POR COMPLETO">Facturado por completo</option>
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="btn-filtros">
+            Aplicar Filtros
+        </button>
+
+    </form>
+
+    <div class="tabla-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>NÚMERO DE PEDIDO</th>
+                    <th>FECHA DE CREACIÓN</th>
+                    <th>CLIENTE</th>
+                    <th>RAZÓN SOCIAL</th>
+                    <th>RUC</th>
+                    <th>SUBTOTAL</th>
+                    <th>TOTAL</th>
+                    <th>ESTADO</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="9" style="text-align:center; padding: 35px;">
+                            No se encontraron órdenes con los filtros aplicados.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var orden in Model)
+                    {
+                        string claseEstado = "";
+
+                        if (orden.Estado == "BORRADOR")
+                        {
+                            claseEstado = "estado-borrador";
+                        }
+                        else if (orden.Estado == "POR FACTURAR")
+                        {
+                            claseEstado = "estado-facturar";
+                        }
+                        else
+                        {
+                            claseEstado = "estado-completo";
+                        }
+
+                        <tr>
+                            <td>
+                                <span class="codigo">@orden.NumeroPedido</span>
+                            </td>
+
+                            <td>@orden.FechaCreacion</td>
+                            <td>@orden.Cliente</td>
+
+                            <td>
+                                <em>@orden.RazonSocial</em>
+                            </td>
+
+                            <td>@orden.Ruc</td>
+
+                            <td>
+                                <strong>$ @orden.Subtotal.ToString("N2")</strong>
+                            </td>
+
+                            <td>
+                                <strong>$ @orden.Total.ToString("N2")</strong>
+                            </td>
+
+                            <td>
+                                <span class="estado @claseEstado">
+                                    @orden.Estado
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="acciones">
+                                    <a class="accion-btn" href="/Ordenes/Details/@orden.NumeroPedido" title="Ver">
+                                        👁
+                                    </a>
+
+                                    <a class="accion-btn" href="/Ordenes/Edit/@orden.NumeroPedido" title="Editar">
+                                        ✎
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        <div class="tabla-footer">
+            <p>
+                Mostrando <strong>@Model.Count</strong> órdenes de venta
+            </p>
+
+            <div class="paginacion">
+                <button class="disabled" type="button">‹</button>
+                <button class="activo" type="button">1</button>
+                <button type="button">2</button>
+                <button type="button">3</button>
+                <span>...</span>
+                <button type="button">25</button>
+                <button type="button">›</button>
+            </div>
+        </div>
+    </div>
+
+</div>
