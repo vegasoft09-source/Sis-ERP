@@ -443,7 +443,6 @@ input, select, textarea {
 
 /* ---------- Content area (CORREGIDO) ---------- */
 .hl-content {
-<<<<<<< HEAD
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -457,20 +456,6 @@ input, select, textarea {
 .hl-sidebar.collapsed ~ .hl-content {
     margin-left: 0;
 }
-
-=======
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
-  /* En desktop el sidebar es sticky dentro del flex → ya ocupa su espacio natural.
-     margin-left solo se necesita en mobile donde el sidebar es fixed (fuera del flujo). */
-  transition: margin-left var(--transition-slow);
-}
-
-/* Mobile: sidebar es position:fixed → hl-content necesita offset manual */
->>>>>>> origin/grupo5
 @media (max-width: 1023px) {
     .hl-content {
         margin-left: 0 !important;
