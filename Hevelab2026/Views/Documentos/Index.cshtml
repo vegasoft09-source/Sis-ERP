@@ -1,0 +1,1766 @@
+@model IEnumerable<DocumentoContable>
+@{
+    ViewData["Title"] = "Documentos Contables";
+
+    var documentos = Model;
+}
+
+<!-- Contenedor Principal de la Vista -->
+<div class="cta-documentos-container" style="display: flex; gap: 24px; min-height: calc(100vh - 160px); animation: ctaFadeIn 300ms ease-out; position: relative;">
+    
+    <!-- 2. Panel de Categorías (Sidebar Izquierdo de la vista) -->
+    <div class="cta-doc-sidebar" style="width: 260px; background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); padding: 20px 16px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; box-shadow: var(--cta-shadow);">
+        <h3 style="font-size: 11px; font-weight: 700; color: var(--cta-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; padding-left: 8px;">Categorías</h3>
+        <button id="cat-all" class="cta-cat-btn active">
+            <span>📁 Todos los documentos</span>
+            <span class="cta-cat-count" id="count-all">0</span>
+        </button>
+        <button id="cat-ventas" class="cta-cat-btn">
+            <span>📁 Ventas</span>
+            <span class="cta-cat-count" id="count-ventas">0</span>
+        </button>
+        <button id="cat-compras" class="cta-cat-btn">
+            <span>📁 Compras</span>
+            <span class="cta-cat-count" id="count-compras">0</span>
+        </button>
+        <button id="cat-impuestos" class="cta-cat-btn">
+            <span>📁 Impuestos / SUNAT</span>
+            <span class="cta-cat-count" id="count-impuestos">0</span>
+        </button>
+        <button id="cat-cierre" class="cta-cat-btn">
+            <span>📁 Cierre Contable</span>
+            <span class="cta-cat-count" id="count-cierre">0</span>
+        </button>
+        <button id="cat-archivados" class="cta-cat-btn">
+            <span>📁 Archivados</span>
+            <span class="cta-cat-count" id="count-archivados">0</span>
+        </button>
+    </div>
+
+    <!-- Panel de Contenido Derecho -->
+    <div class="cta-doc-content" style="flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 0;">
+        
+        <!-- 1. Barra Superior -->
+        <div style="background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; box-shadow: var(--cta-shadow);">
+            <div>
+                <h1 style="font-size: 22px; font-weight: 700; color: var(--cta-text-primary); margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: var(--cta-primary); stroke-width: 2.5;">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Documentos Contables
+                </h1>
+                <p style="font-size: 13px; color: var(--cta-text-secondary); margin: 4px 0 0 0;">Repositorio y gestor digital de comprobantes, balances y archivos contables de la empresa.</p>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <!-- Buscador Principal -->
+                <div style="position: relative;">
+                    <input type="text" id="doc-search" placeholder="Buscar por nombre o etiqueta..." style="padding: 8px 12px 8px 32px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 13px; outline: none; width: 240px; color: var(--cta-text-primary); transition: border-color var(--cta-transition);" onfocus="this.style.borderColor='var(--cta-primary)'" onblur="this.style.borderColor='var(--cta-border)'" />
+                    <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: var(--cta-text-muted); stroke-width: 2.5; fill: none; position: absolute; left: 10px; top: 10px;">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+
+                <!-- Botón Búsqueda Avanzada -->
+                <button id="btn-adv-search" class="cta-filter-chip" style="border: 1px solid var(--cta-primary); color: var(--cta-primary); display: flex; align-items: center; gap: 6px; background: transparent; cursor: pointer; padding: 8px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600;" onclick="toggleAdvancedSearch()">
+                    <svg viewBox="0 0 24 24" style="width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.5;">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    Filtros Avanzados
+                </button>
+                
+                <!-- Selector de Ordenamiento -->
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <label for="doc-sort" style="font-size: 12.5px; color: var(--cta-text-secondary); font-weight: 500;">Ordenar:</label>
+                    <select id="doc-sort" onchange="handleSortChange()" style="padding: 7px 10px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none; cursor: pointer;">
+                        <option value="recent">Más recientes</option>
+                        <option value="oldest">Más antiguos</option>
+                        <option value="name">Nombre A-Z</option>
+                        <option value="size">Mayor tamaño</option>
+                    </select>
+                </div>
+
+                <!-- Switch / Toggle Vista -->
+                <div style="display: flex; border: 1px solid var(--cta-border); border-radius: 6px; overflow: hidden; background: #ffffff;">
+                    <button id="btn-view-grid" class="cta-toggle-btn active" title="Vista Grilla">
+                        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5;">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </button>
+                    <button id="btn-view-list" class="cta-toggle-btn" title="Vista Lista">
+                        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5;">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Botón Subir -->
+                <button id="btn-open-upload" style="background: var(--cta-primary); color: #ffffff; border: none; padding: 9px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background var(--cta-transition); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--cta-primary-hover)'" onmouseout="this.style.background='var(--cta-primary)'">
+                    <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Subir Documento
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. Panel de Búsqueda Avanzada (Expandible) -->
+        <div id="adv-search-panel" style="display: none; background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); padding: 20px; box-shadow: var(--cta-shadow); animation: ctaFadeIn 200ms ease-out;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--cta-border); padding-bottom: 10px; margin-bottom: 16px;">
+                <h4 style="font-size: 14px; font-weight: 700; color: var(--cta-text-primary); margin: 0;">Filtros de Búsqueda Avanzada</h4>
+                <button onclick="toggleAdvancedSearch()" style="background:none; border:none; font-size:18px; color:var(--cta-text-muted); cursor:pointer;">&times;</button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                <!-- Nombre contiene -->
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Nombre del Documento</label>
+                    <input type="text" id="adv-nombre" placeholder="Nombre contiene..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); border-radius: 6px; outline: none; font-size: 13px;" />
+                </div>
+                
+                <!-- Rango de fechas -->
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Fecha Desde</label>
+                    <input type="date" id="adv-fecha-desde" style="width: 100%; padding: 7px 10px; border: 1px solid var(--cta-border); border-radius: 6px; outline: none; font-size: 13px;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Fecha Hasta</label>
+                    <input type="date" id="adv-fecha-hasta" style="width: 100%; padding: 7px 10px; border: 1px solid var(--cta-border); border-radius: 6px; outline: none; font-size: 13px;" />
+                </div>
+                
+                <!-- Rango de tamaño (KB) -->
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Tamaño Mín (KB)</label>
+                    <input type="number" id="adv-tam-min" placeholder="0" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); border-radius: 6px; outline: none; font-size: 13px;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Tamaño Máx (KB)</label>
+                    <input type="number" id="adv-tam-max" placeholder="ej: 10000" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); border-radius: 6px; outline: none; font-size: 13px;" />
+                </div>
+                
+                <!-- Etiquetas -->
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Etiquetas (separadas por comas)</label>
+                    <input type="text" id="adv-etiquetas" placeholder="ej: Mayo, SUNAT, XML" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); border-radius: 6px; outline: none; font-size: 13px;" />
+                </div>
+            </div>
+            
+            <!-- Tipo de documento Checkboxes -->
+            <div style="margin-bottom: 16px; border-top: 1px dashed var(--cta-border); padding-top: 12px;">
+                <label style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 8px;">Tipos de Documento</label>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--cta-text-secondary); cursor: pointer;">
+                        <input type="checkbox" class="adv-tipo-check" value="Factura" checked /> Facturas
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--cta-text-secondary); cursor: pointer;">
+                        <input type="checkbox" class="adv-tipo-check" value="Estado de Cuenta" checked /> Estados de Cuenta
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--cta-text-secondary); cursor: pointer;">
+                        <input type="checkbox" class="adv-tipo-check" value="Declaración" checked /> Declaraciones
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--cta-text-secondary); cursor: pointer;">
+                        <input type="checkbox" class="adv-tipo-check" value="Contrato" checked /> Contratos
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--cta-text-secondary); cursor: pointer;">
+                        <input type="checkbox" class="adv-tipo-check" value="Reporte" checked /> Reportes
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--cta-text-secondary); cursor: pointer;">
+                        <input type="checkbox" class="adv-tipo-check" value="Otro" checked /> Otros
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Botones de Acción -->
+            <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--cta-border); padding-top: 12px;">
+                <button onclick="clearAdvancedFilters()" style="background: #ffffff; border: 1px solid var(--cta-border); color: var(--cta-text-secondary); padding: 8px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer;">Limpiar Filtros</button>
+                <button onclick="applyAdvancedFilters()" style="background: var(--cta-primary); color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='var(--cta-primary-hover)'" onmouseout="this.style.background='var(--cta-primary)'">Aplicar Filtros</button>
+            </div>
+        </div>
+
+        <!-- 2. Zona de Drag & Drop (Collapsible Card) -->
+        <div class="cta-drag-drop-card" id="cta-drag-drop-card" style="background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); padding: 16px; box-shadow: var(--cta-shadow); transition: all var(--cta-transition);">
+            <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;" onclick="toggleDragDropZone()">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: none; stroke: var(--cta-primary); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span style="font-weight: 600; font-size: 13.5px; color: var(--cta-text-primary);">Zona de Carga Rápida y Drag & Drop</span>
+                </div>
+                <span id="drag-drop-toggle-indicator" style="font-size: 12px; color: var(--cta-text-muted); font-weight: 600;">▼ Colapsar</span>
+            </div>
+            
+            <div id="drag-drop-collapsible-zone" style="max-height: 200px; transition: max-height 0.3s cubic-bezier(0, 1, 0, 1); overflow: hidden; margin-top: 14px;">
+                <div id="drop-zone" style="border: 2px dashed var(--cta-border); border-radius: 8px; padding: 24px; text-align: center; background: #f8fafc; cursor: pointer; transition: all var(--cta-transition);" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" onclick="triggerFileInput()">
+                    <span style="font-size: 28px; display: block; margin-bottom: 6px;">☁️</span>
+                    <p style="font-size: 13px; font-weight: 600; color: var(--cta-text-secondary); margin: 0;">Arrastra tus documentos contables aquí o haz clic para seleccionar</p>
+                    <p style="font-size: 11px; color: var(--cta-text-muted); margin: 4px 0 0 0;">Formatos admitidos: PDF, XLSX, XML. Carga simulada instantánea.</p>
+                    <input type="file" id="file-input-hidden" style="display: none;" multiple onchange="handleFileSelect(event)" />
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Filtros Rápidos (Chips) & Tag Breadcrumb -->
+        <div style="display: flex; flex-direction: column; gap: 12px; background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); padding: 12px 18px; box-shadow: var(--cta-shadow);">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-right: 4px;">Formato rápido:</span>
+                <button class="cta-filter-chip active" data-filter="all" id="chip-filter-all">Todos los formatos</button>
+                <button class="cta-filter-chip" data-filter="pdf" id="chip-filter-pdf">PDF</button>
+                <button class="cta-filter-chip" data-filter="xlsx" id="chip-filter-xlsx">Excel</button>
+                <button class="cta-filter-chip" data-filter="xml" id="chip-filter-xml">XML</button>
+                <button class="cta-filter-chip" data-filter="recent" id="chip-filter-recent">Recientes</button>
+            </div>
+
+            <!-- Breadcrumb de Etiqueta Activa -->
+            <div id="active-tag-breadcrumb" style="display: none; align-items: center; justify-content: space-between; background: var(--cta-primary-soft); border: 1px solid rgba(59,93,219,0.15); padding: 8px 12px; border-radius: 6px; font-size: 12.5px; color: var(--cta-primary); animation: ctaFadeIn 200ms ease-out;">
+                <span>Mostrando documentos con la etiqueta: <strong id="active-tag-name"></strong></span>
+                <button onclick="clearTagFilter()" style="background: none; border: none; font-size: 16px; font-weight: bold; color: var(--cta-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 4px; border-radius: 4px; line-height: 1;">&times;</button>
+            </div>
+        </div>
+
+        <!-- 3. Vista Grilla (Por defecto) -->
+        <div id="view-grid-container" style="display: block;">
+            <!-- Cabecera de Grilla con Check All -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 8px 12px 8px; border-bottom: 1px solid var(--cta-border); margin-bottom: 12px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--cta-text-secondary); cursor: pointer; font-weight: 500;">
+                    <input type="checkbox" id="check-all-docs-grid" onclick="toggleSelectAll(this)" style="width: 15px; height: 15px; cursor: pointer; accent-color: var(--cta-primary);" />
+                    Seleccionar todos los visibles
+                </label>
+                <span id="grid-visible-count" style="font-size: 12px; color: var(--cta-text-muted); font-weight: 500;">0 de 0 mostrados</span>
+            </div>
+            <div id="doc-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px;">
+                <!-- Dinámico -->
+            </div>
+        </div>
+
+        <!-- 4. Vista Lista -->
+        <div id="view-list-container" style="display: none;">
+            <div style="background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); overflow: hidden; box-shadow: var(--cta-shadow);">
+                <div style="overflow-x: auto; width: 100%;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; min-width: 900px;">
+                        <thead>
+                            <tr style="background: #f8fafc; border-bottom: 1px solid var(--cta-border); color: var(--cta-text-secondary); font-weight: 600;">
+                                <th style="padding: 12px 16px; width: 45px; text-align: center;">
+                                    <input type="checkbox" id="check-all-docs" onclick="toggleSelectAll(this)" style="width: 15px; height: 15px; cursor: pointer; accent-color: var(--cta-primary);" />
+                                </th>
+                                <th style="padding: 12px 16px; width: 60px; text-align: center;">Ícono</th>
+                                <th style="padding: 12px 16px;">Nombre del Documento</th>
+                                <th style="padding: 12px 16px; width: 130px;">Tipo</th>
+                                <th style="padding: 12px 16px; width: 130px;">Categoría</th>
+                                <th style="padding: 12px 16px; width: 110px;">Subida</th>
+                                <th style="padding: 12px 16px; width: 90px; text-align: right;">Tamaño</th>
+                                <th style="padding: 12px 16px; width: 95px; text-align: center;">Estado</th>
+                                <th style="padding: 12px 16px; width: 120px; text-align: center;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="doc-list-body" style="color: var(--cta-text-primary);">
+                            <!-- Dinámico -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- 1. PANEL DE PREVIEW (Drawer Lateral Derecho Deslizable) -->
+<div id="cta-drawer-overlay" class="cta-drawer-overlay" onclick="closePreviewDrawer()"></div>
+<div id="cta-preview-drawer" class="cta-preview-drawer">
+    <div class="cta-drawer-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: none; stroke: var(--cta-primary); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span style="font-weight: 700; font-size: 14.5px; color: var(--cta-text-primary);">Previsualización de Documento</span>
+        </div>
+        <button onclick="closePreviewDrawer()" class="cta-drawer-close-btn">&times;</button>
+    </div>
+    <div class="cta-drawer-body" id="drawer-body-content">
+        <!-- Contenido Dinámico inyectado por JS -->
+    </div>
+    <div class="cta-drawer-footer" id="drawer-footer-actions">
+        <!-- Botones Dinámicos inyectados por JS -->
+    </div>
+</div>
+
+<!-- 5. Barra de Acciones Flotante de Selección Múltiple (Indigo oscuro y fixed bottom) -->
+<div id="cta-floating-actions-bar" class="cta-floating-actions-bar">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 18px;">📋</span>
+        <span style="font-size: 13.5px;"><strong id="selected-count" style="font-size: 15px; color: #a5b4fc; font-weight: 700;">0</strong> documentos seleccionados</span>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <button class="cta-action-btn-danger" onclick="archiveSelected()">Archivar Seleccionados</button>
+        <button class="cta-action-btn-primary" onclick="downloadZipSelected()">Descargar ZIP</button>
+        <button class="cta-action-btn-secondary" onclick="cancelSelection()">Cancelar</button>
+    </div>
+</div>
+
+<!-- Modal Mock Upload -->
+<div id="cta-upload-modal" style="position: fixed; inset: 0; background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--cta-transition);">
+    <div id="cta-upload-card" style="background: #ffffff; border-radius: var(--cta-radius); width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); transform: scale(0.95); transition: transform var(--cta-transition); display: flex; flex-direction: column;">
+        <div style="padding: 18px 24px; border-bottom: 1px solid var(--cta-border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <h3 style="font-size: 15px; font-weight: 700; color: var(--cta-text-primary); margin: 0;">Subir Nuevo Documento Contable</h3>
+            <button onclick="closeUploadModal()" style="background: none; border: none; font-size: 22px; color: var(--cta-text-muted); cursor: pointer;">&times;</button>
+        </div>
+        
+        <div style="padding: 24px; display: flex; flex-direction: column; gap: 16px; font-size: 13px;">
+            <div>
+                <label for="up-nombre" style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--cta-text-secondary);">Nombre del Archivo</label>
+                <input type="text" id="up-nombre" placeholder="ej: Planilla_Enero.pdf" style="width:100%; padding:8px 10px; border:1px solid var(--cta-border); border-radius:6px; outline:none; font-size:13px;" />
+            </div>
+            
+            <div>
+                <label for="up-desc" style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--cta-text-secondary);">Descripción</label>
+                <textarea id="up-desc" placeholder="Describa brevemente el contenido de este archivo..." style="width:100%; padding:8px 10px; border:1px solid var(--cta-border); border-radius:6px; outline:none; font-size:13px; height:60px; resize:none;"></textarea>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label for="up-tipo" style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--cta-text-secondary);">Tipo de Documento</label>
+                    <select id="up-tipo" style="width:100%; padding:8px 10px; border:1px solid var(--cta-border); border-radius:6px; outline:none; font-size:13px;">
+                        <option value="Factura">Factura</option>
+                        <option value="Estado de Cuenta">Estado de Cuenta</option>
+                        <option value="Declaración">Declaración</option>
+                        <option value="Contrato">Contrato</option>
+                        <option value="Reporte">Reporte</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="up-cat" style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--cta-text-secondary);">Categoría</label>
+                    <select id="up-cat" style="width:100%; padding:8px 10px; border:1px solid var(--cta-border); border-radius:6px; outline:none; font-size:13px;">
+                        <option value="Ventas">Ventas</option>
+                        <option value="Compras">Compras</option>
+                        <option value="Impuestos">Impuestos / SUNAT</option>
+                        <option value="Cierre">Cierre Contable</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label for="up-ext" style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--cta-text-secondary);">Extensión (Formato)</label>
+                    <select id="up-ext" style="width:100%; padding:8px 10px; border:1px solid var(--cta-border); border-radius:6px; outline:none; font-size:13px;">
+                        <option value="pdf">PDF (📄)</option>
+                        <option value="xlsx">Excel (📊)</option>
+                        <option value="xml">XML (📋)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="up-tam" style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--cta-text-secondary);">Tamaño (KB)</label>
+                    <input type="number" id="up-tam" value="250" style="width:100%; padding:8px 10px; border:1px solid var(--cta-border); border-radius:6px; outline:none; font-size:13px;" />
+                </div>
+            </div>
+
+            <div>
+                <label for="up-tags" style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--cta-text-secondary);">Etiquetas (Separadas por comas)</label>
+                <input type="text" id="up-tags" placeholder="ej: Impuestos, Anual, SUNAT" style="width:100%; padding:8px 10px; border:1px solid var(--cta-border); border-radius:6px; outline:none; font-size:13px;" />
+            </div>
+        </div>
+        
+        <div style="padding: 16px 24px; border-top: 1px solid var(--cta-border); background: #f8fafc; display: flex; justify-content: flex-end; gap: 12px;">
+            <button id="btn-save-upload" style="background: var(--cta-primary); color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='var(--cta-primary-hover)'" onmouseout="this.style.background='var(--cta-primary)'">Subir Documento</button>
+            <button onclick="closeUploadModal()" style="background: #ffffff; border: 1px solid var(--cta-border); color: var(--cta-text-secondary); padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Estilos Locales CSS -->
+<style>
+    @@keyframes ctaFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @@keyframes toastSlideIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .cta-cat-btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 10px 12px;
+        background: none;
+        border: none;
+        border-radius: 6px;
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--cta-text-secondary);
+        cursor: pointer;
+        text-align: left;
+        transition: all var(--cta-transition);
+        outline: none;
+    }
+    .cta-cat-btn:hover {
+        background-color: #f8fafc;
+        color: var(--cta-text-primary);
+    }
+    .cta-cat-btn.active {
+        background-color: var(--cta-primary-soft);
+        color: var(--cta-primary);
+        font-weight: 600;
+    }
+    .cta-cat-count {
+        background: #f1f5f9;
+        color: var(--cta-text-secondary);
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 9999px;
+    }
+    .cta-cat-btn.active .cta-cat-count {
+        background: rgba(59, 93, 219, 0.15);
+        color: var(--cta-primary);
+    }
+
+    .cta-toggle-btn {
+        background: none;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        color: var(--cta-text-muted);
+        transition: all var(--cta-transition);
+        display: flex;
+        align-items: center;
+        outline: none;
+    }
+    .cta-toggle-btn:hover {
+        background-color: #f1f5f9;
+        color: var(--cta-text-primary);
+    }
+    .cta-toggle-btn.active {
+        background-color: var(--cta-primary-soft);
+        color: var(--cta-primary);
+    }
+
+    .cta-filter-chip {
+        background: #ffffff;
+        border: 1px solid var(--cta-border);
+        padding: 6px 14px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--cta-text-secondary);
+        cursor: pointer;
+        transition: all var(--cta-transition);
+        outline: none;
+    }
+    .cta-filter-chip:hover {
+        background-color: #f1f5f9;
+        border-color: var(--cta-text-secondary);
+        color: var(--cta-text-primary);
+    }
+    .cta-filter-chip.active {
+        background-color: var(--cta-primary);
+        border-color: var(--cta-primary);
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .cta-doc-card {
+        background: #ffffff;
+        border: 1px solid var(--cta-border);
+        border-radius: var(--cta-radius);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        box-shadow: var(--cta-shadow);
+        transition: all var(--cta-transition);
+        cursor: pointer;
+        height: 100%;
+        user-select: none;
+    }
+    .cta-doc-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(59, 93, 219, 0.08), 0 4px 6px -4px rgba(59, 93, 219, 0.08) !important;
+        border-color: var(--cta-primary) !important;
+    }
+
+    .cta-dropdown-item {
+        width: 100%;
+        text-align: left;
+        border: none;
+        background: none;
+        padding: 8px 12px;
+        font-size: 12.5px;
+        cursor: pointer;
+        color: var(--cta-text-secondary);
+        transition: background 0.15s;
+        outline: none;
+    }
+    .cta-dropdown-item:hover {
+        background-color: #f8fafc;
+        color: var(--cta-text-primary);
+    }
+
+    /* 1. Estilos del Drawer Deslizable */
+    .cta-drawer-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(30, 41, 59, 0.4);
+        backdrop-filter: blur(2px);
+        z-index: 2400;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .cta-drawer-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+    .cta-preview-drawer {
+        position: fixed;
+        top: 0;
+        right: -450px;
+        bottom: 0;
+        width: 450px;
+        background: #ffffff;
+        border-left: 1px solid var(--cta-border);
+        box-shadow: -10px 0 25px -5px rgba(0, 0, 0, 0.1);
+        z-index: 2500;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .cta-preview-drawer.open {
+        right: 0;
+    }
+    .cta-drawer-header {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--cta-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8fafc;
+    }
+    .cta-drawer-close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: var(--cta-text-muted);
+        cursor: pointer;
+        line-height: 1;
+        outline: none;
+    }
+    .cta-drawer-close-btn:hover {
+        color: var(--cta-text-primary);
+    }
+    .cta-drawer-body {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        font-size: 13px;
+    }
+    .cta-drawer-footer {
+        padding: 16px 24px;
+        border-top: 1px solid var(--cta-border);
+        background: #f8fafc;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    /* 5. Barra de Acciones Flotante */
+    .cta-floating-actions-bar {
+        position: fixed;
+        bottom: -80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1e293b;
+        color: #ffffff;
+        padding: 12px 24px;
+        border-radius: var(--cta-radius);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        z-index: 2300;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        min-width: 500px;
+    }
+    .cta-floating-actions-bar.active {
+        bottom: 24px;
+        display: flex;
+    }
+    .cta-action-btn-danger {
+        background: #ef4444;
+        color: #ffffff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 12.5px;
+        transition: background 0.2s;
+    }
+    .cta-action-btn-danger:hover {
+        background: #dc2626;
+    }
+    .cta-action-btn-primary {
+        background: var(--cta-primary);
+        color: #ffffff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 12.5px;
+        transition: background 0.2s;
+    }
+    .cta-action-btn-primary:hover {
+        background: var(--cta-primary-hover);
+    }
+    .cta-action-btn-secondary {
+        background: transparent;
+        color: #cbd5e1;
+        border: 1px solid #475569;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 12.5px;
+        transition: all 0.2s;
+    }
+    .cta-action-btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #ffffff;
+    }
+</style>
+
+<!-- Motor JavaScript del Lado del Cliente -->
+<script>
+    // Inyectar datos desde C#
+    var dbDocs = [
+        @foreach (var d in documentos)
+        {
+            <text>{ id: @d.Id, nombre: "@d.Nombre", descripcion: "@d.Descripcion", tipoDoc: "@d.TipoDocumento", categoria: "@d.Categoria", fechaSubida: "@d.FechaSubida", tamanoKB: @d.TamanoKB, extension: "@d.Extension", subidoPor: "@d.SubidoPor", etiquetas: [@Html.Raw(string.Join(",", d.Etiquetas.Select(t => $"\"{t}\"")))], estado: "@d.Estado" },</text>
+        }
+    ];
+
+    // Variables de Estado Globales
+    var activeCategory = "all";
+    var activeFormatFilter = "all";
+    var activeTagFilter = null;
+    var selectedDocIds = new Set();
+    var currentSort = "recent";
+    var isDragDropZoneCollapsed = false;
+
+    // Estado de Búsqueda Avanzada
+    var activeAdvancedFilters = {
+        nombre: "",
+        fechaDesde: "",
+        fechaHasta: "",
+        sizeMin: null,
+        sizeMax: null,
+        etiquetas: [],
+        tipos: ["Factura", "Estado de Cuenta", "Declaración", "Contrato", "Reporte", "Otro"]
+    };
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Cargar renderizadores iniciales
+        updateCategoryCounters();
+        renderDocs();
+
+        // Controladores de Sidebar Categorías
+        var catBtns = {
+            "all": document.getElementById("cat-all"),
+            "Ventas": document.getElementById("cat-ventas"),
+            "Compras": document.getElementById("cat-compras"),
+            "Impuestos": document.getElementById("cat-impuestos"),
+            "Cierre": document.getElementById("cat-cierre"),
+            "Archivado": document.getElementById("cat-archivados")
+        };
+
+        Object.keys(catBtns).forEach(function(key) {
+            if (catBtns[key]) {
+                catBtns[key].addEventListener("click", function() {
+                    // Remover activos
+                    Object.values(catBtns).forEach(btn => btn.classList.remove("active"));
+                    catBtns[key].classList.add("active");
+                    activeCategory = key;
+                    cancelSelection(); // Reiniciar selección al cambiar categoría
+                    renderDocs();
+                });
+            }
+        });
+
+        // Buscador
+        var searchInput = document.getElementById("doc-search");
+        if (searchInput) {
+            searchInput.addEventListener("input", function() {
+                // Al buscar por la barra general, limpiamos búsqueda avanzada
+                activeAdvancedFilters.nombre = "";
+                renderDocs();
+            });
+        }
+
+        // Toggle Switch de Vistas (Grilla / Lista)
+        var btnViewGrid = document.getElementById("btn-view-grid");
+        var btnViewList = document.getElementById("btn-view-list");
+        var viewGridContainer = document.getElementById("view-grid-container");
+        var viewListContainer = document.getElementById("view-list-container");
+
+        if (btnViewGrid && btnViewList && viewGridContainer && viewListContainer) {
+            btnViewGrid.addEventListener("click", function() {
+                btnViewGrid.classList.add("active");
+                btnViewList.classList.remove("active");
+                viewGridContainer.style.display = "block";
+                viewListContainer.style.display = "none";
+                renderDocs();
+            });
+
+            btnViewList.addEventListener("click", function() {
+                btnViewList.classList.add("active");
+                btnViewGrid.classList.remove("active");
+                viewListContainer.style.display = "block";
+                viewGridContainer.style.display = "none";
+                renderDocs();
+            });
+        }
+
+        // Filtros Rápidos (Chips)
+        var filterChips = document.querySelectorAll(".cta-filter-chip[data-filter]");
+        filterChips.forEach(function(chip) {
+            chip.addEventListener("click", function() {
+                filterChips.forEach(c => c.classList.remove("active"));
+                chip.classList.add("active");
+                activeFormatFilter = chip.getAttribute("data-filter");
+                renderDocs();
+            });
+        });
+
+        // Modal Upload Eventos
+        var btnOpenUpload = document.getElementById("btn-open-upload");
+        var btnSaveUpload = document.getElementById("btn-save-upload");
+
+        if (btnOpenUpload) btnOpenUpload.addEventListener("click", openUploadModal);
+        if (btnSaveUpload) {
+            btnSaveUpload.addEventListener("click", function() {
+                var nombre = document.getElementById("up-nombre").value.trim();
+                var desc = document.getElementById("up-desc").value.trim();
+                var tipo = document.getElementById("up-tipo").value;
+                var cat = document.getElementById("up-cat").value;
+                var ext = document.getElementById("up-ext").value;
+                var tam = parseInt(document.getElementById("up-tam").value) || 120;
+                var tagsRaw = document.getElementById("up-tags").value.trim();
+
+                if (!nombre) {
+                    alert("Por favor ingrese el nombre del archivo.");
+                    return;
+                }
+
+                // Add extension if not present
+                if (!nombre.toLowerCase().endsWith("." + ext)) {
+                    nombre = nombre + "." + ext;
+                }
+
+                var tags = tagsRaw ? tagsRaw.split(",").map(t => t.trim()) : [cat];
+
+                // Crear Documento
+                var newId = dbDocs.length > 0 ? Math.max(...dbDocs.map(d => d.id)) + 1 : 1;
+                var today = new Date().toISOString().split('T')[0];
+
+                var newDoc = {
+                    id: newId,
+                    nombre: nombre,
+                    descripcion: desc || "Sin descripción provista.",
+                    tipoDoc: tipo,
+                    categoria: cat,
+                    fechaSubida: today,
+                    tamanoKB: tam,
+                    extension: ext,
+                    subidoPor: "Luis Torres",
+                    etiquetas: tags,
+                    estado: "Activo"
+                };
+
+                dbDocs.push(newDoc);
+                closeUploadModal();
+                updateCategoryCounters();
+                renderDocs();
+                showToast("Documento Subido", `"${nombre}" se ha incorporado al repositorio contable.`, "success");
+            });
+        }
+    });
+
+    // --- MOTOR CENTRAL DE FILTRADO Y RENDERIZACIÓN ---
+    function renderDocs() {
+        var searchInput = document.getElementById("doc-search");
+        var searchVal = searchInput ? searchInput.value.toLowerCase().trim() : "";
+        var filtered = [...dbDocs];
+
+        // 1. Filtrar por Sidebar Categoría
+        if (activeCategory === "Archivado") {
+            filtered = filtered.filter(d => d.estado === "Archivado");
+        } else {
+            // Si no es archivado, solo mostrar activos
+            filtered = filtered.filter(d => d.estado === "Activo");
+            if (activeCategory !== "all") {
+                filtered = filtered.filter(d => d.categoria === activeCategory);
+            }
+        }
+
+        // 2. Filtrar por Filtros Rápidos (Chips)
+        if (activeFormatFilter === "pdf") filtered = filtered.filter(d => d.extension === "pdf");
+        if (activeFormatFilter === "xlsx") filtered = filtered.filter(d => d.extension === "xlsx");
+        if (activeFormatFilter === "xml") filtered = filtered.filter(d => d.extension === "xml");
+        if (activeFormatFilter === "recent") {
+            filtered = filtered.filter(d => d.fechaSubida.startsWith("2026-05") || d.fechaSubida.startsWith("2026-06"));
+        }
+
+        // 3. Filtrar por Búsqueda de Texto General (Barra Principal)
+        if (searchVal !== "") {
+            filtered = filtered.filter(function(d) {
+                var matchName = d.nombre.toLowerCase().includes(searchVal);
+                var matchTags = d.etiquetas.some(tag => tag.toLowerCase().includes(searchVal));
+                return matchName || matchTags;
+            });
+        }
+
+        // 4. Filtrar por Búsqueda Avanzada (si está activa/formulada)
+        if (activeAdvancedFilters.nombre !== "") {
+            filtered = filtered.filter(d => d.nombre.toLowerCase().includes(activeAdvancedFilters.nombre.toLowerCase()));
+        }
+        if (activeAdvancedFilters.fechaDesde !== "") {
+            filtered = filtered.filter(d => d.fechaSubida >= activeAdvancedFilters.fechaDesde);
+        }
+        if (activeAdvancedFilters.fechaHasta !== "") {
+            filtered = filtered.filter(d => d.fechaSubida <= activeAdvancedFilters.fechaHasta);
+        }
+        if (activeAdvancedFilters.sizeMin !== null) {
+            filtered = filtered.filter(d => d.tamanoKB >= activeAdvancedFilters.sizeMin);
+        }
+        if (activeAdvancedFilters.sizeMax !== null) {
+            filtered = filtered.filter(d => d.tamanoKB <= activeAdvancedFilters.sizeMax);
+        }
+        if (activeAdvancedFilters.etiquetas.length > 0) {
+            filtered = filtered.filter(d => {
+                return activeAdvancedFilters.etiquetas.some(tag => d.etiquetas.some(t => t.toLowerCase().includes(tag.toLowerCase())));
+            });
+        }
+        // Filtrado por Checkboxes de Tipo
+        filtered = filtered.filter(d => activeAdvancedFilters.tipos.includes(d.tipoDoc));
+
+        // 5. Filtrar por Etiquetas seleccionadas client-side
+        var breadcrumb = document.getElementById("active-tag-breadcrumb");
+        if (activeTagFilter) {
+            filtered = filtered.filter(d => d.etiquetas.includes(activeTagFilter));
+            if (breadcrumb) {
+                breadcrumb.style.display = "flex";
+                document.getElementById("active-tag-name").textContent = "#" + activeTagFilter;
+            }
+        } else {
+            if (breadcrumb) breadcrumb.style.display = "none";
+        }
+
+        // 6. Ordenamiento en Tiempo Real
+        var sortVal = document.getElementById("doc-sort").value;
+        if (sortVal === "recent") {
+            filtered.sort((a, b) => new Date(b.fechaSubida) - new Date(a.fechaSubida) || b.id - a.id);
+        } else if (sortVal === "oldest") {
+            filtered.sort((a, b) => new Date(a.fechaSubida) - new Date(b.fechaSubida) || a.id - b.id);
+        } else if (sortVal === "name") {
+            filtered.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        } else if (sortVal === "size") {
+            filtered.sort((a, b) => b.tamanoKB - a.tamanoKB);
+        }
+
+        // Actualizar contador del grid
+        var totalVisibles = filtered.length;
+        var totalDb = dbDocs.filter(d => activeCategory === "Archivado" ? d.estado === "Archivado" : d.estado === "Activo").length;
+        document.getElementById("grid-visible-count").textContent = `${totalVisibles} de ${totalDb} mostrados`;
+
+        // Renderizado en Grilla
+        renderGridView(filtered);
+
+        // Renderizado en Lista
+        renderListView(filtered);
+
+        // Actualizar barra de acciones flotante por si cambiaron los visibles
+        updateFloatingActionBar();
+    }
+
+    // --- VISTA GRILLA ---
+    function renderGridView(filtered) {
+        var gridContainer = document.getElementById("doc-grid");
+        gridContainer.innerHTML = "";
+        
+        if (filtered.length === 0) {
+            gridContainer.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 48px; background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); color: var(--cta-text-muted);">
+                    <span style="font-size: 36px; display: block; margin-bottom: 8px;">📂</span>
+                    <span style="font-style: italic; font-size:13.5px;">No se encontraron documentos contables con los filtros seleccionados.</span>
+                </div>`;
+        } else {
+            filtered.forEach(function(d) {
+                var dateStr = stringJoinReverse(d.fechaSubida);
+                var sizeStr = formatKB(d.tamanoKB);
+                var iconSvg = getLargeIconHtml(d.extension);
+                var isChecked = selectedDocIds.has(d.id);
+
+                var cardHtml = `
+                    <div class="cta-doc-card" onclick="openPreviewDrawer(${d.id})" style="position: relative;">
+                        
+                        <!-- Checkbox Multi-Selección -->
+                        <div style="position: absolute; top: 12px; left: 12px; z-index: 15;" onclick="event.stopPropagation();">
+                            <input type="checkbox" class="doc-selector-checkbox" data-id="${d.id}" ${isChecked ? 'checked' : ''} onclick="handleCheckboxClick(event, ${d.id})" style="width: 17px; height: 17px; cursor: pointer; accent-color: var(--cta-primary);" />
+                        </div>
+
+                        <!-- Menú de 3 puntos -->
+                        <div style="position: absolute; top: 12px; right: 12px; z-index: 15;" onclick="event.stopPropagation();">
+                            <button class="cta-dots-btn" onclick="toggleDropdown(event, ${d.id})" style="background:none; border:none; color:var(--cta-text-muted); cursor:pointer; font-size:16px; padding:4px; outline:none;">⋮</button>
+                            <div id="dropdown-${d.id}" class="cta-dropdown-menu" style="display:none; position:absolute; right:0; top:24px; background:#ffffff; border:1px solid var(--cta-border); border-radius:6px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); z-index:50; width:130px;">
+                                <button class="cta-dropdown-item" onclick="openPreviewDrawer(${d.id})">Vista Previa</button>
+                                <button class="cta-dropdown-item" onclick="downloadDoc(${d.id})">Descargar</button>
+                                <button class="cta-dropdown-item" onclick="archiveDoc(event, ${d.id})" style="color: #d97706;">${d.estado === 'Activo' ? 'Archivar' : 'Restaurar'}</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Icono Grande -->
+                        <div style="display:flex; justify-content:center; align-items:center; height:80px; margin-top: 8px; margin-bottom:12px;">
+                            ${iconSvg}
+                        </div>
+                        
+                        <!-- Información -->
+                        <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+                            <h4 style="font-size:13.5px; font-weight:600; color:var(--cta-text-primary); margin:0 0 4px 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${d.nombre}">${d.nombre}</h4>
+                            <span style="font-size:10px; font-weight:700; color:var(--cta-text-muted); text-transform:uppercase; letter-spacing:0.3px;">${d.tipoDoc}</span>
+                            <p style="font-size:12px; color:var(--cta-text-secondary); margin:8px 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; height:32px; line-height:1.3;">${d.descripcion}</p>
+                            
+                            <!-- Detalles de Base -->
+                            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--cta-text-muted); margin-top:auto; padding-top:8px; border-top:1px solid #f1f5f9;">
+                                <span>${dateStr}</span>
+                                <span>${sizeStr}</span>
+                            </div>
+                            
+                            <!-- Chips / Etiquetas -->
+                            <div style="display:flex; gap:4px; flex-wrap:wrap; margin-top:8px;" onclick="event.stopPropagation();">
+                                ${d.etiquetas.map(tag => {
+                                    var isSelected = (tag === activeTagFilter);
+                                    var tagStyle = isSelected 
+                                        ? "background: var(--cta-primary); color: #ffffff; border: 1px solid var(--cta-primary); font-weight: 700;"
+                                        : "background: #f1f5f9; color: var(--cta-text-secondary);";
+                                    return `<span onclick="filterByTag(event, '${tag}')" style="${tagStyle} font-size:9.5px; padding:2px 6px; border-radius:4px; transition: all var(--cta-transition); cursor: pointer;">${tag}</span>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                gridContainer.insertAdjacentHTML("beforeend", cardHtml);
+            });
+        }
+    }
+
+    // --- VISTA LISTA ---
+    function renderListView(filtered) {
+        var listBody = document.getElementById("doc-list-body");
+        listBody.innerHTML = "";
+        
+        if (filtered.length === 0) {
+            listBody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 24px; color: var(--cta-text-muted); font-style: italic;">No se encontraron documentos contables con los filtros seleccionados.</td></tr>`;
+        } else {
+            filtered.forEach(function(d) {
+                var dateStr = stringJoinReverse(d.fechaSubida);
+                var sizeStr = formatKB(d.tamanoKB);
+                var iconSvg = getSmallIconHtml(d.extension);
+                var isChecked = selectedDocIds.has(d.id);
+
+                var rowHtml = `
+                    <tr style="border-bottom: 1px solid var(--cta-border); transition: background var(--cta-transition); cursor: pointer;" onclick="openPreviewDrawer(${d.id})" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='none'">
+                        
+                        <!-- Checkbox -->
+                        <td style="padding: 10px 16px; text-align: center;" onclick="event.stopPropagation();">
+                            <input type="checkbox" class="doc-selector-checkbox" data-id="${d.id}" ${isChecked ? 'checked' : ''} onclick="handleCheckboxClick(event, ${d.id})" style="width: 15px; height: 15px; cursor: pointer; accent-color: var(--cta-primary);" />
+                        </td>
+
+                        <td style="padding: 10px 16px; text-align: center;">${iconSvg}</td>
+                        <td style="padding: 10px 16px; font-weight: 600; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${d.nombre}">${d.nombre}</td>
+                        <td style="padding: 10px 16px;">${d.tipoDoc}</td>
+                        <td style="padding: 10px 16px;"><span style="background:#f1f5f9; color:var(--cta-text-secondary); padding:4px 8px; border-radius:4px; font-size:11px; font-weight:600;">${d.categoria}</span></td>
+                        <td style="padding: 10px 16px;">${dateStr}</td>
+                        <td style="padding: 10px 16px; text-align: right; font-family: monospace;">${sizeStr}</td>
+                        <td style="padding: 10px 16px; text-align: center;">
+                            <span style="background: ${d.estado === 'Activo' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(217, 119, 6, 0.1)'}; color: ${d.estado === 'Activo' ? '#10b981' : '#d97706'}; border: 1px solid ${d.estado === 'Activo' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(217, 119, 6, 0.2)'}; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600;">
+                                ${d.estado}
+                            </span>
+                        </td>
+                        <td style="padding: 10px 16px; text-align: center; position: relative;" onclick="event.stopPropagation();">
+                            <button onclick="openPreviewDrawer(${d.id})" style="background:none; border:none; color:var(--cta-primary); font-weight:600; cursor:pointer; font-size:12px; margin-right:8px;">Ver</button>
+                            <button onclick="downloadDoc(${d.id})" style="background:none; border:none; color:var(--cta-text-secondary); cursor:pointer; font-size:12px; margin-right:8px;">Descargar</button>
+                            <button onclick="archiveDoc(event, ${d.id})" style="background:none; border:none; color:#d97706; cursor:pointer; font-size:12px;">${d.estado === 'Activo' ? 'Archivar' : 'Restaurar'}</button>
+                        </td>
+                    </tr>
+                `;
+                listBody.insertAdjacentHTML("beforeend", rowHtml);
+            });
+        }
+    }
+
+    // --- RECALCULAR CONTADORES SIDEBAR ---
+    function updateCategoryCounters() {
+        var countAll = dbDocs.filter(d => d.estado === "Activo").length;
+        var countVentas = dbDocs.filter(d => d.categoria === "Ventas" && d.estado === "Activo").length;
+        var countCompras = dbDocs.filter(d => d.categoria === "Compras" && d.estado === "Activo").length;
+        var countImpuestos = dbDocs.filter(d => d.categoria === "Impuestos" && d.estado === "Activo").length;
+        var countCierre = dbDocs.filter(d => d.categoria === "Cierre" && d.estado === "Activo").length;
+        var countArchived = dbDocs.filter(d => d.estado === "Archivado").length;
+
+        document.getElementById("count-all").textContent = countAll;
+        document.getElementById("count-ventas").textContent = countVentas;
+        document.getElementById("count-compras").textContent = countCompras;
+        document.getElementById("count-impuestos").textContent = countImpuestos;
+        document.getElementById("count-cierre").textContent = countCierre;
+        document.getElementById("count-archivados").textContent = countArchived;
+    }
+
+    // --- 4. GESTIÓN ETIQUETAS CLIENT-SIDE ---
+    function filterByTag(e, tag) {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        activeTagFilter = tag;
+        renderDocs();
+    }
+
+    function clearTagFilter() {
+        activeTagFilter = null;
+        renderDocs();
+    }
+
+    // --- 6. ORDENAMIENTO EN TIEMPO REAL ---
+    function handleSortChange() {
+        renderDocs();
+    }
+
+    // --- ACCIONES INDIVIDUALES ---
+    function toggleDropdown(event, id) {
+        event.stopPropagation();
+        var menu = document.getElementById("dropdown-" + id);
+        var isOpen = menu.style.display === "block";
+        
+        // Cerrar todos los abiertos
+        document.querySelectorAll(".cta-dropdown-menu").forEach(m => m.style.display = "none");
+        
+        if (!isOpen) {
+            menu.style.display = "block";
+            
+            // Cerrar menú si hace click fuera
+            var closeHandler = function() {
+                menu.style.display = "none";
+                document.removeEventListener("click", closeHandler);
+            };
+            setTimeout(() => document.addEventListener("click", closeHandler), 10);
+        }
+    }
+
+    function archiveDoc(event, id) {
+        if (event) event.stopPropagation();
+        var doc = dbDocs.find(d => d.id === id);
+        if (doc) {
+            if (doc.estado === "Activo") {
+                doc.estado = "Archivado";
+                showToast("Archivo Archivado", `"${doc.nombre}" ha sido movido a la sección de Archivados.`, "warning");
+            } else {
+                doc.estado = "Activo";
+                showToast("Archivo Restaurado", `"${doc.nombre}" ha sido restaurado exitosamente.`, "success");
+            }
+            updateCategoryCounters();
+            renderDocs();
+            
+            // Si el drawer está abierto, refrescarlo o cerrarlo
+            var drawer = document.getElementById("cta-preview-drawer");
+            if (drawer.classList.contains("open")) {
+                closePreviewDrawer();
+            }
+        }
+    }
+
+    function downloadDoc(id) {
+        var doc = dbDocs.find(d => d.id === id);
+        if (doc) {
+            // Simular descarga creando un Blob
+            var mockContent = `HEVELAB 2026 - MOCK DOWNLOAD\r\n` +
+                              `===========================\r\n` + 
+                              `Nombre del Archivo: ${doc.nombre}\r\n` + 
+                              `Tipo de Documento: ${doc.tipoDoc}\r\n` + 
+                              `Categoría Contable: ${doc.categoria}\r\n` + 
+                              `Fecha de Registro: ${doc.fechaSubida}\r\n` + 
+                              `Tamaño de Documento: ${formatKB(doc.tamanoKB)}\r\n` +
+                              `Subido Por: ${doc.subidoPor}\r\n` +
+                              `Estado en el Gestor: ${doc.estado}\r\n\r\n` +
+                              `Descripción: ${doc.descripcion}\r\n`;
+            
+            var blob = new Blob([mockContent], { type: "text/plain;charset=utf-8" });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = doc.nombre.replace(".pdf", ".txt").replace(".xlsx", ".txt").replace(".xml", ".txt"); 
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast("Descarga Iniciada", `Descargando comprobante "${doc.nombre}" en formato descriptivo.`, "success");
+        }
+    }
+
+    // --- 1. PANEL DE PREVIEW (Sliding Right Drawer) ---
+    function openPreviewDrawer(id) {
+        var doc = dbDocs.find(d => d.id === id);
+        if (doc) {
+            var overlay = document.getElementById("cta-drawer-overlay");
+            var drawer = document.getElementById("cta-preview-drawer");
+            var body = document.getElementById("drawer-body-content");
+            var footer = document.getElementById("drawer-footer-actions");
+
+            // Colores del preview
+            var color = "#3b5bdb";
+            var mockPreviewHtml = "";
+
+            if (doc.extension === "pdf") {
+                color = "#ef4444";
+                mockPreviewHtml = `
+                    <div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 6px; padding: 20px; text-align: center; border-left: 4px solid #ef4444;">
+                        <span style="font-size: 32px; display: block; margin-bottom: 6px;">📄</span>
+                        <h5 style="margin: 0 0 4px 0; font-weight: 700; color: #991b1b; font-size: 13px;">Vista Previa de Comprobante Fiscal</h5>
+                        <div style="font-size: 11px; color: #7f1d1d; background: #ffffff; border: 1px dashed #fca5a5; padding: 10px; border-radius: 4px; text-align: left; margin: 8px 0; font-family: monospace;">
+                            <strong>EMISOR:</strong> HEVELAB S.A.C.<br/>
+                            <strong>TIPO:</strong> FACTURA ELECTRÓNICA<br/>
+                            <strong>SERIE:</strong> F001-0008542<br/>
+                            <strong>TOTAL:</strong> S/ 4,850.00
+                        </div>
+                        <span style="font-size: 10px; color: #ef4444; font-weight: 600;">
+                            ⚠️ Vista previa no disponible en modo demo (PDF)
+                        </span>
+                    </div>
+                `;
+            } else if (doc.extension === "xlsx") {
+                color = "#10b981";
+                mockPreviewHtml = `
+                    <div style="background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 6px; padding: 20px; text-align: center; border-left: 4px solid #10b981;">
+                        <span style="font-size: 32px; display: block; margin-bottom: 6px;">📊</span>
+                        <h5 style="margin: 0 0 6px 0; font-weight: 700; color: #166534; font-size: 13px;">Hoja de Cálculo — Cierre / Conciliación</h5>
+                        <div style="font-size: 11px; color: #14532d; background: #ffffff; border: 1px solid #bbf7d0; border-radius: 4px; overflow: hidden; text-align: left; margin: 8px 0;">
+                            <table style="width: 100%; border-collapse: collapse; font-family: monospace;">
+                                <tr style="background: #f0fdf4; font-weight: bold; border-bottom: 1px solid #bbf7d0;">
+                                    <th style="padding: 3px 6px; border-right: 1px solid #bbf7d0;">Detalle</th>
+                                    <th style="padding: 3px 6px; text-align: right;">Monto</th>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #f0fdf4;">
+                                    <td style="padding: 3px 6px; border-right: 1px solid #bbf7d0;">Saldo BCP</td>
+                                    <td style="padding: 3px 6px; text-align: right; color: #166534;">S/ 124,500.00</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 3px 6px; border-right: 1px solid #bbf7d0;">Diferencias</td>
+                                    <td style="padding: 3px 6px; text-align: right; color: #991b1b;">S/ 0.00</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <span style="font-size: 10px; color: #10b981; font-weight: 600;">
+                            ⚠️ Excel estructurado en modo demostración
+                        </span>
+                    </div>
+                `;
+            } else {
+                color = "#3b5bdb";
+                mockPreviewHtml = `
+                    <div style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 6px; padding: 20px; text-align: center; border-left: 4px solid #3b5bdb;">
+                        <span style="font-size: 32px; display: block; margin-bottom: 6px;">📋</span>
+                        <h5 style="margin: 0 0 6px 0; font-weight: 700; color: #1e3a8a; font-size: 13px;">Estructura XML UBL 2.1 SUNAT</h5>
+                        <div style="font-size: 10px; color: #1e3a8a; background: #ffffff; border: 1px dashed #bfdbfe; padding: 8px; border-radius: 4px; text-align: left; margin: 8px 0; font-family: monospace; white-space: pre-wrap; word-break: break-all; height: 60px; overflow-y: auto;">&lt;xml version="1.0"&gt;\n&lt;cac:InvoiceLine&gt;\n  &lt;cbc:InvoicedQuantity&gt;1&lt;/cbc:InvoicedQuantity&gt;\n&lt;/cac:InvoiceLine&gt;</div>
+                        <span style="font-size: 10px; color: #3b5bdb; font-weight: 600;">
+                            ⚠️ Validador XML integrado activo
+                        </span>
+                    </div>
+                `;
+            }
+
+            // Inyectar el cuerpo del drawer
+            body.innerHTML = `
+                <!-- Ficha visual de Tipo -->
+                <div style="display: flex; align-items: center; gap: 12px; background: #f8fafc; border: 1px solid var(--cta-border); border-radius: 6px; padding: 12px;">
+                    <div style="font-size: 30px; line-height: 1;">
+                        ${doc.extension === 'pdf' ? '📄' : doc.extension === 'xlsx' ? '📊' : '📋'}
+                    </div>
+                    <div style="min-width: 0;">
+                        <h4 style="font-size: 14px; font-weight: 700; color: var(--cta-text-primary); margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${doc.nombre}</h4>
+                        <span style="font-size: 10.5px; color: var(--cta-text-muted); font-weight: 600; text-transform: uppercase;">Extensión: ${doc.extension.toUpperCase()} &middot; Código ID: #${doc.id}</span>
+                    </div>
+                </div>
+
+                <!-- Simulación de Preview -->
+                ${mockPreviewHtml}
+
+                <!-- Metadatos de Ficha -->
+                <div style="background: #ffffff; border: 1px solid var(--cta-border); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+                    <h5 style="font-size: 11.5px; font-weight: 700; color: var(--cta-text-muted); text-transform: uppercase; margin: 0 0 4px 0; letter-spacing: 0.3px;">Metadatos e Información</h5>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <span style="font-size: 10px; font-weight: 600; color: var(--cta-text-muted); display: block;">TIPO</span>
+                            <span style="font-weight: 600; color: var(--cta-text-primary);">${doc.tipoDoc}</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 10px; font-weight: 600; color: var(--cta-text-muted); display: block;">CATEGORÍA</span>
+                            <span style="font-weight: 600; color: var(--cta-text-primary);">${doc.categoria}</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 10px; font-weight: 600; color: var(--cta-text-muted); display: block;">FECHA REGISTRO</span>
+                            <span style="color: var(--cta-text-secondary);">${stringJoinReverse(doc.fechaSubida)}</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 10px; font-weight: 600; color: var(--cta-text-muted); display: block;">TAMAÑO</span>
+                            <span style="color: var(--cta-text-secondary);">${formatKB(doc.tamanoKB)}</span>
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <span style="font-size: 10px; font-weight: 600; color: var(--cta-text-muted); display: block;">SUBIDO POR</span>
+                            <span style="color: var(--cta-text-secondary); font-weight: 500;">${doc.subidoPor}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descripción -->
+                <div>
+                    <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); display: block; margin-bottom: 4px; text-transform: uppercase;">Descripción General</span>
+                    <p style="margin: 0; line-height: 1.4; color: var(--cta-text-secondary); font-size: 12.5px; background: #f8fafc; border: 1px solid var(--cta-border); border-radius: 6px; padding: 10px;">${doc.descripcion}</p>
+                </div>
+
+                <!-- Tags dinámicas -->
+                <div>
+                    <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); display: block; margin-bottom: 8px; text-transform: uppercase;">Etiquetas Asociadas</span>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;" id="drawer-tags-container">
+                        <!-- Renderizado dinámico -->
+                    </div>
+                    <div id="add-tag-input-container" style="display: none; margin-top: 8px;">
+                        <input type="text" id="new-tag-input" placeholder="Escriba etiqueta y presione Enter..." style="width: 100%; padding: 6px 10px; border: 1px solid var(--cta-border); border-radius: 4px; font-size: 12.5px; outline: none;" onkeydown="handleNewTagKeydown(event, ${doc.id})" />
+                    </div>
+                </div>
+
+                <!-- Historial de Actividad Simulado -->
+                <div style="background: #fafafa; border: 1px solid var(--cta-border); border-radius: 6px; padding: 16px;">
+                    <h5 style="font-size: 11px; font-weight: 700; color: var(--cta-text-muted); text-transform: uppercase; margin: 0 0 8px 0;">Historial de Actividad (Auditoría)</h5>
+                    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11.5px; color: var(--cta-text-secondary);">
+                        <div style="display: flex; align-items: flex-start; gap: 6px;">
+                            <span>📁</span>
+                            <span>Subido el ${stringJoinReverse(doc.fechaSubida)} por <strong>${doc.subidoPor}</strong></span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; gap: 6px;">
+                            <span>👁️</span>
+                            <span>Visualizado el ${stringJoinReverse(new Date().toISOString().split('T')[0])} a las ${new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; gap: 6px;">
+                            <span>📥</span>
+                            <span>Descargado 3 veces por el módulo de contabilidad.</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Rellenar etiquetas en el drawer
+            renderDrawerTags(doc);
+
+            // Botones de acción del footer del drawer
+            footer.innerHTML = `
+                <button onclick="downloadDoc(${doc.id})" style="background: var(--cta-primary); color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='var(--cta-primary-hover)'" onmouseout="this.style.background='var(--cta-primary)'">Descargar</button>
+                <button onclick="archiveDoc(null, ${doc.id})" style="background: #ffffff; border: 1px solid var(--cta-border); color: #d97706; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                    ${doc.estado === 'Activo' ? 'Archivar' : 'Restaurar'}
+                </button>
+                <button onclick="closePreviewDrawer()" style="background: #ffffff; border: 1px solid var(--cta-border); color: var(--cta-text-secondary); padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Cerrar</button>
+            `;
+
+            // Deslizar el Drawer hacia adentro
+            overlay.classList.add("active");
+            drawer.classList.add("open");
+        }
+    }
+
+    function closePreviewDrawer() {
+        var overlay = document.getElementById("cta-drawer-overlay");
+        var drawer = document.getElementById("cta-preview-drawer");
+        if (overlay && drawer) {
+            overlay.classList.remove("active");
+            drawer.classList.remove("open");
+        }
+    }
+
+    // --- MANEJO DE ETIQUETAS EN PREVIEW ---
+    function renderDrawerTags(doc) {
+        var container = document.getElementById("drawer-tags-container");
+        if (!container) return;
+        container.innerHTML = "";
+
+        doc.etiquetas.forEach(function(tag) {
+            var chip = document.createElement("span");
+            chip.style.cssText = "background: var(--cta-primary-soft); color: var(--cta-primary); font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;";
+            chip.innerHTML = `#${tag} <span onclick="removeTagFromDoc(event, ${doc.id}, '${tag}')" style="cursor: pointer; opacity: 0.7; font-weight: bold; font-size: 12px; margin-left: 2px;">&times;</span>`;
+            chip.onclick = function() {
+                closePreviewDrawer();
+                filterByTag(null, tag);
+            };
+            container.appendChild(chip);
+        });
+
+        // Botón agregar
+        var addBtn = document.createElement("button");
+        addBtn.className = "cta-add-tag-btn";
+        addBtn.style.cssText = "background: #f1f5f9; border: 1px solid var(--cta-border); color: var(--cta-text-secondary); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: all 0.2s; outline: none; border-style: dashed;";
+        addBtn.textContent = "+ Agregar etiqueta";
+        addBtn.onclick = showAddTagInput;
+        container.appendChild(addBtn);
+    }
+
+    function showAddTagInput() {
+        var container = document.getElementById("add-tag-input-container");
+        if (container) {
+            container.style.display = "block";
+            var input = document.getElementById("new-tag-input");
+            if (input) input.focus();
+        }
+    }
+
+    function handleNewTagKeydown(event, id) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            var input = document.getElementById("new-tag-input");
+            var val = input.value.trim();
+            if (val) {
+                var doc = dbDocs.find(d => d.id === id);
+                if (doc) {
+                    if (!doc.etiquetas.includes(val)) {
+                        doc.etiquetas.push(val);
+                        showToast("Etiqueta Agregada", `Se agregó la etiqueta "#${val}" a "${doc.nombre}".`, "success");
+                        renderDrawerTags(doc);
+                        renderDocs();
+                    } else {
+                        showToast("Etiqueta Existente", `El archivo ya cuenta con la etiqueta "${val}".`, "info");
+                    }
+                    input.value = "";
+                    document.getElementById("add-tag-input-container").style.display = "none";
+                }
+            }
+        }
+    }
+
+    function removeTagFromDoc(event, docId, tag) {
+        event.stopPropagation();
+        var doc = dbDocs.find(d => d.id === docId);
+        if (doc) {
+            doc.etiquetas = doc.etiquetas.filter(t => t !== tag);
+            showToast("Etiqueta Eliminada", `Se removió la etiqueta "#${tag}".`, "warning");
+            renderDrawerTags(doc);
+            renderDocs();
+        }
+    }
+
+    // --- 2. ZONA DRAG & DROP ---
+    function toggleDragDropZone() {
+        var zone = document.getElementById("drag-drop-collapsible-zone");
+        var indicator = document.getElementById("drag-drop-toggle-indicator");
+        if (zone.style.maxHeight === "0px") {
+            zone.style.maxHeight = "200px";
+            indicator.textContent = "▼ Colapsar";
+            isDragDropZoneCollapsed = false;
+        } else {
+            zone.style.maxHeight = "0px";
+            indicator.textContent = "▲ Expandir";
+            isDragDropZoneCollapsed = true;
+        }
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var dz = document.getElementById("drop-zone");
+        dz.style.backgroundColor = "var(--cta-primary-soft)";
+        dz.style.borderColor = "var(--cta-primary)";
+    }
+
+    function handleDragLeave(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var dz = document.getElementById("drop-zone");
+        dz.style.backgroundColor = "#f8fafc";
+        dz.style.borderColor = "var(--cta-border)";
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleDragLeave(e);
+        var files = e.dataTransfer.files;
+        processUploadedFiles(files);
+    }
+
+    function triggerFileInput() {
+        document.getElementById("file-input-hidden").click();
+    }
+
+    function handleFileSelect(e) {
+        var files = e.target.files;
+        processUploadedFiles(files);
+    }
+
+    function processUploadedFiles(files) {
+        if (!files || files.length === 0) return;
+        var loadedCount = 0;
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var name = file.name;
+            var ext = name.split('.').pop().toLowerCase();
+            if (ext !== "pdf" && ext !== "xlsx" && ext !== "xml") {
+                ext = "pdf"; // Fallback predeterminado
+            }
+            var sizeKB = Math.round(file.size / 1024) || 120;
+            var today = new Date().toISOString().split('T')[0];
+            
+            var newId = dbDocs.length > 0 ? Math.max(...dbDocs.map(d => d.id)) + 1 : 1;
+            
+            // Determinar categoría por nombre de archivo
+            var defaultCat = "Ventas";
+            if (name.toLowerCase().includes("compra")) defaultCat = "Compras";
+            else if (name.toLowerCase().includes("impuesto") || name.toLowerCase().includes("sunat") || name.toLowerCase().includes("pdt")) defaultCat = "Impuestos";
+            else if (name.toLowerCase().includes("cierre") || name.toLowerCase().includes("balance") || name.toLowerCase().includes("reporte") || name.toLowerCase().includes("planilla")) defaultCat = "Cierre";
+
+            var newDoc = {
+                id: newId,
+                nombre: name,
+                descripcion: "Documento contable digital cargado vía arrastre y Drag & Drop.",
+                tipoDoc: ext === "pdf" ? "Factura" : ext === "xlsx" ? "Reporte" : "Declaración",
+                categoria: defaultCat,
+                fechaSubida: today,
+                tamanoKB: sizeKB,
+                extension: ext,
+                subidoPor: "Usuario Admin",
+                etiquetas: [defaultCat, ext.toUpperCase()],
+                estado: "Activo"
+            };
+            dbDocs.push(newDoc);
+            loadedCount++;
+        }
+        updateCategoryCounters();
+        renderDocs();
+        showToast("Carga Completada", `${loadedCount} archivo(s) se han procesado e incorporado exitosamente.`, "success");
+    }
+
+    // --- 3. BÚSQUEDA AVANZADA ---
+    function toggleAdvancedSearch() {
+        var panel = document.getElementById("adv-search-panel");
+        var btn = document.getElementById("btn-adv-search");
+        if (panel.style.display === "none") {
+            panel.style.display = "block";
+            btn.classList.add("active");
+        } else {
+            panel.style.display = "none";
+            btn.classList.remove("active");
+        }
+    }
+
+    function applyAdvancedFilters() {
+        var nombre = document.getElementById("adv-nombre").value.trim();
+        var desde = document.getElementById("adv-fecha-desde").value;
+        var hasta = document.getElementById("adv-fecha-hasta").value;
+        var tmin = document.getElementById("adv-tam-min").value;
+        var tmax = document.getElementById("adv-tam-max").value;
+        var tagsRaw = document.getElementById("adv-etiquetas").value.trim();
+
+        // Checkboxes de Tipo
+        var checkedTypes = [];
+        document.querySelectorAll(".adv-tipo-check:checked").forEach(function(cb) {
+            checkedTypes.push(cb.value);
+        });
+
+        activeAdvancedFilters.nombre = nombre;
+        activeAdvancedFilters.fechaDesde = desde;
+        activeAdvancedFilters.fechaHasta = hasta;
+        activeAdvancedFilters.sizeMin = tmin ? parseInt(tmin) : null;
+        activeAdvancedFilters.sizeMax = tmax ? parseInt(tmax) : null;
+        activeAdvancedFilters.etiquetas = tagsRaw ? tagsRaw.split(",").map(t => t.trim()) : [];
+        activeAdvancedFilters.tipos = checkedTypes;
+
+        showToast("Filtros Aplicados", "La grilla se ha filtrado con los parámetros avanzados.", "info");
+        renderDocs();
+    }
+
+    function clearAdvancedFilters() {
+        document.getElementById("adv-nombre").value = "";
+        document.getElementById("adv-fecha-desde").value = "";
+        document.getElementById("adv-fecha-hasta").value = "";
+        document.getElementById("adv-tam-min").value = "";
+        document.getElementById("adv-tam-max").value = "";
+        document.getElementById("adv-etiquetas").value = "";
+        
+        document.querySelectorAll(".adv-tipo-check").forEach(cb => cb.checked = true);
+
+        activeAdvancedFilters = {
+            nombre: "",
+            fechaDesde: "",
+            fechaHasta: "",
+            sizeMin: null,
+            sizeMax: null,
+            etiquetas: [],
+            tipos: ["Factura", "Estado de Cuenta", "Declaración", "Contrato", "Reporte", "Otro"]
+        };
+
+        showToast("Filtros Reiniciados", "Se han restablecido los documentos a la vista normal.", "info");
+        renderDocs();
+    }
+
+    // --- 5. SELECCIÓN MÚLTIPLE ---
+    function handleCheckboxClick(event, id) {
+        event.stopPropagation();
+        if (event.target.checked) {
+            selectedDocIds.add(id);
+        } else {
+            selectedDocIds.delete(id);
+        }
+        updateFloatingActionBar();
+    }
+
+    function toggleSelectAll(masterCheckbox) {
+        var checkboxes = document.querySelectorAll(".doc-selector-checkbox");
+        checkboxes.forEach(function(cb) {
+            var id = parseInt(cb.getAttribute("data-id"));
+            cb.checked = masterCheckbox.checked;
+            if (masterCheckbox.checked) {
+                selectedDocIds.add(id);
+            } else {
+                selectedDocIds.delete(id);
+            }
+        });
+
+        // Sincronizar los dos master checkboxes
+        var masterList = document.getElementById("check-all-docs");
+        var masterGrid = document.getElementById("check-all-docs-grid");
+        if (masterList) masterList.checked = masterCheckbox.checked;
+        if (masterGrid) masterGrid.checked = masterCheckbox.checked;
+
+        updateFloatingActionBar();
+    }
+
+    function updateFloatingActionBar() {
+        var bar = document.getElementById("cta-floating-actions-bar");
+        var countSpan = document.getElementById("selected-count");
+        if (selectedDocIds.size > 0) {
+            countSpan.textContent = selectedDocIds.size;
+            bar.style.display = "flex";
+            setTimeout(() => bar.classList.add("active"), 10);
+        } else {
+            bar.classList.remove("active");
+            setTimeout(() => bar.style.display = "none", 300);
+            
+            // Apagar checks maestros
+            var masterList = document.getElementById("check-all-docs");
+            var masterGrid = document.getElementById("check-all-docs-grid");
+            if (masterList) masterList.checked = false;
+            if (masterGrid) masterGrid.checked = false;
+        }
+    }
+
+    function cancelSelection() {
+        selectedDocIds.clear();
+        document.querySelectorAll(".doc-selector-checkbox").forEach(cb => cb.checked = false);
+        
+        var masterList = document.getElementById("check-all-docs");
+        var masterGrid = document.getElementById("check-all-docs-grid");
+        if (masterList) masterList.checked = false;
+        if (masterGrid) masterGrid.checked = false;
+
+        updateFloatingActionBar();
+    }
+
+    function archiveSelected() {
+        if (selectedDocIds.size === 0) return;
+        var count = 0;
+        selectedDocIds.forEach(function(id) {
+            var doc = dbDocs.find(d => d.id === id);
+            if (doc && doc.estado === "Activo") {
+                doc.estado = "Archivado";
+                count++;
+            }
+        });
+        showToast("Selección Archivada", `${count} archivo(s) se han movido a la sección de Archivados.`, "warning");
+        cancelSelection();
+        updateCategoryCounters();
+        renderDocs();
+    }
+
+    function downloadZipSelected() {
+        if (selectedDocIds.size === 0) return;
+        
+        // Simular descarga de paquete comprimido ZIP
+        var fileNames = [];
+        selectedDocIds.forEach(id => {
+            var doc = dbDocs.find(d => d.id === id);
+            if (doc) fileNames.push(doc.nombre);
+        });
+
+        var zipSimulatedContent = `HEVELAB ERP 2026 - CONTABILIDAD\r\n` +
+                                  `PAQUETE COMPRIMIDO ZIP SIMULADO\r\n` + 
+                                  `===================================\r\n` +
+                                  `Cantidad de Archivos: ${selectedDocIds.size}\r\n\r\n` +
+                                  `Archivos Incluidos:\r\n` + 
+                                  fileNames.map((n, i) => `  [${i+1}] ${n}`).join("\r\n");
+
+        var blob = new Blob([zipSimulatedContent], { type: "application/zip" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "comprobantes_contables_hevelab.zip";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast("ZIP Generado", `Descargando paquete comprimido con ${selectedDocIds.size} archivos.`, "success");
+        cancelSelection();
+    }
+
+    // --- AUXILIARES ---
+    function formatKB(kb) {
+        if (kb >= 1024) {
+            return (kb / 1024).toFixed(2) + " MB";
+        }
+        return kb + " KB";
+    }
+
+    function stringJoinReverse(dateStr) {
+        if (!dateStr) return "-";
+        var parts = dateStr.split("-");
+        if (parts.length === 3) {
+            return parts[2] + "/" + parts[1] + "/" + parts[0];
+        }
+        return dateStr;
+    }
+
+    function getLargeIconHtml(ext) {
+        if (ext === "pdf") {
+            return `
+                <svg viewBox="0 0 24 24" style="width: 48px; height: 48px; fill: none; stroke: #ef4444; stroke-width: 1.5; filter: drop-shadow(0 4px 6px rgba(239, 68, 68, 0.15));">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <text x="6" y="15" fill="#ef4444" font-size="4px" font-weight="900" font-family="sans-serif">PDF</text>
+                </svg>
+            `;
+        }
+        if (ext === "xlsx") {
+            return `
+                <svg viewBox="0 0 24 24" style="width: 48px; height: 48px; fill: none; stroke: #10b981; stroke-width: 1.5; filter: drop-shadow(0 4px 6px rgba(16, 185, 129, 0.15));">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <rect x="8" y="12" width="8" height="6" rx="1"></rect>
+                    <line x1="12" y1="12" x2="12" y2="18"></line>
+                    <line x1="8" y1="15" x2="16" y2="15"></line>
+                </svg>
+            `;
+        }
+        return `
+            <svg viewBox="0 0 24 24" style="width: 48px; height: 48px; fill: none; stroke: #3b5bdb; stroke-width: 1.5; filter: drop-shadow(0 4px 6px rgba(59, 93, 219, 0.15));">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <polyline points="8 13 6 15 8 17"></polyline>
+                <polyline points="16 13 18 15 16 17"></polyline>
+                <line x1="13" y1="12" x2="11" y2="18"></line>
+            </svg>
+        `;
+    }
+
+    function getSmallIconHtml(ext) {
+        var color = "#3b5bdb";
+        if (ext === "pdf") color = "#ef4444";
+        if (ext === "xlsx") color = "#10b981";
+        
+        return `
+            <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: none; stroke: ${color}; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+        `;
+    }
+
+    // --- MODALES AUXILIARES ---
+    function openUploadModal() {
+        var modal = document.getElementById("cta-upload-modal");
+        var card = document.getElementById("cta-upload-card");
+        
+        // Limpiar formulario
+        document.getElementById("up-nombre").value = "";
+        document.getElementById("up-desc").value = "";
+        document.getElementById("up-tags").value = "";
+        document.getElementById("up-tam").value = Math.floor(Math.random() * (1200 - 50) + 50);
+
+        modal.style.display = "flex";
+        setTimeout(function() {
+            modal.style.opacity = "1";
+            card.style.transform = "scale(1)";
+        }, 10);
+    }
+
+    function closeUploadModal() {
+        var modal = document.getElementById("cta-upload-modal");
+        var card = document.getElementById("cta-upload-card");
+        if (modal && card) {
+            modal.style.opacity = "0";
+            card.style.transform = "scale(0.95)";
+            setTimeout(function() {
+                modal.style.display = "none";
+            }, 200);
+        }
+    }
+
+    // --- SISTEMA TOAST NOTIFICACIONES ---
+    function showToast(title, message, type = "success") {
+        var color = "#10b981";
+        if (type === "warning") color = "#d97706";
+        if (type === "info") color = "#3b5bdb";
+        
+        var toastHtml = `
+            <div class="cta-toast" style="position: fixed; top: 20px; right: 20px; background: #ffffff; border-left: 4px solid ${color}; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border-radius: 6px; padding: 12px 18px; z-index: 10000; animation: toastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 12px; min-width: 280px; max-width: 400px; box-sizing: border-box;">
+                <div style="flex: 1;">
+                    <h5 style="margin: 0; font-size: 13px; font-weight: 700; color: var(--cta-text-primary);">${title}</h5>
+                    <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--cta-text-secondary);">${message}</p>
+                </div>
+                <button style="background: none; border: none; font-size: 16px; color: var(--cta-text-muted); cursor: pointer;" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+        `;
+        document.body.insertAdjacentHTML("beforeend", toastHtml);
+        
+        var toasts = document.querySelectorAll(".cta-toast");
+        var lastToast = toasts[toasts.length - 1];
+        setTimeout(function() {
+            if (lastToast) {
+                lastToast.style.opacity = "0";
+                lastToast.style.transform = "translateY(-10px)";
+                lastToast.style.transition = "all 0.3s ease";
+                setTimeout(function() {
+                    lastToast.remove();
+                }, 300);
+            }
+        }, 3500);
+    }
+</script>

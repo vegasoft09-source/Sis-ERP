@@ -1,0 +1,855 @@
+@model IEnumerable<Factura>
+@{
+    ViewData["Title"] = "Facturas";
+    
+    var facturas = Model;
+}
+
+<div class="cta-module-card" style="background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); box-shadow: var(--cta-shadow); padding: 24px; animation: ctaFadeIn 300ms ease-out;">
+    
+    <!-- Encabezado de Página -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--cta-border); padding-bottom: 16px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="color: var(--cta-primary); display: flex; align-items: center; justify-content: center; background: var(--cta-primary-soft); width: 42px; height: 42px; border-radius: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+            </div>
+            <div>
+                <h1 style="font-size: 20px; font-weight: 700; color: var(--cta-text-primary); margin: 0;">Facturas</h1>
+                <p style="font-size: 12.5px; color: var(--cta-text-secondary); margin: 2px 0 0 0;">Visualiza y filtra los comprobantes de pago de la empresa.</p>
+            </div>
+        </div>
+        <div>
+            <!-- Botón Exportar CSV -->
+            <button id="btn-exportar" style="border: 1px solid var(--cta-border); background: #ffffff; color: var(--cta-text-secondary); padding: 8px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
+                <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Exportar CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- 6. Resumen Estadístico Superior (Cards) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        
+        <!-- Card 1: Total Facturas -->
+        <div style="background: #ffffff; border: 1px solid var(--cta-border); border-left: 4px solid var(--cta-primary); padding: 16px; border-radius: 6px; box-shadow: var(--cta-shadow);">
+            <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Total Facturas</span>
+            <h3 id="stat-total" style="font-size: 20px; font-weight: 700; color: var(--cta-text-primary); margin: 4px 0 0 0;">0</h3>
+        </div>
+
+        <!-- Card 2: Emitidas -->
+        <div style="background: #ffffff; border: 1px solid var(--cta-border); border-left: 4px solid #10b981; padding: 16px; border-radius: 6px; box-shadow: var(--cta-shadow);">
+            <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Emitidas</span>
+            <h3 id="stat-emitidas" style="font-size: 20px; font-weight: 700; color: #10b981; margin: 4px 0 0 0;">0</h3>
+        </div>
+
+        <!-- Card 3: Anuladas -->
+        <div style="background: #ffffff; border: 1px solid var(--cta-border); border-left: 4px solid #ef4444; padding: 16px; border-radius: 6px; box-shadow: var(--cta-shadow);">
+            <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Anuladas</span>
+            <h3 id="stat-anuladas" style="font-size: 20px; font-weight: 700; color: #ef4444; margin: 4px 0 0 0;">0</h3>
+        </div>
+
+        <!-- Card 4: Monto Total PEN -->
+        <div style="background: #ffffff; border: 1px solid var(--cta-border); border-left: 4px solid #f59e0b; padding: 16px; border-radius: 6px; box-shadow: var(--cta-shadow);">
+            <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Monto Total PEN</span>
+            <h3 id="stat-monto" style="font-size: 20px; font-weight: 700; color: #d97706; margin: 4px 0 0 0;">S/ 0.00</h3>
+        </div>
+
+    </div>
+
+    <!-- 2. Barra de Filtros Ampliada -->
+    <div style="background: #f8fafc; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); padding: 16px; margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px;">
+            
+            <!-- Búsqueda -->
+            <div>
+                <label for="filter-search" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Buscar</label>
+                <div style="position: relative;">
+                    <input type="text" id="filter-search" placeholder="Nº Factura o Cliente..." style="width: 100%; padding: 8px 12px 8px 32px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none;" />
+                    <svg viewBox="0 0 24 24" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; fill: none; stroke: var(--cta-text-muted); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Tipo -->
+            <div>
+                <label for="filter-tipo" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Tipo Comprobante</label>
+                <select id="filter-tipo" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none;">
+                    <option value="">Todos</option>
+                    <option value="Factura">Factura</option>
+                    <option value="Boleta">Boleta</option>
+                    <option value="Nota de Crédito">Nota de Crédito</option>
+                </select>
+            </div>
+
+            <!-- Estado -->
+            <div>
+                <label for="filter-estado" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Estado</label>
+                <select id="filter-estado" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none;">
+                    <option value="">Todos</option>
+                    <option value="Emitida">Emitida</option>
+                    <option value="Anulada">Anulada</option>
+                    <option value="Pendiente">Pendiente</option>
+                </select>
+            </div>
+
+            <!-- Moneda -->
+            <div>
+                <label for="filter-moneda" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Moneda</label>
+                <select id="filter-moneda" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none;">
+                    <option value="">Todos</option>
+                    <option value="PEN">PEN (Sol)</option>
+                    <option value="USD">USD (Dólar)</option>
+                </select>
+            </div>
+
+            <!-- Fecha Desde -->
+            <div>
+                <label for="filter-fecha-desde" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Fecha Desde</label>
+                <input type="date" id="filter-fecha-desde" style="width: 100%; padding: 7px 10px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none;" />
+            </div>
+
+            <!-- Fecha Hasta -->
+            <div>
+                <label for="filter-fecha-hasta" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Fecha Hasta</label>
+                <input type="date" id="filter-fecha-hasta" style="width: 100%; padding: 7px 10px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none;" />
+            </div>
+
+        </div>
+
+        <!-- Botones de Acción -->
+        <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px dashed var(--cta-border); padding-top: 12px;">
+            <button id="btn-limpiar" style="border: 1px solid var(--cta-border); background: #ffffff; color: var(--cta-text-secondary); padding: 8px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#ffffff'">
+                Limpiar
+            </button>
+            <button id="btn-filtrar" style="background: var(--cta-primary); color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='var(--cta-primary-hover)'" onmouseout="this.style.background='var(--cta-primary)'">
+                Filtrar
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabla de Facturas -->
+    <div style="border: 1px solid var(--cta-border); border-radius: var(--cta-radius); overflow: hidden; background: #ffffff;">
+        
+        <!-- Paginador Header: Mostrar X registros -->
+        <div style="padding: 12px 24px; border-bottom: 1px solid var(--cta-border); display: flex; justify-content: flex-end; align-items: center; background: #f8fafc; gap: 8px;">
+            <label for="select-page-size" style="font-size: 12.5px; color: var(--cta-text-secondary); font-weight: 500;">Mostrar:</label>
+            <select id="select-page-size" style="padding: 4px 8px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 4px; font-size: 12px; color: var(--cta-text-primary); outline: none;">
+                <option value="5" selected>5 por página</option>
+                <option value="10">10 por página</option>
+                <option value="25">25 por página</option>
+                <option value="all">Todos</option>
+            </select>
+        </div>
+
+        <div style="overflow-x: auto; width: 100%;">
+            <table id="tabla-facturas" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;">
+                
+                <thead>
+                    <tr style="background-color: #eef2ff; border-bottom: 1px solid var(--cta-border); color: #3b5bdb; font-weight: 600;">
+                        <!-- 4. Ordenamiento de Columnas (Headers Clickables) -->
+                        <th class="sortable-header" data-column="0" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">N° Factura <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="1" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">Fecha <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="2" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">Cliente <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="3" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">RUC <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="4" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">Tipo <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="5" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none; text-align: center;">Moneda <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="6" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none; text-align: right;">Monto Base <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="7" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none; text-align: right;">IGV (18%) <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="8" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none; text-align: right;">Total <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="9" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none; text-align: center;">Estado <span class="sort-indicator"></span></th>
+                        <th style="padding: 12px 16px; font-weight: 600; text-align: center; cursor: default; user-select: none;">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabla-body" style="color: var(--cta-text-primary);">
+                    @foreach (var f in facturas)
+                    {
+                        <tr class="factura-row" 
+                            data-numero="@f.NumeroFactura" 
+                            data-fecha="@f.Fecha"
+                            data-cliente="@f.Cliente" 
+                            data-ruc="@f.RUC"
+                            data-tipo="@f.TipoComprobante" 
+                            data-estado="@f.Estado" 
+                            data-moneda="@f.Moneda" 
+                            data-base="@f.MontoBase" 
+                            data-igv="@f.IGV" 
+                            data-total="@f.Total"
+                            style="border-bottom: 1px solid var(--cta-border); transition: background var(--cta-transition);">
+                            
+                            <td style="padding: 14px 16px; font-weight: 600; color: var(--cta-primary);">@f.NumeroFactura</td>
+                            <td style="padding: 14px 16px; white-space: nowrap;">@f.Fecha</td>
+                            <td style="padding: 14px 16px; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="@f.Cliente">@f.Cliente</td>
+                            <td style="padding: 14px 16px; font-family: monospace; font-size: 13px;">@f.RUC</td>
+                            <td style="padding: 14px 16px;">@f.TipoComprobante</td>
+                            <td style="padding: 14px 16px; text-align: center;">
+                                <span style="font-size: 11px; font-weight: 700; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--cta-border);">@f.Moneda</span>
+                            </td>
+                            <td style="padding: 14px 16px; text-align: right;">@f.MontoBase.ToString("N2")</td>
+                            <td style="padding: 14px 16px; text-align: right;">@f.IGV.ToString("N2")</td>
+                            <td style="padding: 14px 16px; text-align: right; font-weight: 600;">@f.Total.ToString("N2")</td>
+                            
+                            <!-- Badges de Estado -->
+                            <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
+                                @if (f.Estado == "Emitida")
+                                {
+                                    <span style="background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); padding: 4px 10px; border-radius: 9999px; font-size: 11.5px; font-weight: 600;">Emitida</span>
+                                }
+                                else if (f.Estado == "Anulada")
+                                {
+                                    <span style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 4px 10px; border-radius: 9999px; font-size: 11.5px; font-weight: 600;">Anulada</span>
+                                }
+                                else
+                                {
+                                    <span style="background: rgba(245, 158, 11, 0.12); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); padding: 4px 10px; border-radius: 9999px; font-size: 11.5px; font-weight: 600;">Pendiente</span>
+                                }
+                            </td>
+
+                            <!-- Acciones -->
+                            <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
+                                <div style="display: inline-flex; gap: 4px;">
+                                    <button class="cta-action-btn btn-ver-comprobante" title="Ver detalle" style="background: none; border: 1px solid var(--cta-border); color: var(--cta-text-secondary); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all var(--cta-transition);">
+                                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                    <button class="cta-action-btn btn-imprimir-comprobante" title="Imprimir" style="background: none; border: 1px solid var(--cta-border); color: var(--cta-text-secondary); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all var(--cta-transition);">
+                                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                            <rect x="6" y="14" width="12" height="8"></rect>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+
+                <!-- Footer de la Tabla (Totales) -->
+                <tfoot>
+                    <tr style="background: #eef2ff; border-top: 2px solid var(--cta-border); color: #3b5bdb; font-weight: 700;">
+                        <td colspan="6" style="padding: 14px 16px; text-align: right;">Total General (Sujeto a Filtro)</td>
+                        <td id="total-base" style="padding: 14px 16px; text-align: right;">0.00</td>
+                        <td id="total-igv" style="padding: 14px 16px; text-align: right;">0.00</td>
+                        <td id="total-total" style="padding: 14px 16px; text-align: right; font-weight: 800;">0.00</td>
+                        <td colspan="2" style="padding: 14px 16px;"></td>
+                    </tr>
+                </tfoot>
+
+            </table>
+        </div>
+
+        <!-- 1. Paginación Client-Side (Paginador en la parte inferior de la tabla) -->
+        <div style="background: #ffffff; border-top: 1px solid var(--cta-border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div id="footer-mostrando-text" style="font-size: 13.5px; color: var(--cta-text-secondary);">
+                Mostrando 0 de 0 registros
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <!-- Indicador X de Y -->
+                <span id="paginacion-indicador" style="font-size: 13px; color: var(--cta-text-secondary); font-weight: 500;">Página 1 de 1</span>
+                
+                <!-- Botonera -->
+                <div id="paginacion-container" style="display: flex; gap: 4px; border: 1px solid var(--cta-border); border-radius: 6px; padding: 2px; background: #ffffff;">
+                    <!-- Inyectados por Javascript -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- 2. Modal de Detalle (Estilo Bootstrap limpio en tema claro) -->
+<div id="detalle-modal" style="display: none; position: fixed; inset: 0; background: rgba(30, 41, 59, 0.45); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center; animation: modalFadeIn 250ms ease-out;">
+    <div style="background: #ffffff; border-radius: var(--cta-radius); max-width: 600px; width: 90%; box-shadow: var(--cta-shadow-md); border: 1px solid var(--cta-border); display: flex; flex-direction: column; overflow: hidden;">
+        
+        <!-- Header -->
+        <div style="padding: 16px 24px; border-bottom: 1px solid var(--cta-border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--cta-text-primary); display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: none; stroke: var(--cta-primary); stroke-width: 2.5;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                Detalle del Comprobante
+            </h3>
+            <button id="modal-cerrar-x" style="background: none; border: none; font-size: 22px; color: var(--cta-text-muted); cursor: pointer; transition: color var(--cta-transition);" onmouseover="this.style.color='var(--cta-text-primary)'" onmouseout="this.style.color='var(--cta-text-muted)'">&times;</button>
+        </div>
+
+        <!-- Body -->
+        <div id="modal-detalle-body" style="padding: 24px; max-height: calc(100vh - 160px); overflow-y: auto; display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- Comprobante Info -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed var(--cta-border); padding-bottom: 16px;">
+                <div>
+                    <h2 id="modal-comprobante-num" style="margin: 0; font-size: 18px; font-weight: 700; color: var(--cta-primary);">F-2024-001</h2>
+                    <span id="modal-comprobante-tipo" style="font-size: 12.5px; color: var(--cta-text-secondary); display: block; margin-top: 4px;">Factura Electrónica</span>
+                </div>
+                <div id="modal-comprobante-estado">
+                    <!-- Badge inyectado -->
+                </div>
+            </div>
+
+            <!-- Datos Emisor & Receptor -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px; line-height: 1.5;">
+                <div style="background: #f8fafc; border: 1px solid var(--cta-border); padding: 12px; border-radius: 6px;">
+                    <span style="font-weight: 600; color: var(--cta-text-secondary); display: block; margin-bottom: 6px; text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em;">Emisor</span>
+                    <strong style="color: var(--cta-text-primary);">HEVELAB S.A.C.</strong><br />
+                    <span>RUC: 20609876541</span><br />
+                    <span>Av. Javier Prado Este 1024, Lima</span>
+                </div>
+                <div style="background: #f8fafc; border: 1px solid var(--cta-border); padding: 12px; border-radius: 6px;">
+                    <span style="font-weight: 600; color: var(--cta-text-secondary); display: block; margin-bottom: 6px; text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em;">Receptor</span>
+                    <strong id="modal-cliente-nombre" style="color: var(--cta-text-primary);">Cliente del ERP</strong><br />
+                    <span>RUC: <span id="modal-cliente-ruc" style="font-family: monospace;">1020304050</span></span><br />
+                    <span>Fecha Emisión: <span id="modal-comprobante-fecha">12/05/2026</span></span>
+                </div>
+            </div>
+
+            <!-- Desglose de Cuentas Fiscales -->
+            <div style="border: 1px solid var(--cta-border); border-radius: 6px; overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                    <thead>
+                        <tr style="background: #f1f5f9; border-bottom: 1px solid var(--cta-border); color: var(--cta-text-secondary);">
+                            <th style="padding: 10px 12px; font-weight: 600;">Concepto / Descripción</th>
+                            <th style="padding: 10px 12px; font-weight: 600; text-align: right; width: 120px;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--cta-border);">
+                            <td style="padding: 12px; color: var(--cta-text-primary);">
+                                Servicios de Consultoría Empresarial Especializada HeveLab
+                            </td>
+                            <td id="modal-base-val" style="padding: 12px; text-align: right; font-weight: 500;">S/ 0.00</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--cta-border); background: #f8fafc; font-size: 12.5px;">
+                            <td style="padding: 10px 12px; text-align: right; color: var(--cta-text-secondary); font-weight: 500;">Base Imponible</td>
+                            <td id="modal-base-subtotal" style="padding: 10px 12px; text-align: right; font-weight: 600; color: var(--cta-text-primary);">S/ 0.00</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--cta-border); background: #f8fafc; font-size: 12.5px;">
+                            <td style="padding: 10px 12px; text-align: right; color: var(--cta-text-secondary); font-weight: 500;">IGV / IVA (18%)</td>
+                            <td id="modal-igv-subtotal" style="padding: 10px 12px; text-align: right; font-weight: 600; color: var(--cta-text-primary);">S/ 0.00</td>
+                        </tr>
+                        <tr style="background: #eef2ff; color: #3b5bdb; font-weight: 700; font-size: 14px;">
+                            <td style="padding: 12px; text-align: right;">Total General (<span id="modal-moneda-label">PEN</span>)</td>
+                            <td id="modal-total-subtotal" style="padding: 12px; text-align: right; font-weight: 800;">S/ 0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div style="padding: 16px 24px; border-top: 1px solid var(--cta-border); display: flex; justify-content: flex-end; gap: 8px; background: #f8fafc;">
+            <button id="modal-cerrar-btn" style="border: 1px solid var(--cta-border); background: #ffffff; color: var(--cta-text-secondary); padding: 8px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#ffffff'">Cerrar</button>
+            <button id="modal-imprimir-btn" style="background: var(--cta-primary); color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='var(--cta-primary-hover)'" onmouseout="this.style.background='var(--cta-primary)'">Imprimir</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Estilos CSS complementarios -->
+<style>
+    @@keyframes ctaFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @@keyframes modalFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .factura-row:hover {
+        background-color: #f8fafc !important;
+    }
+
+    .cta-action-btn:hover {
+        background-color: var(--cta-primary-soft) !important;
+        border-color: var(--cta-primary) !important;
+        color: var(--cta-primary) !important;
+    }
+
+    .sortable-header:hover {
+        background-color: #e0e7ff !important;
+    }
+</style>
+
+<!-- 5. Scripts: Paginación, Ordenamiento, Modal, Filtros y Exportación (Cliente) -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Elementos DOM Filtros
+        var inputSearch = document.getElementById("filter-search");
+        var selectTipo = document.getElementById("filter-tipo");
+        var selectEstado = document.getElementById("filter-estado");
+        var selectMoneda = document.getElementById("filter-moneda");
+        var inputFechaDesde = document.getElementById("filter-fecha-desde");
+        var inputFechaHasta = document.getElementById("filter-fecha-hasta");
+        
+        var btnFiltrar = document.getElementById("btn-filtrar");
+        var btnLimpiar = document.getElementById("btn-limpiar");
+        var btnExportar = document.getElementById("btn-exportar");
+        
+        // Elementos DOM Tabla y Paginador
+        var tableBody = document.getElementById("tabla-body");
+        var selectPageSize = document.getElementById("select-page-size");
+        var paginadorContainer = document.getElementById("paginacion-container");
+        var paginadorIndicador = document.getElementById("paginacion-indicador");
+        var footerText = document.getElementById("footer-mostrando-text");
+        
+        // Elementos DOM Estadísticas
+        var statTotalEl = document.getElementById("stat-total");
+        var statEmitidasEl = document.getElementById("stat-emitidas");
+        var statAnuladasEl = document.getElementById("stat-anuladas");
+        var statMontoEl = document.getElementById("stat-monto");
+        
+        // Totales generales footer tabla
+        var totalBaseEl = document.getElementById("total-base");
+        var totalIgvEl = document.getElementById("total-igv");
+        var totalTotalEl = document.getElementById("total-total");
+        
+        // Elementos Modal
+        var modal = document.getElementById("detalle-modal");
+        var modalCerrarX = document.getElementById("modal-cerrar-x");
+        var modalCerrarBtn = document.getElementById("modal-cerrar-btn");
+        var modalImprimirBtn = document.getElementById("modal-imprimir-btn");
+        
+        // Datos y estado local de UI
+        var allRows = Array.from(document.querySelectorAll(".factura-row"));
+        var filteredRows = [...allRows]; // Filas que pasan el filtro actual
+        
+        var currentPage = 1;
+        var pageSize = 5;
+        
+        var currentSortCol = null; // Índice de columna de ordenamiento activo
+        var currentSortAsc = true;  // Orden ascendente/descendente
+        
+        // Función de formateo de moneda general
+        function formatNumber(val) {
+            return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        
+        // --- 1. APLICAR FILTROS (AND lógico) ---
+        function aplicarFiltros() {
+            var searchVal = inputSearch.value.trim().toLowerCase();
+            var tipoVal = selectTipo.value;
+            var estadoVal = selectEstado.value;
+            var monedaVal = selectMoneda.value;
+            var desdeVal = inputFechaDesde.value ? new Date(inputFechaDesde.value) : null;
+            var hastaVal = inputFechaHasta.value ? new Date(inputFechaHasta.value) : null;
+            
+            // Establecer horas a 0 en fechas para comparación justa
+            if (desdeVal) desdeVal.setHours(0, 0, 0, 0);
+            if (hastaVal) hastaVal.setHours(23, 59, 59, 999);
+            
+            filteredRows = allRows.filter(function(row) {
+                var numero = row.getAttribute("data-numero").toLowerCase();
+                var cliente = row.getAttribute("data-cliente").toLowerCase();
+                var tipo = row.getAttribute("data-tipo");
+                var estado = row.getAttribute("data-estado");
+                var moneda = row.getAttribute("data-moneda");
+                var fechaStr = row.getAttribute("data-fecha");
+                var fecha = new Date(fechaStr);
+                fecha.setHours(12, 0, 0, 0); // Estabilizar zona horaria
+                
+                var matchSearch = !searchVal || (numero.indexOf(searchVal) !== -1 || cliente.indexOf(searchVal) !== -1);
+                var matchTipo = !tipoVal || tipo === tipoVal;
+                var matchEstado = !estadoVal || estado === estadoVal;
+                var matchMoneda = !monedaVal || moneda === monedaVal;
+                var matchFechaDesde = !desdeVal || fecha >= desdeVal;
+                var matchFechaHasta = !hastaVal || fecha <= hastaVal;
+                
+                return matchSearch && matchTipo && matchEstado && matchMoneda && matchFechaDesde && matchFechaHasta;
+            });
+            
+            currentPage = 1; // Reiniciar a página 1 al filtrar
+            
+            recalcularEstadisticas();
+            aplicarOrdenamiento(false); // Mantener orden actual pero aplicar sobre los nuevos resultados
+            renderTabla();
+        }
+        
+        // --- 6. RESUMEN ESTADÍSTICO SUPERIOR & TOTALES FOOTER ---
+        function recalcularEstadisticas() {
+            var totalFacturas = filteredRows.length;
+            var emitidas = 0;
+            var anuladas = 0;
+            var totalMontoPen = 0;
+            
+            var totalBase = 0;
+            var totalIgv = 0;
+            var totalTotal = 0;
+            
+            filteredRows.forEach(function(row) {
+                var estado = row.getAttribute("data-estado");
+                var moneda = row.getAttribute("data-moneda");
+                var base = parseFloat(row.getAttribute("data-base")) || 0;
+                var igv = parseFloat(row.getAttribute("data-igv")) || 0;
+                var total = parseFloat(row.getAttribute("data-total")) || 0;
+                
+                // Conteo de Estados
+                if (estado === "Emitida") emitidas++;
+                if (estado === "Anulada") anuladas++;
+                
+                // Monto Total en PEN (se calcula asumiendo un tipo de cambio ficticio de 3.75 para USD)
+                var tc = (moneda === "USD") ? 3.75 : 1.00;
+                totalMontoPen += (total * tc);
+                
+                // Totales de la tabla
+                totalBase += base;
+                totalIgv += igv;
+                totalTotal += total;
+            });
+            
+            // Render de Estadísticas
+            statTotalEl.textContent = totalFacturas;
+            statEmitidasEl.textContent = emitidas;
+            statAnuladasEl.textContent = anuladas;
+            statMontoEl.textContent = "S/ " + formatNumber(totalMontoPen);
+            
+            // Render de Totales Footer
+            totalBaseEl.textContent = formatNumber(totalBase);
+            totalIgvEl.textContent = formatNumber(totalIgv);
+            totalTotalEl.textContent = formatNumber(totalTotal);
+        }
+        
+        // --- 1. RENDEREAR TABLA CON PAGINACIÓN ---
+        function renderTabla() {
+            // Limpiar tabla completa temporalmente
+            allRows.forEach(function(r) { r.style.display = "none"; });
+            
+            var totalRegistros = filteredRows.length;
+            pageSize = (selectPageSize.value === "all") ? totalRegistros : parseInt(selectPageSize.value);
+            
+            var totalPages = Math.ceil(totalRegistros / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            
+            var startIdx = (currentPage - 1) * pageSize;
+            var endIdx = startIdx + pageSize;
+            
+            // Mostrar solo las filas de la página activa
+            var visibleRowsSlice = filteredRows.slice(startIdx, endIdx);
+            visibleRowsSlice.forEach(function(row) {
+                row.style.display = "";
+            });
+            
+            // Actualizar textos indicativos
+            footerText.textContent = "Mostrando " + visibleRowsSlice.length + " de " + totalRegistros + " registros (Total: " + allRows.length + ")";
+            paginadorIndicador.textContent = "Página " + currentPage + " de " + totalPages;
+            
+            renderPaginador(totalPages);
+        }
+        
+        function renderPaginador(totalPages) {
+            paginadorContainer.innerHTML = "";
+            
+            // Función auxiliar para crear botones
+            function crearBoton(texto, destinoPag, deshabilitado, isActive) {
+                var btn = document.createElement("button");
+                btn.textContent = texto;
+                btn.style.padding = "6px 12px";
+                btn.style.border = "none";
+                btn.style.background = isActive ? "var(--cta-primary)" : "#ffffff";
+                btn.style.color = isActive ? "#ffffff" : "var(--cta-text-secondary)";
+                btn.style.fontSize = "12px";
+                btn.style.fontWeight = isActive ? "600" : "500";
+                btn.style.cursor = deshabilitado ? "not-allowed" : "pointer";
+                btn.style.borderRadius = "4px";
+                btn.style.transition = "background var(--cta-transition)";
+                
+                if (deshabilitado) {
+                    btn.disabled = true;
+                    btn.style.opacity = "0.4";
+                } else {
+                    btn.addEventListener("click", function() {
+                        currentPage = destinoPag;
+                        renderTabla();
+                    });
+                    if (!isActive) {
+                        btn.onmouseover = function() { btn.style.background = "#f1f5f9"; };
+                        btn.onmouseout = function() { btn.style.background = "#ffffff"; };
+                    }
+                }
+                
+                paginadorContainer.appendChild(btn);
+            }
+            
+            // Botón Primera
+            crearBoton("«", 1, currentPage === 1, false);
+            
+            // Botón Anterior
+            crearBoton("‹", currentPage - 1, currentPage === 1, false);
+            
+            // Números de Página (Máximo 5 visibles en bloque alrededor de página activa)
+            var startPage = Math.max(1, currentPage - 2);
+            var endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+            
+            for (var p = startPage; p <= endPage; p++) {
+                crearBoton(p, p, false, p === currentPage);
+            }
+            
+            // Botón Siguiente
+            crearBoton("›", currentPage + 1, currentPage === totalPages, false);
+            
+            // Botón Última
+            crearBoton("»", totalPages, currentPage === totalPages, false);
+        }
+        
+        // --- 4. ORDENAMIENTO DE COLUMNAS (Client-side) ---
+        function aplicarOrdenamiento(cambiarDireccion) {
+            if (currentSortCol === null) return;
+            
+            if (cambiarDireccion) {
+                currentSortAsc = !currentSortAsc;
+            }
+            
+            filteredRows.sort(function(rowA, rowB) {
+                var valA = obtenerValorCelda(rowA, currentSortCol);
+                var valB = obtenerValorCelda(rowB, currentSortCol);
+                
+                if (typeof valA === "number" && typeof valB === "number") {
+                    return currentSortAsc ? valA - valB : valB - valA;
+                }
+                
+                valA = valA.toString().toLowerCase();
+                valB = valB.toString().toLowerCase();
+                
+                if (valA < valB) return currentSortAsc ? -1 : 1;
+                if (valA > valB) return currentSortAsc ? 1 : -1;
+                return 0;
+            });
+            
+            // Reinsertar las filas en el tbody ordenadas para reflejar el DOM
+            filteredRows.forEach(function(row) {
+                tableBody.appendChild(row);
+            });
+            
+            actualizarIndicadoresOrdenamiento();
+        }
+        
+        function obtenerValorCelda(row, colIndex) {
+            switch(colIndex) {
+                case 0: return row.getAttribute("data-numero");
+                case 1: return row.getAttribute("data-fecha");
+                case 2: return row.getAttribute("data-cliente");
+                case 3: return row.getAttribute("data-ruc");
+                case 4: return row.getAttribute("data-tipo");
+                case 5: return row.getAttribute("data-moneda");
+                case 6: return parseFloat(row.getAttribute("data-base")) || 0;
+                case 7: return parseFloat(row.getAttribute("data-igv")) || 0;
+                case 8: return parseFloat(row.getAttribute("data-total")) || 0;
+                case 9: return row.getAttribute("data-estado");
+                default: return "";
+            }
+        }
+        
+        function actualizarIndicadoresOrdenamiento() {
+            var headers = document.querySelectorAll(".sortable-header");
+            headers.forEach(function(th) {
+                var indicator = th.querySelector(".sort-indicator");
+                var colId = parseInt(th.getAttribute("data-column"));
+                if (colId === currentSortCol) {
+                    indicator.textContent = currentSortAsc ? " ▲" : " ▼";
+                    indicator.style.color = "var(--cta-primary)";
+                } else {
+                    indicator.textContent = "";
+                }
+            });
+        }
+        
+        // --- 5. EXPORTAR EXCEL/CSV (Visible Rows) ---
+        function exportarCSV() {
+            if (filteredRows.length === 0) {
+                alert("No hay registros filtrados para exportar.");
+                return;
+            }
+            
+            var csvRows = [];
+            // Header
+            csvRows.push("Nº Factura,Fecha,Cliente,RUC,Tipo,Moneda,Monto Base,IGV,Total,Estado");
+            
+            filteredRows.forEach(function(row) {
+                var num = row.getAttribute("data-numero");
+                var fecha = row.getAttribute("data-fecha");
+                var cliente = '"' + row.getAttribute("data-cliente").replace(/"/g, '""') + '"'; // Escapar comillas en csv
+                var ruc = row.getAttribute("data-ruc");
+                var tipo = row.getAttribute("data-tipo");
+                var moneda = row.getAttribute("data-moneda");
+                var base = row.getAttribute("data-base");
+                var igv = row.getAttribute("data-igv");
+                var total = row.getAttribute("data-total");
+                var estado = row.getAttribute("data-estado");
+                
+                csvRows.push([num, fecha, cliente, ruc, tipo, moneda, base, igv, total, estado].join(","));
+            });
+            
+            var csvContent = "\uFEFF" + csvRows.join("\n"); // UTF-8 BOM
+            var blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            var url = URL.createObjectURL(blob);
+            
+            var link = document.createElement("a");
+            link.href = url;
+            
+            // Generar fecha YYYYMMDD
+            var today = new Date();
+            var yyyy = today.getFullYear();
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var dd = String(today.getDate()).padStart(2, '0');
+            
+            link.download = "facturas_" + yyyy + mm + dd + ".csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // --- 2. MODAL DE DETALLE FISCAL ---
+        function abrirModalDetalle(row) {
+            var num = row.getAttribute("data-numero");
+            var fecha = row.getAttribute("data-fecha");
+            var cliente = row.getAttribute("data-cliente");
+            var ruc = row.getAttribute("data-ruc");
+            var tipo = row.getAttribute("data-tipo");
+            var moneda = row.getAttribute("data-moneda");
+            var base = parseFloat(row.getAttribute("data-base")) || 0;
+            var igv = parseFloat(row.getAttribute("data-igv")) || 0;
+            var total = parseFloat(row.getAttribute("data-total")) || 0;
+            var estado = row.getAttribute("data-estado");
+            
+            // Cargar datos en Modal
+            document.getElementById("modal-comprobante-num").textContent = num;
+            document.getElementById("modal-comprobante-tipo").textContent = tipo + " Electrónica";
+            document.getElementById("modal-cliente-nombre").textContent = cliente;
+            document.getElementById("modal-cliente-ruc").textContent = ruc;
+            document.getElementById("modal-comprobante-fecha").textContent = fecha.split("-").reverse().join("/");
+            document.getElementById("modal-moneda-label").textContent = moneda;
+            
+            // Montos
+            document.getElementById("modal-base-val").textContent = moneda + " " + formatNumber(base);
+            document.getElementById("modal-base-subtotal").textContent = moneda + " " + formatNumber(base);
+            document.getElementById("modal-igv-subtotal").textContent = moneda + " " + formatNumber(igv);
+            document.getElementById("modal-total-subtotal").textContent = moneda + " " + formatNumber(total);
+            
+            // Badge Estado
+            var badgeContainer = document.getElementById("modal-comprobante-estado");
+            badgeContainer.innerHTML = "";
+            var badgeSpan = document.createElement("span");
+            badgeSpan.textContent = estado;
+            badgeSpan.style.padding = "4px 12px";
+            badgeSpan.style.borderRadius = "9999px";
+            badgeSpan.style.fontSize = "11.5px";
+            badgeSpan.style.fontWeight = "600";
+            
+            if (estado === "Emitida") {
+                badgeSpan.style.background = "rgba(16, 185, 129, 0.12)";
+                badgeSpan.style.color = "#10b981";
+                badgeSpan.style.border = "1px solid rgba(16, 185, 129, 0.2)";
+            } else if (estado === "Anulada") {
+                badgeSpan.style.background = "rgba(239, 68, 68, 0.12)";
+                badgeSpan.style.color = "#ef4444";
+                badgeSpan.style.border = "1px solid rgba(239, 68, 68, 0.2)";
+            } else {
+                badgeSpan.style.background = "rgba(245, 158, 11, 0.12)";
+                badgeSpan.style.color = "#f59e0b";
+                badgeSpan.style.border = "1px solid rgba(245, 158, 11, 0.2)";
+            }
+            badgeContainer.appendChild(badgeSpan);
+            
+            // Mostrar Modal
+            modal.style.display = "flex";
+        }
+        
+        function cerrarModal() {
+            modal.style.display = "none";
+        }
+        
+        // --- VINCULACIÓN DE EVENTOS ---
+        
+        // Ejecutar filtrado
+        btnFiltrar.addEventListener("click", aplicarFiltros);
+        
+        // Limpiar filtros
+        btnLimpiar.addEventListener("click", function() {
+            inputSearch.value = "";
+            selectTipo.value = "";
+            selectEstado.value = "";
+            selectMoneda.value = "";
+            inputFechaDesde.value = "";
+            inputFechaHasta.value = "";
+            aplicarFiltros();
+        });
+        
+        // Selector tamaño página
+        selectPageSize.addEventListener("change", function() {
+            currentPage = 1;
+            renderTabla();
+        });
+        
+        // Cabeceras ordenables
+        document.querySelectorAll(".sortable-header").forEach(function(th) {
+            th.addEventListener("click", function() {
+                var colId = parseInt(th.getAttribute("data-column"));
+                if (currentSortCol === colId) {
+                    aplicarOrdenamiento(true); // Toggle orden
+                } else {
+                    currentSortCol = colId;
+                    currentSortAsc = true;
+                    aplicarOrdenamiento(false); // Iniciar ascendente
+                }
+                renderTabla();
+            });
+        });
+        
+        // Botón exportar
+        btnExportar.addEventListener("click", exportarCSV);
+        
+        // Botones "Ver" de la tabla
+        tableBody.addEventListener("click", function(e) {
+            var targetBtn = e.target.closest(".btn-ver-comprobante");
+            if (targetBtn) {
+                var row = targetBtn.closest(".factura-row");
+                if (row) abrirModalDetalle(row);
+            }
+            
+            var printBtn = e.target.closest(".btn-imprimir-comprobante");
+            if (printBtn) {
+                alert("Preparando impresión del comprobante contable...");
+                window.print();
+            }
+        });
+        
+        // Cerrar Modal
+        modalCerrarX.addEventListener("click", cerrarModal);
+        modalCerrarBtn.addEventListener("click", cerrarModal);
+        modalImprimirBtn.addEventListener("click", function() {
+            alert("Imprimiendo comprobante fiscal detallado...");
+            window.print();
+        });
+        
+        // Cerrar haciendo clic afuera del modal
+        modal.addEventListener("click", function(e) {
+            if (e.target === modal) cerrarModal();
+        });
+        
+        // Carga Inicial del Sistema
+        aplicarFiltros();
+    });
+</script>

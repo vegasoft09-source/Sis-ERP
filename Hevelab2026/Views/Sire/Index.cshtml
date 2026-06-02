@@ -1,0 +1,1136 @@
+@model SireViewModel
+@{
+    ViewData["Title"] = "SIRE SUNAT";
+
+    var ventasRV = Model.VentasRV;
+    var comprasRC = Model.ComprasRC;
+}
+}
+
+<div class="cta-module-card" style="background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); box-shadow: var(--cta-shadow); padding: 24px; animation: ctaFadeIn 300ms ease-out;">
+    
+    <!-- 1. Encabezado y Selector de Período -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--cta-border); padding-bottom: 16px; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <!-- Icono SUNAT / SIRE -->
+            <div style="color: #d97706; display: flex; align-items: center; justify-content: center; background: rgba(217, 119, 6, 0.08); width: 42px; height: 42px; border-radius: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 style="font-size: 20px; font-weight: 700; color: var(--cta-text-primary); margin: 0;">SIRE — Registros Electrónicos</h1>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <p style="font-size: 12.5px; color: var(--cta-text-secondary); margin: 2px 0 0 0;">Sistema Integrado de Registros Electrónicos (SUNAT - Perú).</p>
+                    <span style="color: var(--cta-text-muted); margin-top: 2px;">·</span>
+                    <!-- Diagnóstico del Período -->
+                    <div id="validaciones-resumen" style="font-size: 11.5px; font-weight: 600; color: var(--cta-text-secondary); margin-top: 2px; display: flex; gap: 8px; align-items: center;">
+                        <span id="count-valid" style="color: #10b981; display: flex; align-items: center; gap: 4px;">
+                            <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981;"></span> 0 Válidos
+                        </span>
+                        <span style="color: var(--cta-text-muted);">·</span>
+                        <span id="count-warning" style="color: #d97706; display: flex; align-items: center; gap: 4px;">
+                            <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#d97706;"></span> 0 Con Obs.
+                        </span>
+                        <span style="color: var(--cta-text-muted);">·</span>
+                        <span id="count-error" style="color: #ef4444; display: flex; align-items: center; gap: 4px;">
+                            <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#ef4444;"></span> 0 Con Error
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <!-- Estado de Envío -->
+            <span id="badge-estado" style="background: rgba(217, 119, 6, 0.12); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.2); padding: 6px 14px; border-radius: 9999px; font-size: 12.5px; font-weight: 600; transition: all var(--cta-transition);">
+                Pendiente de envío
+            </span>
+        </div>
+    </div>
+
+    <!-- Barra de Selección General -->
+    <div style="background: #fffbf7; border: 1px solid #fcd34d; border-radius: var(--cta-radius); padding: 16px; margin-bottom: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: flex-end;">
+        <div>
+            <label for="select-ruc" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 6px;">Empresa / RUC Emisor</label>
+            <select id="select-ruc" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none;">
+                <option value="20609876541">20609876541 - HEVELAB S.A.C.</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="select-periodo" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 6px;">Período Tributario</label>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <button id="btn-prev-periodo" style="background: #ffffff; border: 1px solid var(--cta-border); padding: 8px 12px; border-radius: 6px; cursor: pointer; color: var(--cta-text-secondary); font-size: 12px; font-weight: 700; transition: all var(--cta-transition);" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'" title="Período anterior">
+                    &lsaquo;
+                </button>
+                <select id="select-periodo" style="flex: 1; padding: 8px 10px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none; text-align: center;">
+                    <option value="2024-04">Abril 2024</option>
+                    <option value="2024-05" selected>Mayo 2024</option>
+                    <option value="2024-06">Junio 2024</option>
+                </select>
+                <button id="btn-next-periodo" style="background: #ffffff; border: 1px solid var(--cta-border); padding: 8px 12px; border-radius: 6px; cursor: pointer; color: var(--cta-text-secondary); font-size: 12px; font-weight: 700; transition: all var(--cta-transition);" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'" title="Período siguiente">
+                    &rsaquo;
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <label for="select-estado" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 6px;">Estado de Envío (SUNAT)</label>
+            <select id="select-estado" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none;">
+                <option value="Pendiente">Pendiente de envío</option>
+                <option value="Enviado">Enviado</option>
+                <option value="Aceptado">Aceptado</option>
+            </select>
+        </div>
+
+        <div>
+            <button id="btn-sincronizar" style="width: 100%; background: #d97706; color: #ffffff; border: none; padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'">
+                Sincronizar SUNAT
+            </button>
+        </div>
+    </div>
+
+    <!-- 5. Resumen de Período (Métricas antes de los tabs) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px;">
+        
+        <!-- Ventas Gravadas -->
+        <div style="background: #ffffff; border: 1px solid var(--cta-border); border-left: 4px solid #d97706; padding: 16px; border-radius: 6px; box-shadow: var(--cta-shadow);">
+            <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); text-transform: uppercase;">Ventas Gravadas (PEN)</span>
+            <h3 id="res-ventas-grav" style="font-size: 18px; font-weight: 700; color: var(--cta-text-primary); margin: 4px 0 0 0;">S/ 0.00</h3>
+        </div>
+
+        <!-- IGV Ventas -->
+        <div style="background: #ffffff; border: 1px solid var(--cta-border); border-left: 4px solid #d97706; padding: 16px; border-radius: 6px; box-shadow: var(--cta-shadow);">
+            <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); text-transform: uppercase;">IGV Ventas (PEN)</span>
+            <h3 id="res-igv-ventas" style="font-size: 18px; font-weight: 700; color: var(--cta-text-primary); margin: 4px 0 0 0;">S/ 0.00</h3>
+        </div>
+
+        <!-- Compras Gravadas -->
+        <div style="background: #ffffff; border: 1px solid var(--cta-border); border-left: 4px solid #3b5bdb; padding: 16px; border-radius: 6px; box-shadow: var(--cta-shadow);">
+            <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); text-transform: uppercase;">Compras Gravadas (PEN)</span>
+            <h3 id="res-compras-grav" style="font-size: 18px; font-weight: 700; color: var(--cta-text-primary); margin: 4px 0 0 0;">S/ 0.00</h3>
+        </div>
+
+        <!-- IGV Compras -->
+        <div style="background: #ffffff; border: 1px solid var(--cta-border); border-left: 4px solid #3b5bdb; padding: 16px; border-radius: 6px; box-shadow: var(--cta-shadow);">
+            <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); text-transform: uppercase;">IGV Compras (PEN)</span>
+            <h3 id="res-igv-compras" style="font-size: 18px; font-weight: 700; color: var(--cta-text-primary); margin: 4px 0 0 0;">S/ 0.00</h3>
+        </div>
+
+        <!-- Crédito Fiscal (Fila completa o doble ancho) -->
+        <div style="grid-column: 1 / -1; background: #fffbf7; border: 1px solid #fcd34d; padding: 16px; border-radius: 6px; box-shadow: var(--cta-shadow); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: #b45309;">Cálculo de Crédito Fiscal Estimado</h4>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--cta-text-secondary);">Calculado en base a Ventas IGV menos Compras IGV homologado a soles (T.C. USD = 3.75).</p>
+            </div>
+            <div>
+                <h3 id="res-credito-fiscal" style="font-size: 22px; font-weight: 800; color: #d97706; margin: 0;">S/ 0.00</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 5. RESUMEN TRIBUTARIO EXPANDIDO (Formulario 621) -->
+    <div style="background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); padding: 16px; margin-bottom: 24px; box-shadow: var(--cta-shadow);">
+        <div id="btn-toggle-dj" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="background: rgba(217, 119, 6, 0.08); color: #d97706; padding: 6px; border-radius: 6px; display: flex; align-items: center;">
+                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="9" x2="15" y2="9"></line>
+                        <line x1="9" y1="13" x2="15" y2="13"></line>
+                        <line x1="9" y1="17" x2="15" y2="17"></line>
+                    </svg>
+                </div>
+                <h4 style="font-size: 13.5px; font-weight: 700; color: #b45309; margin: 0;">Formulario Virtual 621 - Liquidación Determinativa de IGV</h4>
+            </div>
+            <span id="toggle-dj-icon" style="font-size: 11px; color: var(--cta-text-secondary); font-weight: 600; border: 1px solid var(--cta-border); padding: 4px 8px; border-radius: 4px; background: #f8fafc;">▼ Expandir Formulario</span>
+        </div>
+        
+        <div id="panel-dj" style="display: none; border-top: 1px solid var(--cta-border); margin-top: 16px; padding-top: 16px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-bottom: 16px;">
+                <!-- Columna Débito Fiscal -->
+                <div>
+                    <h5 style="font-size: 12px; font-weight: 700; color: #b45309; margin-bottom: 12px; border-bottom: 2px solid #fcd34d; padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Débito Fiscal (Ventas)</h5>
+                    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12.5px;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--cta-border); padding-bottom: 4px; color: var(--cta-text-secondary);">
+                            <span>Casilla 100 - Ventas Netas Gravadas</span>
+                            <span id="dj-v-base" style="font-weight: 600; font-family: monospace; color: var(--cta-text-primary);">S/ 0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--cta-border); padding-bottom: 4px; color: var(--cta-text-secondary);">
+                            <span>Casilla 105 - Ventas Exoneradas / Inafectas</span>
+                            <span id="dj-v-nograv" style="font-weight: 600; font-family: monospace; color: var(--cta-text-primary);">S/ 0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-weight: 700; border-top: 1px solid var(--cta-text-primary); padding-top: 6px; color: var(--cta-text-primary);">
+                            <span>Total Débito Fiscal IGV (A)</span>
+                            <span id="dj-v-igv" style="font-family: monospace;">S/ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Columna Crédito Fiscal -->
+                <div>
+                    <h5 style="font-size: 12px; font-weight: 700; color: #3b5bdb; margin-bottom: 12px; border-bottom: 2px solid #bfdbfe; padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Crédito Fiscal (Compras)</h5>
+                    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12.5px;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--cta-border); padding-bottom: 4px; color: var(--cta-text-secondary);">
+                            <span>Casilla 107 - Compras Destinadas a Venta Gravada</span>
+                            <span id="dj-c-base" style="font-weight: 600; font-family: monospace; color: var(--cta-text-primary);">S/ 0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--cta-border); padding-bottom: 4px; color: var(--cta-text-secondary);">
+                            <span>Casilla 120 - Compras No Gravadas / Internas</span>
+                            <span id="dj-c-nograv" style="font-weight: 600; font-family: monospace; color: var(--cta-text-primary);">S/ 0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-weight: 700; border-top: 1px solid var(--cta-text-primary); padding-top: 6px; color: var(--cta-text-primary);">
+                            <span>Total Crédito Fiscal IGV (B)</span>
+                            <span id="dj-c-igv" style="font-family: monospace;">S/ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Determinación del Impuesto Resultante -->
+            <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h5 style="margin: 0; font-size: 13px; font-weight: 700; color: #b45309;">Casilla 184 - Impuesto Resultante o Saldo a Favor</h5>
+                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--cta-text-secondary);">Diferencia de obligaciones mensuales autoliquidadas: Débito (A) - Crédito (B)</p>
+                </div>
+                <div style="text-align: right;">
+                    <span id="dj-resultado-label" style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--cta-text-secondary); display: block; margin-bottom: 2px;">Cargando...</span>
+                    <span id="dj-resultado" style="font-size: 18px; font-weight: 800; font-family: monospace; color: #d97706;">S/ 0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ACCIONES SIRE Y FILTROS AVANZADOS -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button id="btn-filtros-avanzados" style="background: #ffffff; border: 1px solid var(--cta-border); color: var(--cta-text-secondary); padding: 9px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all var(--cta-transition); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
+                <svg viewBox="0 0 24 24" style="width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.5;">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+                Filtros Avanzados
+            </button>
+            <button id="btn-propuesta-sunat" style="background: #ffffff; border: 1px solid #fcd34d; color: #b45309; padding: 9px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all var(--cta-transition); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='#fffbf0'" onmouseout="this.style.background='#ffffff'">
+                <svg viewBox="0 0 24 24" style="width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Ver Propuesta SUNAT
+            </button>
+        </div>
+        
+        <div>
+            <button id="btn-generar-txt" style="background: #3b5bdb; color: #ffffff; border: none; padding: 10px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background var(--cta-transition); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='#2b49c4'" onmouseout="this.style.background='#3b5bdb'">
+                <svg viewBox="0 0 24 24" style="width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Generar TXT para SUNAT
+            </button>
+        </div>
+    </div>
+
+    <!-- Panel Desplegable Filtros Avanzados -->
+    <div id="panel-filtros-avanzados" style="display: none; background: #f8fafc; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); padding: 16px; margin-bottom: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="chk-obs" style="width: 16px; height: 16px; accent-color: #3b5bdb; cursor: pointer;">
+                <label for="chk-obs" style="font-size: 13px; font-weight: 600; color: var(--cta-text-primary); cursor: pointer; user-select: none;">Solo observaciones / errores</label>
+            </div>
+            <div>
+                <label for="filter-tipo-op" style="display: block; font-size: 11px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Tipo de Operación</label>
+                <select id="filter-tipo-op" style="width: 100%; padding: 6px 8px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 12.5px; color: var(--cta-text-primary); outline: none;">
+                    <option value="Todos">Todas las operaciones</option>
+                    <option value="Gravada">Gravada</option>
+                    <option value="Exonerada">Exonerada</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; font-size: 11px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Rango de Monto Total (PEN)</label>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <input type="number" id="filter-monto-min" placeholder="Min" style="width: 100%; padding: 6px 8px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 12.5px; outline: none; background: #ffffff;">
+                    <span style="font-size: 12px; color: var(--cta-text-muted);">-</span>
+                    <input type="number" id="filter-monto-max" placeholder="Max" style="width: 100%; padding: 6px 8px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 12.5px; outline: none; background: #ffffff;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Tabs Principales -->
+    <div style="display: flex; gap: 8px; border-bottom: 1px solid var(--cta-border); padding-bottom: 2px; margin-bottom: 20px;">
+        <button id="tab-rv" class="cta-tab active" style="font-size: 14px; font-weight: 600; padding: 10px 20px; border: none; background: none; border-bottom: 2px solid #3b5bdb; color: #3b5bdb; cursor: pointer; transition: all var(--cta-transition);">
+            Registro de Ventas (RVIE)
+        </button>
+        <button id="tab-rc" class="cta-tab" style="font-size: 14px; font-weight: 500; padding: 10px 20px; border: none; background: none; border-bottom: 2px solid transparent; color: var(--cta-text-muted); cursor: pointer; transition: all var(--cta-transition);">
+            Registro de Compras (RCE)
+        </button>
+    </div>
+
+    <!-- 3. Contenedor Tabla Ventas (Tab RV) -->
+    <div id="panel-rv" class="cta-tab-panel" style="display: block;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-size: 13px; color: var(--cta-text-secondary); font-weight: 500;">Comprobantes de Ventas emitidos (SUNAT formato de descarga RVIE)</span>
+            <span style="font-size: 12px; color: var(--cta-text-muted); font-style: italic;">* Arrastra horizontalmente la tabla para ver todos los campos.</span>
+        </div>
+
+        <div style="border: 1px solid var(--cta-border); border-radius: var(--cta-radius); overflow: hidden; background: #ffffff; box-shadow: var(--cta-shadow);">
+            <!-- Scroll horizontal obligatorio y alto limitado con cabecera fija -->
+            <div style="overflow-x: auto; width: 100%; max-height: 400px; overflow-y: auto; position: relative;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; min-width: 1300px;">
+                    
+                    <!-- Header Fijo -->
+                    <thead style="position: sticky; top: 0; z-index: 10;">
+                        <tr style="background-color: #fffbf0; border-bottom: 1px solid #fcd34d; color: #b45309; font-weight: 600;">
+                            <th style="padding: 12px 14px; font-weight: 600; width: 60px; text-align: center;">Estado</th>
+                            <th style="padding: 12px 14px; font-weight: 600;">Período</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: center; width: 70px;">Tipo Doc</th>
+                            <th style="padding: 12px 14px; font-weight: 600; width: 80px;">Serie</th>
+                            <th style="padding: 12px 14px; font-weight: 600; width: 100px;">Número</th>
+                            <th style="padding: 12px 14px; font-weight: 600; width: 95px;">Fecha</th>
+                            <th style="padding: 12px 14px; font-weight: 600; width: 110px;">RUC</th>
+                            <th style="padding: 12px 14px; font-weight: 600;">Razón Social</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: center; width: 70px;">Moneda</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 110px;">V. Exportación</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 110px;">Base Grav.</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 100px;">IGV</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 110px;">Base No Grav.</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 70px;">ISC</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 70px;">ICBPER</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 120px;">Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody style="color: var(--cta-text-primary);">
+                        <tr><td colspan="16" style="text-align: center; padding: 24px; color: var(--cta-text-muted);">Cargando comprobantes...</td></tr>
+                    </tbody>
+
+                    <!-- 3. Fila de Totales Fija al Fondo (tfoot) -->
+                    <tfoot style="position: sticky; bottom: 0; z-index: 10;">
+                        <tr style="background: #fffbf0; border-top: 2px solid #fcd34d; font-weight: 700; color: #b45309;">
+                            <td colspan="8" style="padding: 14px; text-align: right;">Total General Sumas</td>
+                            <td style="padding: 14px; text-align: right;">-</td>
+                            <td id="tot-rv-base" style="padding: 14px; text-align: right;">0.00</td>
+                            <td id="tot-rv-igv" style="padding: 14px; text-align: right;">0.00</td>
+                            <td id="tot-rv-nograv" style="padding: 14px; text-align: right;">0.00</td>
+                            <td style="padding: 14px; text-align: right;">-</td>
+                            <td style="padding: 14px; text-align: right;">-</td>
+                            <td id="tot-rv-total" style="padding: 14px; text-align: right; font-weight: 800;">0.00</td>
+                        </tr>
+                    </tfoot>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 4. Contenedor Tabla Compras (Tab RC) -->
+    <div id="panel-rc" class="cta-tab-panel" style="display: none;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-size: 13px; color: var(--cta-text-secondary); font-weight: 500;">Comprobantes de Compras cargados (Propuesta SUNAT RCE)</span>
+            <span style="font-size: 12px; color: var(--cta-text-muted); font-style: italic;">* Arrastra horizontalmente la tabla para ver todos los campos.</span>
+        </div>
+
+        <div style="border: 1px solid var(--cta-border); border-radius: var(--cta-radius); overflow: hidden; background: #ffffff; box-shadow: var(--cta-shadow);">
+            <div style="overflow-x: auto; width: 100%; max-height: 400px; overflow-y: auto; position: relative;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; min-width: 1300px;">
+                    
+                    <thead style="position: sticky; top: 0; z-index: 10;">
+                        <tr style="background-color: #f0f4ff; border-bottom: 1px solid var(--cta-border); color: #3b5bdb; font-weight: 600;">
+                            <th style="padding: 12px 14px; font-weight: 600; width: 60px; text-align: center;">Estado</th>
+                            <th style="padding: 12px 14px; font-weight: 600; width: 110px;">RUC Proveedor</th>
+                            <th style="padding: 12px 14px; font-weight: 600;">Razón Social Proveedor</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: center; width: 70px;">Tipo Doc</th>
+                            <th style="padding: 12px 14px; font-weight: 600; width: 110px;">Serie/Número</th>
+                            <th style="padding: 12px 14px; font-weight: 600; width: 95px;">Fecha Emisión</th>
+                            <th style="padding: 12px 14px; font-weight: 600; width: 95px;">Fecha Vencimiento</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: center; width: 70px;">Moneda</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 90px;">Tipo de Cambio</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 110px;">Base Grav.</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 100px;">IGV</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 110px;">No Gravado</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 120px;">Total</th>
+                            <th style="padding: 12px 14px; font-weight: 600; text-align: center; width: 90px;">Anotado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody style="color: var(--cta-text-primary);">
+                        <tr><td colspan="14" style="text-align: center; padding: 24px; color: var(--cta-text-muted);">Cargando comprobantes...</td></tr>
+                    </tbody>
+
+                    <tfoot style="position: sticky; bottom: 0; z-index: 10;">
+                        <tr style="background: #f0f4ff; border-top: 2px solid var(--cta-border); font-weight: 700; color: #3b5bdb;">
+                            <td colspan="9" style="padding: 14px; text-align: right;">Total General Sumas</td>
+                            <td id="tot-rc-base" style="padding: 14px; text-align: right;">0.00</td>
+                            <td id="tot-rc-igv" style="padding: 14px; text-align: right;">0.00</td>
+                            <td id="tot-rc-nograv" style="padding: 14px; text-align: right;">0.00</td>
+                            <td id="tot-rc-total" style="padding: 14px; text-align: right; font-weight: 800;">0.00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- CSS local overrides and animations -->
+<style>
+    @@keyframes ctaFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<!-- Drawer Propuesta SUNAT (Panel Lateral Derecho) -->
+<div id="cta-drawer" style="position: fixed; top: 0; right: -500px; width: 500px; height: 100vh; background: #ffffff; box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15); z-index: 1000; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column;">
+    <!-- Header -->
+    <div style="padding: 20px; border-bottom: 1px solid var(--cta-border); display: flex; justify-content: space-between; align-items: center; background: #fffbf0;">
+        <div>
+            <h3 style="font-size: 15px; font-weight: 700; color: #b45309; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5;">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                Propuesta SUNAT vs Tus Registros
+            </h3>
+            <span style="font-size: 12px; color: var(--cta-text-secondary);">Comparativa y detección de inconsistencias</span>
+        </div>
+        <button id="btn-close-drawer" style="background: none; border: none; font-size: 22px; color: var(--cta-text-muted); cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='var(--cta-text-primary)'" onmouseout="this.style.color='var(--cta-text-muted)'">
+            &times;
+        </button>
+    </div>
+    
+    <!-- Body -->
+    <div style="flex: 1; overflow-y: auto; padding: 20px;">
+        <p style="font-size: 12.5px; color: var(--cta-text-secondary); margin-bottom: 16px; line-height: 1.5;">
+            Los comprobantes que difieren de la propuesta oficial de la SUNAT se resaltan en <span style="background: #fef3c7; color: #b45309; padding: 2px 6px; border-radius: 4px; font-weight: 600;">amarillo</span>. Puede corregir su registro local haciendo clic en "Aceptar Propuesta".
+        </p>
+        <div style="border: 1px solid var(--cta-border); border-radius: 6px; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 1px solid var(--cta-border); font-weight: 600; color: var(--cta-text-secondary);">
+                        <th style="padding: 10px 12px;">N° Comprobante</th>
+                        <th style="padding: 10px 12px; text-align: right;">SUNAT</th>
+                        <th style="padding: 10px 12px; text-align: right;">Tu Registro</th>
+                        <th style="padding: 10px 12px; text-align: right;">Diferencia</th>
+                    </tr>
+                </thead>
+                <tbody id="drawer-comparison-body">
+                    <!-- Dinámico -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div style="padding: 16px 20px; border-top: 1px solid var(--cta-border); display: flex; gap: 12px; justify-content: flex-end; background: #f8fafc;">
+        <button id="btn-reemplazar-propuesta" style="background: #d97706; color: #ffffff; border: none; padding: 10px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'">
+            Aceptar Propuesta
+        </button>
+        <button id="btn-close-drawer-footer" style="background: #ffffff; border: 1px solid var(--cta-border); color: var(--cta-text-secondary); padding: 10px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#ffffff'">
+            Cerrar
+        </button>
+    </div>
+</div>
+
+<!-- Overlay Drawer -->
+<div id="cta-drawer-overlay" style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); z-index: 999; display: none; opacity: 0; transition: opacity 0.3s ease;"></div>
+
+<!-- CSS local overrides and animations -->
+<style>
+    @@keyframes ctaFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @@keyframes ctaSlideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<!-- 5. Scripts de Recálculo, Homologación y Tabulación en Cliente -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Datos de Ventas RV completos
+        var dbVentas = [
+            @foreach (var v in ventasRV)
+            {
+                <text>{ periodo: "@v.Periodo", tipoDoc: "@v.TipoDoc", serie: "@v.Serie", correlativo: "@v.Correlativo", fecha: "@v.Fecha", ruc: "@v.Ruc", razonSocial: "@v.RazonSocial", moneda: "@v.Moneda", baseGrav: @v.BaseGrav, igv: @v.Igv, baseNoGrav: @v.BaseNoGrav, total: @v.Total, tipoOp: "@v.TipoOp" },</text>
+            }
+        ];
+
+        // Datos de Compras RC completos
+        var dbCompras = [
+            @foreach (var c in comprasRC)
+            {
+                <text>{ periodo: "@c.Periodo", tipoDoc: "@c.TipoDoc", serie: "@c.Serie", correlativo: "@c.Correlativo", fecha: "@c.Fecha", fechaVenc: "@c.FechaVenc", ruc: "@c.Ruc", razonSocial: "@c.RazonSocial", moneda: "@c.Moneda", tc: @c.TC, baseGrav: @c.BaseGrav, igv: @c.Igv, noGravado: @c.NoGravado, total: @c.Total, anotado: "@c.Anotado" },</text>
+            }
+        ];
+
+        // Referencias DOM Tabs
+        var tabRV = document.getElementById("tab-rv");
+        var tabRC = document.getElementById("tab-rc");
+        var panelRV = document.getElementById("panel-rv");
+        var panelRC = document.getElementById("panel-rc");
+
+        // Referencias DOM Selector Periodo y Navegación
+        var selectPeriodo = document.getElementById("select-periodo");
+        var btnPrevPeriodo = document.getElementById("btn-prev-periodo");
+        var btnNextPeriodo = document.getElementById("btn-next-periodo");
+
+        // Referencias DOM Métricas
+        var resVentasGrav = document.getElementById("res-ventas-grav");
+        var resIgvVentas = document.getElementById("res-igv-ventas");
+        var resComprasGrav = document.getElementById("res-compras-grav");
+        var resIgvCompras = document.getElementById("res-igv-compras");
+        var resCreditoFiscal = document.getElementById("res-credito-fiscal");
+
+        // Referencias DOM Totales Tabla Ventas
+        var totRvBase = document.getElementById("tot-rv-base");
+        var totRvIgv = document.getElementById("tot-rv-igv");
+        var totRvNoGrav = document.getElementById("tot-rv-nograv");
+        var totRvTotal = document.getElementById("tot-rv-total");
+
+        // Referencias DOM Totales Tabla Compras
+        var totRcBase = document.getElementById("tot-rc-base");
+        var totRcIgv = document.getElementById("tot-rc-igv");
+        var totRcNoGrav = document.getElementById("tot-rc-nograv");
+        var totRcTotal = document.getElementById("tot-rc-total");
+
+        // Utilidades numéricas
+        function formatMoney(amount) {
+            return "S/ " + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        function formatNumberOnly(amount) {
+            return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        function stringJoinReverse(dateStr) {
+            if (!dateStr) return "-";
+            var parts = dateStr.split("-");
+            if (parts.length === 3) {
+                return parts[2] + "/" + parts[1] + "/" + parts[0];
+            }
+            return dateStr;
+        }
+
+        // --- 1. MOTOR DE VALIDACIÓN POR FILA ---
+        function validateRow(item, type) {
+            // Check Critical Error (IGV !== Base * 18% con tolerancia de 0.05)
+            if (item.baseGrav > 0 && Math.abs(item.baseGrav * 0.18 - item.igv) > 0.05) {
+                var expectedIgv = (item.baseGrav * 0.18).toFixed(2);
+                return {
+                    status: "error",
+                    message: "Error crítico: El IGV reportado (S/ " + item.igv.toFixed(2) + ") no coincide con el 18% calculado de la base (S/ " + expectedIgv + ")."
+                };
+            }
+            
+            // Check Warning (RUC length !== 11 or starts with digits other than 10 or 20)
+            if (item.ruc) {
+                var cleanRuc = item.ruc.trim();
+                if (cleanRuc.length !== 11 || (!cleanRuc.startsWith("10") && !cleanRuc.startsWith("20"))) {
+                    return {
+                        status: "warning",
+                        message: "Observación: Formato de RUC inválido o inusual (debe tener 11 dígitos y comenzar con 10 o 20)."
+                    };
+                }
+            }
+            
+            return {
+                status: "valid",
+                message: "Registro válido y consistente."
+            };
+        }
+
+        // --- 2. GESTIÓN DE TABS PRINCIPALES RV / RC ---
+        function switchTab(activeTabId) {
+            if (activeTabId === "rv") {
+                tabRV.classList.add("active");
+                tabRV.style.borderBottom = "2px solid #3b5bdb";
+                tabRV.style.color = "#3b5bdb";
+                
+                tabRC.classList.remove("active");
+                tabRC.style.borderBottom = "2px solid transparent";
+                tabRC.style.color = "var(--cta-text-muted)";
+                
+                panelRV.style.display = "block";
+                panelRC.style.display = "none";
+            } else {
+                tabRC.classList.add("active");
+                tabRC.style.borderBottom = "2px solid #3b5bdb";
+                tabRC.style.color = "#3b5bdb";
+                
+                tabRV.classList.remove("active");
+                tabRV.style.borderBottom = "2px solid transparent";
+                tabRV.style.color = "var(--cta-text-muted)";
+                
+                panelRC.style.display = "block";
+                panelRV.style.display = "none";
+            }
+            renderTable();
+        }
+
+        tabRV.addEventListener("click", function() { switchTab("rv"); });
+        tabRC.addEventListener("click", function() { switchTab("rc"); });
+
+        // --- GESTIÓN DINÁMICA DE ESTADO DE ENVÍO ---
+        var selectEstado = document.getElementById("select-estado");
+        var badgeEstado = document.getElementById("badge-estado");
+
+        if (selectEstado && badgeEstado) {
+            selectEstado.addEventListener("change", function() {
+                var val = selectEstado.value;
+                if (val === "Pendiente") {
+                    badgeEstado.textContent = "Pendiente de envío";
+                    badgeEstado.style.background = "rgba(217, 119, 6, 0.12)";
+                    badgeEstado.style.color = "#d97706";
+                    badgeEstado.style.border = "1px solid rgba(217, 119, 6, 0.2)";
+                } else if (val === "Enviado") {
+                    badgeEstado.textContent = "Enviado";
+                    badgeEstado.style.background = "rgba(59, 93, 219, 0.12)";
+                    badgeEstado.style.color = "#3b5bdb";
+                    badgeEstado.style.border = "1px solid rgba(59, 93, 219, 0.2)";
+                } else if (val === "Aceptado") {
+                    badgeEstado.textContent = "Aceptado";
+                    badgeEstado.style.background = "rgba(16, 185, 129, 0.12)";
+                    badgeEstado.style.color = "#10b981";
+                    badgeEstado.style.border = "1px solid rgba(16, 185, 129, 0.2)";
+                }
+            });
+        }
+
+        // --- 5. RESUMEN TRIBUTARIO FORMULARIO 621 ACCORDION TOGGLE ---
+        var btnToggleDj = document.getElementById("btn-toggle-dj");
+        var panelDj = document.getElementById("panel-dj");
+        var toggleDjIcon = document.getElementById("toggle-dj-icon");
+
+        if (btnToggleDj && panelDj && toggleDjIcon) {
+            btnToggleDj.addEventListener("click", function() {
+                if (panelDj.style.display === "none" || panelDj.style.display === "") {
+                    panelDj.style.display = "block";
+                    toggleDjIcon.textContent = "▲ Colapsar Formulario";
+                    panelDj.style.animation = "ctaSlideDown 200ms ease-out";
+                } else {
+                    panelDj.style.display = "none";
+                    toggleDjIcon.textContent = "▼ Expandir Formulario";
+                }
+            });
+        }
+
+        // --- 3. ACCIONES Y FILTROS AVANZADOS TOGGLE ---
+        var btnFiltros = document.getElementById("btn-filtros-avanzados");
+        var panelFiltros = document.getElementById("panel-filtros-avanzados");
+
+        if (btnFiltros && panelFiltros) {
+            btnFiltros.addEventListener("click", function() {
+                if (panelFiltros.style.display === "none" || panelFiltros.style.display === "") {
+                    panelFiltros.style.display = "block";
+                    panelFiltros.style.animation = "ctaSlideDown 200ms ease-out";
+                    btnFiltros.style.background = "var(--cta-primary-soft)";
+                    btnFiltros.style.color = "var(--cta-primary)";
+                    btnFiltros.style.borderColor = "var(--cta-primary)";
+                } else {
+                    panelFiltros.style.display = "none";
+                    btnFiltros.style.background = "#ffffff";
+                    btnFiltros.style.color = "var(--cta-text-secondary)";
+                    btnFiltros.style.borderColor = "var(--cta-border)";
+                }
+            });
+        }
+
+        // Suscribir eventos de filtros avanzados
+        document.getElementById("chk-obs").addEventListener("change", renderTable);
+        document.getElementById("filter-tipo-op").addEventListener("change", renderTable);
+        document.getElementById("filter-monto-min").addEventListener("input", renderTable);
+        document.getElementById("filter-monto-max").addEventListener("input", renderTable);
+
+        // --- 6. NAVEGACIÓN POR PERÍODO CON FLECHAS ---
+        if (btnPrevPeriodo) {
+            btnPrevPeriodo.addEventListener("click", function() {
+                var currentIndex = selectPeriodo.selectedIndex;
+                if (currentIndex > 0) {
+                    selectPeriodo.selectedIndex = currentIndex - 1;
+                    selectPeriodo.dispatchEvent(new Event("change"));
+                }
+            });
+        }
+
+        if (btnNextPeriodo) {
+            btnNextPeriodo.addEventListener("click", function() {
+                var currentIndex = selectPeriodo.selectedIndex;
+                if (currentIndex < selectPeriodo.options.length - 1) {
+                    selectPeriodo.selectedIndex = currentIndex + 1;
+                    selectPeriodo.dispatchEvent(new Event("change"));
+                }
+            });
+        }
+
+        selectPeriodo.addEventListener("change", function() {
+            var currentIndex = selectPeriodo.selectedIndex;
+            if (btnPrevPeriodo) btnPrevPeriodo.disabled = (currentIndex === 0);
+            if (btnNextPeriodo) btnNextPeriodo.disabled = (currentIndex === selectPeriodo.options.length - 1);
+            
+            // Actualizar estadísticas de periodo y redibujar tablas
+            updatePeriodStats();
+            renderTable();
+        });
+
+        // --- DRAWER COMPARATIVO PROPUESTA SUNAT ---
+        var btnPropuesta = document.getElementById("btn-propuesta-sunat");
+        var btnCloseDrawer = document.getElementById("btn-close-drawer");
+        var btnCloseDrawerFooter = document.getElementById("btn-close-drawer-footer");
+        var drawer = document.getElementById("cta-drawer");
+        var drawerOverlay = document.getElementById("cta-drawer-overlay");
+
+        function openDrawer() {
+            renderSunatProposal();
+            drawer.style.right = "0";
+            drawerOverlay.style.display = "block";
+            setTimeout(function() {
+                drawerOverlay.style.opacity = "1";
+            }, 10);
+        }
+
+        function closeDrawer() {
+            drawer.style.right = "-500px";
+            drawerOverlay.style.opacity = "0";
+            setTimeout(function() {
+                drawerOverlay.style.display = "none";
+            }, 300);
+        }
+
+        if (btnPropuesta) btnPropuesta.addEventListener("click", openDrawer);
+        if (btnCloseDrawer) btnCloseDrawer.addEventListener("click", closeDrawer);
+        if (btnCloseDrawerFooter) btnCloseDrawerFooter.addEventListener("click", closeDrawer);
+        if (drawerOverlay) drawerOverlay.addEventListener("click", closeDrawer);
+
+        // Aceptar propuesta SUNAT y homologar datos locales
+        var btnReemplazar = document.getElementById("btn-reemplazar-propuesta");
+        if (btnReemplazar) {
+            btnReemplazar.addEventListener("click", function() {
+                var activeTab = tabRV.classList.contains("active") ? "rv" : "rc";
+                if (activeTab === "rv") {
+                    // Corregir fila 5 (index 4) de ventas
+                    dbVentas[4].igv = dbVentas[4].baseGrav * 0.18;
+                    dbVentas[4].total = dbVentas[4].baseGrav + dbVentas[4].igv;
+                } else {
+                    // Corregir fila 8 (index 7) de compras
+                    dbCompras[7].igv = dbCompras[7].baseGrav * 0.18;
+                    dbCompras[7].total = dbCompras[7].baseGrav + dbCompras[7].igv;
+                }
+                
+                alert("Propuesta SUNAT homologada exitosamente. Se han corregido las discrepancias de IGV en sus registros locales.");
+                closeDrawer();
+                updatePeriodStats();
+                renderTable();
+            });
+        }
+
+        function renderSunatProposal() {
+            var activeTab = tabRV.classList.contains("active") ? "rv" : "rc";
+            var periodValue = selectPeriodo.value;
+            var multiplier = 1.0;
+            if (periodValue === "2024-04") multiplier = 0.88;
+            if (periodValue === "2024-06") multiplier = 1.12;
+
+            var rawData = (activeTab === "rv") ? dbVentas : dbCompras;
+            var tbody = document.getElementById("drawer-comparison-body");
+            tbody.innerHTML = "";
+
+            rawData.forEach(function(item, index) {
+                var copy = Object.assign({}, item);
+                copy.baseGrav = item.baseGrav * multiplier;
+                copy.igv = item.igv * multiplier;
+                copy.total = item.total * multiplier;
+
+                var compNumber = copy.serie + "-" + copy.correlativo;
+                
+                // Simulación de diferencias
+                var sunatTotal = copy.total;
+                if (activeTab === "rv" && index === 4) {
+                    sunatTotal = (copy.baseGrav + copy.baseGrav * 0.18); // F001-0008545 corregido
+                }
+                if (activeTab === "rc" && index === 7) {
+                    sunatTotal = (copy.baseGrav + copy.baseGrav * 0.18); // F003-0001254 corregido
+                }
+
+                var tuTotal = copy.total;
+                var dif = sunatTotal - tuTotal;
+                var hasDiff = Math.abs(dif) > 0.01;
+                
+                var trStyle = hasDiff ? 'background: #fffbeb; font-weight: 600;' : '';
+                var tdClass = hasDiff ? 'style="padding: 10px 12px; border-bottom: 1px solid var(--cta-border); color: #b45309;"' : 'style="padding: 10px 12px; border-bottom: 1px solid var(--cta-border); color: var(--cta-text-primary);"';
+                var tdRightClass = hasDiff ? 'style="padding: 10px 12px; border-bottom: 1px solid var(--cta-border); text-align: right; color: #b45309;"' : 'style="padding: 10px 12px; border-bottom: 1px solid var(--cta-border); text-align: right; color: var(--cta-text-primary);"';
+
+                var rowHtml = `
+                    <tr style="${trStyle}">
+                        <td ${tdClass}>${compNumber}</td>
+                        <td ${tdRightClass}>S/ ${formatNumberOnly(sunatTotal)}</td>
+                        <td ${tdRightClass}>S/ ${formatNumberOnly(tuTotal)}</td>
+                        <td ${tdRightClass} style="color: ${dif !== 0 ? '#ef4444' : '#10b981'}; font-weight: 700;">S/ ${formatNumberOnly(dif)}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML("beforeend", rowHtml);
+            });
+        }
+
+        // --- 4. GENERACIÓN DE ARCHIVO TXT ESTRUCTURADO SUNAT ---
+        var btnGenerarTxt = document.getElementById("btn-generar-txt");
+        if (btnGenerarTxt) {
+            btnGenerarTxt.addEventListener("click", function() {
+                var activeTab = tabRV.classList.contains("active") ? "rv" : "rc";
+                var periodValue = selectPeriodo.value;
+                var cleanPeriod = periodValue.replace("-", ""); // "202405"
+                var activeRuc = document.getElementById("select-ruc").value;
+                
+                var rawData = (activeTab === "rv") ? dbVentas : dbCompras;
+                var multiplier = 1.0;
+                if (periodValue === "2024-04") multiplier = 0.88;
+                if (periodValue === "2024-06") multiplier = 1.12;
+
+                var txtLines = [];
+                rawData.forEach(function(item) {
+                    var copy = Object.assign({}, item);
+                    copy.baseGrav = item.baseGrav * multiplier;
+                    copy.igv = item.igv * multiplier;
+                    copy.total = item.total * multiplier;
+                    if (copy.baseNoGrav !== undefined) copy.baseNoGrav = item.baseNoGrav * multiplier;
+                    if (copy.noGravado !== undefined) copy.noGravado = item.noGravado * multiplier;
+                    
+                    var line = "";
+                    if (activeTab === "rv") {
+                        line = [
+                            cleanPeriod,
+                            copy.ruc,
+                            copy.razonSocial,
+                            copy.tipoDoc,
+                            copy.serie,
+                            copy.correlativo,
+                            copy.fecha,
+                            copy.moneda,
+                            copy.baseGrav.toFixed(2),
+                            copy.igv.toFixed(2),
+                            copy.baseNoGrav.toFixed(2),
+                            copy.total.toFixed(2),
+                            copy.tipoOp
+                        ].join("|");
+                    } else {
+                        line = [
+                            cleanPeriod,
+                            copy.ruc,
+                            copy.razonSocial,
+                            copy.tipoDoc,
+                            copy.serie,
+                            copy.correlativo,
+                            copy.fecha,
+                            copy.fechaVenc,
+                            copy.moneda,
+                            copy.tc.toFixed(2),
+                            copy.baseGrav.toFixed(2),
+                            copy.igv.toFixed(2),
+                            copy.noGravado.toFixed(2),
+                            copy.total.toFixed(2),
+                            copy.anotado
+                        ].join("|");
+                    }
+                    txtLines.push(line);
+                });
+
+                var txtContent = txtLines.join("\r\n");
+                var tipo = (activeTab === "rv") ? "140100" : "140200";
+                var fileName = "LE" + activeRuc + cleanPeriod + "00" + tipo + "00.txt";
+
+                var blob = new Blob([txtContent], { type: "text/plain;charset=utf-8" });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                alert("Se ha generado y descargado con éxito el archivo estructurado para SIRE SUNAT:\n\n" + fileName + "\n\nRegistros procesados: " + txtLines.length);
+            });
+        }
+
+        // --- MOTOR CENTRAL DE RENDERIZACIÓN DE TABLAS ---
+        function renderTable() {
+            var activeTab = tabRV.classList.contains("active") ? "rv" : "rc";
+            var periodValue = selectPeriodo.value;
+            var cleanPeriod = periodValue.replace("-", "");
+            
+            var rawData = (activeTab === "rv") ? dbVentas : dbCompras;
+            var multiplier = 1.0;
+            if (periodValue === "2024-04") multiplier = 0.88;
+            if (periodValue === "2024-06") multiplier = 1.12;
+
+            // Procesar y mapear datos
+            var filteredData = rawData.map(function(item) {
+                var copy = Object.assign({}, item);
+                copy.periodo = cleanPeriod;
+                copy.baseGrav = item.baseGrav * multiplier;
+                copy.igv = item.igv * multiplier;
+                copy.total = item.total * multiplier;
+                if (copy.baseNoGrav !== undefined) copy.baseNoGrav = item.baseNoGrav * multiplier;
+                if (copy.noGravado !== undefined) copy.noGravado = item.noGravado * multiplier;
+                
+                // Mover fechas según periodo
+                if (periodValue === "2024-04") {
+                    copy.fecha = copy.fecha.replace("-05-", "-04-");
+                    if (copy.fechaVenc) copy.fechaVenc = copy.fechaVenc.replace("-06-", "-05-").replace("-05-", "-04-");
+                }
+                if (periodValue === "2024-06") {
+                    copy.fecha = copy.fecha.replace("-05-", "-06-");
+                    if (copy.fechaVenc) copy.fechaVenc = copy.fechaVenc.replace("-06-", "-07-").replace("-05-", "-06-");
+                }
+                return copy;
+            });
+
+            // Aplicar filtros avanzados
+            var chkObs = document.getElementById("chk-obs").checked;
+            var filterTipoOp = document.getElementById("filter-tipo-op").value;
+            var minMonto = parseFloat(document.getElementById("filter-monto-min").value) || 0;
+            var maxMonto = parseFloat(document.getElementById("filter-monto-max").value) || Infinity;
+
+            filteredData = filteredData.filter(function(item) {
+                // Filtro solo observaciones / errores
+                var val = validateRow(item, activeTab);
+                if (chkObs && val.status === "valid") return false;
+
+                // Filtro tipo operación (Ventas)
+                if (activeTab === "rv" && filterTipoOp !== "Todos" && item.tipoOp !== filterTipoOp) return false;
+
+                // Filtro por rango de montos
+                if (item.total < minMonto || item.total > maxMonto) return false;
+
+                return true;
+            });
+
+            // Renderizar en el tbody correspondiente
+            var tbody = (activeTab === "rv") ? document.querySelector("#panel-rv tbody") : document.querySelector("#panel-rc tbody");
+            tbody.innerHTML = "";
+
+            if (filteredData.length === 0) {
+                var cols = (activeTab === "rv") ? 16 : 14;
+                tbody.innerHTML = `<tr><td colspan="${cols}" style="text-align: center; padding: 32px; color: var(--cta-text-muted); font-style: italic;">No se encontraron registros que coincidan con los filtros seleccionados.</td></tr>`;
+            } else {
+                filteredData.forEach(function(item) {
+                    var val = validateRow(item, activeTab);
+                    var iconHtml = "";
+                    if (val.status === "valid") {
+                        iconHtml = `<span style="color:#10b981; font-weight:700; font-size:15px; cursor:help;" title="${val.message}">✓</span>`;
+                    } else if (val.status === "warning") {
+                        iconHtml = `<span style="color:#d97706; font-weight:700; font-size:15px; cursor:help;" title="${val.message}">⚠</span>`;
+                    } else if (val.status === "error") {
+                        iconHtml = `<span style="color:#ef4444; font-weight:700; font-size:15px; cursor:help;" title="${val.message}">✗</span>`;
+                    }
+
+                    var rowHtml = "";
+                    if (activeTab === "rv") {
+                        var dateStr = stringJoinReverse(item.fecha);
+                        rowHtml = `
+                            <tr class="sire-row" style="border-bottom: 1px solid var(--cta-border); transition: background var(--cta-transition);" onmouseover="this.style.background='#fffbf7'" onmouseout="this.style.background='none'">
+                                <td style="padding: 12px 14px; text-align: center; font-weight: 700;">${iconHtml}</td>
+                                <td style="padding: 12px 14px; font-family: monospace;">${item.periodo}</td>
+                                <td style="padding: 12px 14px; text-align: center; font-family: monospace;">${item.tipoDoc}</td>
+                                <td style="padding: 12px 14px; font-family: monospace;">${item.serie}</td>
+                                <td style="padding: 12px 14px; font-family: monospace;">${item.correlativo}</td>
+                                <td style="padding: 12px 14px; white-space: nowrap;">${dateStr}</td>
+                                <td style="padding: 12px 14px; font-family: monospace;">${item.ruc}</td>
+                                <td style="padding: 12px 14px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.razonSocial}">${item.razonSocial}</td>
+                                <td style="padding: 12px 14px; text-align: center; font-weight: 600; font-size: 11.5px;">${item.moneda}</td>
+                                <td style="padding: 12px 14px; text-align: right;">-</td>
+                                <td style="padding: 12px 14px; text-align: right;">${item.baseGrav > 0 ? formatNumberOnly(item.baseGrav) : "0.00"}</td>
+                                <td style="padding: 12px 14px; text-align: right;">${item.igv > 0 ? formatNumberOnly(item.igv) : "0.00"}</td>
+                                <td style="padding: 12px 14px; text-align: right;">${item.baseNoGrav > 0 ? formatNumberOnly(item.baseNoGrav) : "0.00"}</td>
+                                <td style="padding: 12px 14px; text-align: right;">-</td>
+                                <td style="padding: 12px 14px; text-align: right;">-</td>
+                                <td style="padding: 12px 14px; text-align: right; font-weight: 600; color: #d97706;">${formatNumberOnly(item.total)}</td>
+                            </tr>
+                        `;
+                    } else {
+                        var dateStr = stringJoinReverse(item.fecha);
+                        var dateVencStr = stringJoinReverse(item.fechaVenc);
+                        rowHtml = `
+                            <tr class="sire-row" style="border-bottom: 1px solid var(--cta-border); transition: background var(--cta-transition);" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='none'">
+                                <td style="padding: 12px 14px; text-align: center; font-weight: 700;">${iconHtml}</td>
+                                <td style="padding: 12px 14px; font-family: monospace;">${item.ruc}</td>
+                                <td style="padding: 12px 14px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.razonSocial}">${item.razonSocial}</td>
+                                <td style="padding: 12px 14px; text-align: center; font-family: monospace;">${item.tipoDoc}</td>
+                                <td style="padding: 12px 14px; font-family: monospace;">${item.serie}-${item.correlativo}</td>
+                                <td style="padding: 12px 14px; white-space: nowrap;">${dateStr}</td>
+                                <td style="padding: 12px 14px; white-space: nowrap;">${dateVencStr}</td>
+                                <td style="padding: 12px 14px; text-align: center; font-weight: 600; font-size: 11.5px;">${item.moneda}</td>
+                                <td style="padding: 12px 14px; text-align: right; font-family: monospace;">${formatNumberOnly(item.tc)}</td>
+                                <td style="padding: 12px 14px; text-align: right;">${item.baseGrav > 0 ? formatNumberOnly(item.baseGrav) : "0.00"}</td>
+                                <td style="padding: 12px 14px; text-align: right;">${item.igv > 0 ? formatNumberOnly(item.igv) : "0.00"}</td>
+                                <td style="padding: 12px 14px; text-align: right;">${item.noGravado > 0 ? formatNumberOnly(item.noGravado) : "0.00"}</td>
+                                <td style="padding: 12px 14px; text-align: right; font-weight: 600; color: #3b5bdb;">${formatNumberOnly(item.total)}</td>
+                                <td style="padding: 12px 14px; text-align: center;">
+                                    ${item.anotado === "Sí" ? '<span style="color: #10b981; font-weight: 700; font-size: 13.5px;">✔</span>' : '<span style="color: #ef4444; font-weight: 700; font-size: 13.5px;">✘</span>'}
+                                </td>
+                            </tr>
+                        `;
+                    }
+                    tbody.insertAdjacentHTML("beforeend", rowHtml);
+                });
+            }
+            
+            // Recalcular métricas de pie de tabla
+            recalculateMetrics(filteredData, activeTab);
+        }
+
+        // --- MOTOR CENTRAL DE RECALCULO DE METRICAS DEL PERIODO (GLOBAL) ---
+        function updatePeriodStats() {
+            var periodValue = selectPeriodo.value;
+            var cleanPeriod = periodValue.replace("-", "");
+            var multiplier = 1.0;
+            if (periodValue === "2024-04") multiplier = 0.88;
+            if (periodValue === "2024-06") multiplier = 1.12;
+
+            var sumVentasBase = 0;
+            var sumVentasIgv = 0;
+            var sumVentasNoGrav = 0;
+            var sumVentasTotal = 0;
+
+            var sumComprasBase = 0;
+            var sumComprasIgv = 0;
+            var sumComprasNoGrav = 0;
+            var sumComprasTotal = 0;
+
+            var countValid = 0;
+            var countWarning = 0;
+            var countError = 0;
+
+            // Procesar Ventas
+            dbVentas.forEach(function(item) {
+                var copy = Object.assign({}, item);
+                copy.baseGrav = item.baseGrav * multiplier;
+                copy.igv = item.igv * multiplier;
+                copy.total = item.total * multiplier;
+                copy.baseNoGrav = item.baseNoGrav * multiplier;
+
+                var tc = (copy.moneda === "USD") ? 3.75 : 1.00;
+                sumVentasBase += (copy.baseGrav * tc);
+                sumVentasIgv += (copy.igv * tc);
+                sumVentasNoGrav += (copy.baseNoGrav * tc);
+                sumVentasTotal += (copy.total * tc);
+
+                var val = validateRow(copy, "rv");
+                if (val.status === "valid") countValid++;
+                else if (val.status === "warning") countWarning++;
+                else if (val.status === "error") countError++;
+            });
+
+            // Procesar Compras
+            dbCompras.forEach(function(item) {
+                var copy = Object.assign({}, item);
+                copy.baseGrav = item.baseGrav * multiplier;
+                copy.igv = item.igv * multiplier;
+                copy.total = item.total * multiplier;
+                copy.noGravado = item.noGravado * multiplier;
+
+                var tc = copy.tc;
+                sumComprasBase += (copy.baseGrav * tc);
+                sumComprasIgv += (copy.igv * tc);
+                sumComprasNoGrav += (copy.noGravado * tc);
+                sumComprasTotal += (copy.total * tc);
+
+                var val = validateRow(copy, "rc");
+                if (val.status === "valid") countValid++;
+                else if (val.status === "warning") countWarning++;
+                else if (val.status === "error") countError++;
+            });
+
+            // Inyectar contadores en el header diagnostico
+            document.getElementById("count-valid").innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981;"></span> ${countValid} Válidos`;
+            document.getElementById("count-warning").innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#d97706;"></span> ${countWarning} Con Obs.`;
+            document.getElementById("count-error").innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#ef4444;"></span> ${countError} Con Error`;
+
+            // Inyectar en Tarjetas Resumen
+            resVentasGrav.textContent = formatMoney(sumVentasBase);
+            resIgvVentas.textContent = formatMoney(sumVentasIgv);
+            resComprasGrav.textContent = formatMoney(sumComprasBase);
+            resIgvCompras.textContent = formatMoney(sumComprasIgv);
+
+            // Calcular Crédito Fiscal (IGV Ventas - IGV Compras en PEN)
+            var creditoFiscal = sumVentasIgv - sumComprasIgv;
+            var labelCF = document.getElementById("res-credito-fiscal");
+            
+            if (creditoFiscal >= 0) {
+                labelCF.style.color = "#d97706";
+                labelCF.innerHTML = formatMoney(creditoFiscal) + ' <span style="font-size: 12px; font-weight: 500; color: var(--cta-text-secondary); display: block; margin-top: 4px;">Debito / Impuesto por pagar</span>';
+            } else {
+                labelCF.style.color = "#10b981";
+                labelCF.innerHTML = formatMoney(Math.abs(creditoFiscal)) + ' <span style="font-size: 12px; font-weight: 500; color: var(--cta-text-secondary); display: block; margin-top: 4px;">Saldo / Crédito Fiscal a favor</span>';
+            }
+
+            // Inyectar valores en el Formulario Virtual DJ 621
+            document.getElementById("dj-v-base").textContent = formatMoney(sumVentasBase);
+            document.getElementById("dj-v-nograv").textContent = formatMoney(sumVentasNoGrav);
+            document.getElementById("dj-v-igv").textContent = formatMoney(sumVentasIgv);
+
+            document.getElementById("dj-c-base").textContent = formatMoney(sumComprasBase);
+            document.getElementById("dj-c-nograv").textContent = formatMoney(sumComprasNoGrav);
+            document.getElementById("dj-c-igv").textContent = formatMoney(sumComprasIgv);
+
+            var djResultado = document.getElementById("dj-resultado");
+            var djResultadoLabel = document.getElementById("dj-resultado-label");
+            if (creditoFiscal >= 0) {
+                djResultado.textContent = formatMoney(creditoFiscal);
+                djResultado.style.color = "#d97706";
+                djResultadoLabel.textContent = "Casilla 184 - Impuesto a Pagar (Débito resultante)";
+                djResultadoLabel.style.color = "#d97706";
+            } else {
+                djResultado.textContent = formatMoney(Math.abs(creditoFiscal));
+                djResultado.style.color = "#10b981";
+                djResultadoLabel.textContent = "Casilla 184 - Saldo a Favor del Contribuyente (Crédito resultante)";
+                djResultadoLabel.style.color = "#10b981";
+            }
+        }
+
+        // --- MOTOR DE RECALCULO DE METRICAS DEL PIE DE TABLA ---
+        function recalculateMetrics(filteredData, activeTab) {
+            var totTableBase = 0;
+            var totTableIgv = 0;
+            var totTableNoGrav = 0;
+            var totTableTotal = 0;
+
+            filteredData.forEach(function(item) {
+                totTableBase += item.baseGrav;
+                totTableIgv += item.igv;
+                if (activeTab === "rv") {
+                    totTableNoGrav += item.baseNoGrav;
+                } else {
+                    totTableNoGrav += item.noGravado;
+                }
+                totTableTotal += item.total;
+            });
+
+            if (activeTab === "rv") {
+                totRvBase.textContent = formatNumberOnly(totTableBase);
+                totRvIgv.textContent = formatNumberOnly(totTableIgv);
+                totRvNoGrav.textContent = formatNumberOnly(totTableNoGrav);
+                totRvTotal.textContent = formatNumberOnly(totTableTotal);
+            } else {
+                totRcBase.textContent = formatNumberOnly(totTableBase);
+                totRcIgv.textContent = formatNumberOnly(totTableIgv);
+                totRcNoGrav.textContent = formatNumberOnly(totTableNoGrav);
+                totRcTotal.textContent = formatNumberOnly(totTableTotal);
+            }
+        }
+
+        // Carga inicial y configuración de estados
+        selectPeriodo.dispatchEvent(new Event("change"));
+    });
+</script>
+

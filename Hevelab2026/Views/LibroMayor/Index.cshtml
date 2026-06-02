@@ -1,0 +1,802 @@
+@model LibroMayorViewModel
+@{
+    ViewData["Title"] = "Libro Mayor";
+    
+    var cuentas = Model.Cuentas;
+    var movimientos = Model.Movimientos;
+}
+
+<!-- Carga CDN Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="cta-module-card" style="background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); box-shadow: var(--cta-shadow); padding: 24px; animation: ctaFadeIn 300ms ease-out;">
+    
+    <!-- Encabezado de Página & Barra de Herramientas -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--cta-border); padding-bottom: 16px; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="color: var(--cta-primary); display: flex; align-items: center; justify-content: center; background: var(--cta-primary-soft); width: 42px; height: 42px; border-radius: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    <line x1="8" y1="6" x2="16" y2="6"></line>
+                    <line x1="8" y1="11" x2="16" y2="11"></line>
+                </svg>
+            </div>
+            <div>
+                <h1 style="font-size: 20px; font-weight: 700; color: var(--cta-text-primary); margin: 0;">Libro Mayor</h1>
+                <p style="font-size: 12.5px; color: var(--cta-text-secondary); margin: 2px 0 0 0;">Análisis contable completo y comparación de balances.</p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <!-- 5. Botón Exportar CSV -->
+            <button id="btn-exportar" style="border: 1px solid var(--cta-border); background: #ffffff; color: var(--cta-text-secondary); padding: 8px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
+                <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Exportar CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Barra de Selección General -->
+    <div style="background: #f8fafc; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); padding: 16px; margin-bottom: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: flex-end;">
+        <div>
+            <label for="select-cuenta" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 6px;">Seleccionar Cuenta</label>
+            <select id="select-cuenta" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none;">
+                @foreach (var c in cuentas)
+                {
+                    <option value="@c.CodigoCuenta">@c.CodigoCuenta - @c.NombreCuenta</option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <label for="select-mes" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 6px;">Mes Período</label>
+            <select id="select-mes" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none;">
+                <option value="04">Abril</option>
+                <option value="05" selected>Mayo</option>
+                <option value="06">Junio</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="select-anio" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 6px;">Año Ejercicio</label>
+            <select id="select-anio" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none;">
+                <option value="2024">2024</option>
+            </select>
+        </div>
+
+        <!-- 2. Comparador Checkbox -->
+        <div style="padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="check-comparativa" style="width: 16px; height: 16px; accent-color: var(--cta-primary); cursor: pointer;" />
+            <label for="check-comparativa" style="font-size: 13px; font-weight: 600; color: var(--cta-text-primary); cursor: pointer;">Comparar Período</label>
+        </div>
+    </div>
+
+    <!-- Layout Grid: Main T-Account & Right Index -->
+    <div class="libro-mayor-grid">
+        
+        <!-- Left Column -->
+        <div style="display: flex; flex-direction: column; gap: 24px; min-width: 0;">
+            
+            <!-- Resumen e Histórico -->
+            <div style="background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); padding: 20px; box-shadow: var(--cta-shadow); display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--cta-border); padding-bottom: 12px;">
+                    <div>
+                        <span id="resumen-cuenta-codigo" style="font-family: monospace; font-size: 14px; font-weight: 700; color: var(--cta-primary);">1011</span>
+                        <h2 id="resumen-cuenta-nombre" style="margin: 4px 0 0 0; font-size: 16px; font-weight: 700; color: var(--cta-text-primary);">Caja General y Bancos</h2>
+                    </div>
+                    <span id="resumen-cuenta-tipo" style="background: var(--cta-primary-soft); color: var(--cta-primary); border: 1px solid rgba(59, 93, 219, 0.15); padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600;">Activo</span>
+                </div>
+                
+                <!-- Métricas Horizontales con Variación Comparativa -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center;">
+                    <div style="background: #f8fafc; border: 1px solid var(--cta-border); padding: 12px; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); text-transform: uppercase;">Total Debe</span>
+                        <h3 id="resumen-total-debe" style="font-size: 15px; font-weight: 700; color: #3b5bdb; margin: 4px 0;">S/ 0.00</h3>
+                        <span id="var-debe" style="font-size: 11px; font-weight: 600; display: none;"></span>
+                    </div>
+                    <div style="background: #f8fafc; border: 1px solid var(--cta-border); padding: 12px; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); text-transform: uppercase;">Total Haber</span>
+                        <h3 id="resumen-total-haber" style="font-size: 15px; font-weight: 700; color: #10b981; margin: 4px 0;">S/ 0.00</h3>
+                        <span id="var-haber" style="font-size: 11px; font-weight: 600; display: none;"></span>
+                    </div>
+                    <div style="background: #f8fafc; border: 1px solid var(--cta-border); padding: 12px; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <span style="font-size: 11px; font-weight: 600; color: var(--cta-text-muted); text-transform: uppercase;">Saldo Actual</span>
+                        <h3 id="resumen-saldo" style="font-size: 15px; font-weight: 700; color: var(--cta-text-primary); margin: 4px 0;">S/ 0.00</h3>
+                        <span id="var-saldo" style="font-size: 11px; font-weight: 600; display: none;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1. Gráfico de Movimientos (Chart.js) -->
+            <div style="background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); padding: 16px; box-shadow: var(--cta-shadow); position: relative; height: 260px;">
+                <canvas id="mayor-chart" style="max-height: 230px; width: 100%;"></canvas>
+            </div>
+
+            <!-- Controles Adicionales: Búsqueda y Toggle Vista Compacta -->
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+                
+                <!-- 3. Campo Búsqueda con Resaltado -->
+                <div style="position: relative; width: 100%; max-width: 280px;">
+                    <input type="text" id="input-buscar" placeholder="Buscar por descripción..." style="width: 100%; padding: 8px 12px 8px 32px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 6px; font-size: 13px; color: var(--cta-text-primary); outline: none;" />
+                    <svg viewBox="0 0 24 24" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; fill: none; stroke: var(--cta-text-muted); stroke-width: 2.5;">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+
+                <!-- 6. Toggle Vista Compacta -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 13px; color: var(--cta-text-secondary); font-weight: 500;">Vista Compacta</span>
+                    <button id="toggle-vista" class="cta-toggle-switch" style="width: 44px; height: 22px; background: #e2e8f0; border-radius: 9999px; position: relative; border: none; cursor: pointer; transition: background 250ms;">
+                        <span style="width: 16px; height: 16px; background: #ffffff; border-radius: 9999px; position: absolute; left: 3px; top: 3px; transition: transform 250ms; box-shadow: 0 1px 2px rgba(0,0,0,0.15);"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de Libro Mayor -->
+            <div style="border: 1px solid var(--cta-border); border-radius: var(--cta-radius); overflow: hidden; background: #ffffff; box-shadow: var(--cta-shadow);">
+                <div style="overflow-x: auto; width: 100%;">
+                    <table id="tabla-mayor" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; min-width: 700px;">
+                        <thead>
+                            <tr style="background: #eef2ff; border-bottom: 1px solid var(--cta-border); color: #3b5bdb; font-weight: 600;">
+                                <th style="padding: 12px 14px; font-weight: 600; width: 95px;">Fecha</th>
+                                <th style="padding: 12px 14px; font-weight: 600; width: 95px;">N° Asiento</th>
+                                <th id="th-descripcion" style="padding: 12px 14px; font-weight: 600;">Descripción / Detalle</th>
+                                
+                                <!-- Columnas Comparativas (Ocultas por defecto) -->
+                                <th class="col-comparativa" style="padding: 12px 14px; font-weight: 600; text-align: right; width: 105px; display: none;">Debe (Ant.)</th>
+                                <th class="col-comparativa" style="padding: 12px 14px; font-weight: 600; text-align: right; width: 105px; display: none;">Haber (Ant.)</th>
+                                
+                                <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 110px;">Debe</th>
+                                <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 110px;">Haber</th>
+                                <th style="padding: 12px 14px; font-weight: 600; text-align: right; width: 120px;">Saldo Acumulado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movimientos-body">
+                            <!-- Inyectado dinámicamente -->
+                        </tbody>
+                        <tfoot>
+                            <tr style="background: #f8fafc; border-top: 2px solid var(--cta-border); font-weight: 700; color: var(--cta-text-primary);">
+                                <td colspan="3" id="td-foot-label" style="padding: 12px 14px; text-align: right;">Total Sumas</td>
+                                
+                                <!-- Footer comparativo (Oculto por defecto) -->
+                                <td class="col-comparativa" id="tabla-total-debe-ant" style="padding: 12px 14px; text-align: right; color: var(--cta-text-secondary); display: none;">0.00</td>
+                                <td class="col-comparativa" id="tabla-total-haber-ant" style="padding: 12px 14px; text-align: right; color: var(--cta-text-secondary); display: none;">0.00</td>
+                                
+                                <td id="tabla-total-debe" style="padding: 12px 14px; text-align: right; color: #3b5bdb;">0.00</td>
+                                <td id="tabla-total-haber" style="padding: 12px 14px; text-align: right; color: #10b981;">0.00</td>
+                                <td style="padding: 12px 14px;"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. Paginación con Navegación por Período -->
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 12px 24px; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); box-shadow: var(--cta-shadow);">
+                <button id="nav-periodo-prev" style="border: 1px solid var(--cta-border); background: #ffffff; color: var(--cta-text-secondary); padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
+                    &lsaquo; Período anterior
+                </button>
+                <span id="label-periodo-activo" style="font-size: 14px; font-weight: 700; color: var(--cta-primary); text-transform: capitalize;">Mayo 2024</span>
+                <button id="nav-periodo-next" style="border: 1px solid var(--cta-border); background: #ffffff; color: var(--cta-text-secondary); padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
+                    Mes siguiente &rsaquo;
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Panel Lateral Derecho -->
+        <aside class="cta-sidebar-right" style="background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); padding: 20px; box-shadow: var(--cta-shadow); display: flex; flex-direction: column; gap: 16px; height: fit-content;">
+            <h3 style="font-size: 13.5px; font-weight: 700; color: var(--cta-text-primary); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--cta-border); padding-bottom: 10px; margin: 0;">
+                Plan de Cuentas
+            </h3>
+            <div id="sidebar-cuentas-list" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Inyectado dinámicamente -->
+            </div>
+        </aside>
+
+    </div>
+
+</div>
+
+<!-- Scripts de Gestión Contable, Gráfico y Búsqueda -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Datos de Cuentas
+        var dbCuentas = [
+            @foreach (var c in cuentas)
+            {
+                <text>{ codigo: "@c.CodigoCuenta", nombre: "@c.NombreCuenta", tipo: "@c.TipoCuenta", saldoInicial: @c.SaldoInicial, debeAnt: @c.DebeAnt, haberAnt: @c.HaberAnt, saldoAnt: @c.SaldoAnt },</text>
+            }
+        ];
+
+        // Datos de Movimientos
+        var dbMovimientos = [
+            @foreach (var m in movimientos)
+            {
+                <text>{ cuenta: "@m.Cuenta", fecha: "@m.Fecha", asiento: "@m.Asiento", descripcion: "@m.Descripcion", debe: @m.Debe, haber: @m.Haber, debeAnt: @m.DebeAnt, haberAnt: @m.HaberAnt },</text>
+            }
+        ];
+
+        // Referencias DOM
+        var selectCuenta = document.getElementById("select-cuenta");
+        var selectMes = document.getElementById("select-mes");
+        var selectAnio = document.getElementById("select-anio");
+        var btnConsultar = document.getElementById("btn-consultar");
+        var checkComparativa = document.getElementById("check-comparativa");
+        
+        var resumeCodigo = document.getElementById("resumen-cuenta-codigo");
+        var resumeNombre = document.getElementById("resumen-cuenta-nombre");
+        var resumeTipo = document.getElementById("resumen-cuenta-tipo");
+        
+        var resumeDebeEl = document.getElementById("resumen-total-debe");
+        var resumeHaberEl = document.getElementById("resumen-total-haber");
+        var resumeSaldoEl = document.getElementById("resumen-saldo");
+        
+        var varDebeEl = document.getElementById("var-debe");
+        var varHaberEl = document.getElementById("var-haber");
+        var varSaldoEl = document.getElementById("var-saldo");
+        
+        var tableBody = document.getElementById("movimientos-body");
+        var tableTotalDebe = document.getElementById("tabla-total-debe");
+        var tableTotalHaber = document.getElementById("tabla-total-haber");
+        var tableTotalDebeAnt = document.getElementById("tabla-total-debe-ant");
+        var tableTotalHaberAnt = document.getElementById("tabla-total-haber-ant");
+        
+        var sidebarList = document.getElementById("sidebar-cuentas-list");
+        
+        var inputBuscar = document.getElementById("input-buscar");
+        var btnToggleVista = document.getElementById("toggle-vista");
+        var btnExportar = document.getElementById("btn-exportar");
+        
+        var navPeriodoPrev = document.getElementById("nav-periodo-prev");
+        var navPeriodoNext = document.getElementById("nav-periodo-next");
+        var labelPeriodoActivo = document.getElementById("label-periodo-activo");
+        
+        // Estado de Paginación / Período y Vista
+        var vistaCompacta = false;
+        var mesesText = { "04": "Abril", "05": "Mayo", "06": "Junio" };
+        
+        // --- 1. CONFIGURACIÓN E INICIALIZACIÓN GRÁFICO (Chart.js) ---
+        var chartInstance = null;
+        
+        function renderizarGrafico(fechas, debedata, haberdata, saldodata) {
+            var ctx = document.getElementById('mayor-chart').getContext('2d');
+            
+            if (chartInstance) {
+                chartInstance.destroy(); // Destruir gráfico anterior si existe
+            }
+            
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: fechas,
+                    datasets: [
+                        {
+                            label: 'Debe',
+                            data: debedata,
+                            backgroundColor: 'rgba(59, 91, 219, 0.75)',
+                            borderColor: '#3b5bdb',
+                            borderWidth: 1.5,
+                            borderRadius: 4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Haber',
+                            data: haberdata,
+                            backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                            borderColor: '#10b981',
+                            borderWidth: 1.5,
+                            borderRadius: 4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Saldo Acumulado',
+                            data: saldodata,
+                            type: 'line',
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2.5,
+                            tension: 0.35,
+                            pointBackgroundColor: '#d97706',
+                            pointRadius: 3,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                boxWidth: 12,
+                                font: { size: 11, family: 'Inter' }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10, family: 'Inter' } }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Debe / Haber (S/)', font: { size: 10, weight: 600 } },
+                            ticks: { font: { size: 9 } }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'Saldo (S/)', font: { size: 10, weight: 600 } },
+                            grid: { drawOnChartArea: false }, // Evitar que cruce líneas de cuadrícula
+                            ticks: { font: { size: 9 } }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Formateadores monetarios
+        function formatMoney(amount) {
+            return "S/ " + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        function formatNumberOnly(amount) {
+            return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // --- CALCULAR INDICE LATERAL ---
+        function recalcularCuentasSidebar() {
+            sidebarList.innerHTML = "";
+            
+            dbCuentas.forEach(function(cta) {
+                var sumDebe = 0;
+                var sumHaber = 0;
+                
+                dbMovimientos.forEach(function(mov) {
+                    if (mov.cuenta === cta.codigo) {
+                        sumDebe += mov.debe;
+                        sumHaber += mov.haber;
+                    }
+                });
+                
+                var saldo = cta.saldoInicial + (sumDebe - sumHaber);
+                
+                var btn = document.createElement("button");
+                btn.className = "sidebar-account-btn";
+                btn.setAttribute("data-codigo", cta.codigo);
+                if (cta.codigo === selectCuenta.value) {
+                    btn.classList.add("active");
+                }
+                
+                var infoDiv = document.createElement("div");
+                infoDiv.style.display = "flex";
+                infoDiv.style.flexDirection = "column";
+                infoDiv.style.gap = "2px";
+                
+                var codSpan = document.createElement("span");
+                codSpan.textContent = cta.codigo;
+                codSpan.style.fontFamily = "monospace";
+                codSpan.style.fontWeight = "700";
+                codSpan.style.fontSize = "11px";
+                
+                var nameSpan = document.createElement("span");
+                nameSpan.textContent = cta.nombre;
+                nameSpan.style.fontSize = "12px";
+                
+                infoDiv.appendChild(codSpan);
+                infoDiv.appendChild(nameSpan);
+                
+                var saldoSpan = document.createElement("span");
+                saldoSpan.textContent = formatNumberOnly(Math.abs(saldo));
+                saldoSpan.style.fontWeight = "600";
+                saldoSpan.style.fontFamily = "monospace";
+                saldoSpan.style.color = (saldo >= 0) ? "#10b981" : "#ef4444";
+                
+                btn.appendChild(infoDiv);
+                btn.appendChild(saldoSpan);
+                
+                btn.addEventListener("click", function() {
+                    selectCuenta.value = cta.codigo;
+                    consultarMayor();
+                });
+                
+                sidebarList.appendChild(btn);
+            });
+        }
+
+        // --- CONSULTAR E INYECTAR DATOS CON BÚSQUEDA Y COMPARATIVO ---
+        function consultarMayor() {
+            var selectedCod = selectCuenta.value;
+            var mesVal = selectMes.value;
+            var anioVal = selectAnio.value;
+            var comparativaActiva = checkComparativa.checked;
+            var buscarVal = inputBuscar.value.trim().toLowerCase();
+            
+            // Actualizar etiqueta del período de navegación inferior
+            labelPeriodoActivo.textContent = mesesText[mesVal] + " " + anioVal;
+            
+            // Mostrar/Ocultar columnas de comparación
+            var compCells = document.querySelectorAll(".col-comparativa");
+            compCells.forEach(function(c) {
+                c.style.display = comparativaActiva ? "" : "none";
+            });
+            
+            // Ajustar colspans en footers
+            var footerLabel = document.getElementById("td-foot-label");
+            if (footerLabel) {
+                footerLabel.colSpan = comparativaActiva ? 3 : 3;
+            }
+            
+            var cta = dbCuentas.find(function(c) { return c.codigo === selectedCod; });
+            if (!cta) return;
+            
+            resumeCodigo.textContent = cta.codigo;
+            resumeNombre.textContent = cta.nombre;
+            resumeTipo.textContent = cta.tipo;
+            
+            // Color de tipo badge
+            if (cta.tipo === "Activo") {
+                resumeTipo.style.background = "var(--cta-primary-soft)";
+                resumeTipo.style.color = "var(--cta-primary)";
+                resumeTipo.style.border = "1px solid rgba(59, 93, 219, 0.15)";
+            } else {
+                resumeTipo.style.background = "rgba(239, 68, 68, 0.08)";
+                resumeTipo.style.color = "#ef4444";
+                resumeTipo.style.border = "1px solid rgba(239, 68, 68, 0.15)";
+            }
+            
+            // Filtrar movimientos de este período
+            var movsFiltrados = dbMovimientos.filter(function(m) {
+                var matchesCuenta = m.cuenta === selectedCod;
+                var matchesMes = m.fecha.split("-")[1] === mesVal;
+                return matchesCuenta && matchesMes;
+            });
+            
+            // Limpiar tabla
+            tableBody.innerHTML = "";
+            
+            // Fila de saldo inicial
+            var trInicial = document.createElement("tr");
+            trInicial.style.background = "#f8fafc";
+            trInicial.style.fontStyle = "italic";
+            trInicial.style.borderBottom = "1px solid var(--cta-border)";
+            
+            var paddingVal = vistaCompacta ? "6px 14px" : "12px 14px";
+            
+            var tdFechaIni = document.createElement("td");
+            tdFechaIni.textContent = "-";
+            tdFechaIni.style.padding = paddingVal;
+            
+            var tdAsientoIni = document.createElement("td");
+            tdAsientoIni.textContent = "-";
+            tdAsientoIni.style.padding = paddingVal;
+            
+            var tdDescIni = document.createElement("td");
+            tdDescIni.textContent = "SALDO INICIAL DEL PERÍODO";
+            tdDescIni.style.padding = paddingVal;
+            tdDescIni.style.fontWeight = "600";
+            if (vistaCompacta) tdDescIni.style.display = "none";
+            
+            // Debe/Haber del Saldo Inicial Anterior (si comparativo está activo)
+            var tdDebeIniAnt = document.createElement("td");
+            tdDebeIniAnt.style.padding = paddingVal;
+            tdDebeIniAnt.style.textAlign = "right";
+            tdDebeIniAnt.className = "col-comparativa";
+            tdDebeIniAnt.style.display = comparativaActiva ? "" : "none";
+            
+            var tdHaberIniAnt = document.createElement("td");
+            tdHaberIniAnt.style.padding = paddingVal;
+            tdHaberIniAnt.style.textAlign = "right";
+            tdHaberIniAnt.className = "col-comparativa";
+            tdHaberIniAnt.style.display = comparativaActiva ? "" : "none";
+            
+            if (comparativaActiva) {
+                if (cta.saldoAnt >= 0) {
+                    tdDebeIniAnt.textContent = formatNumberOnly(cta.saldoAnt);
+                } else {
+                    tdHaberIniAnt.textContent = formatNumberOnly(Math.abs(cta.saldoAnt));
+                }
+            }
+            
+            var tdDebeIni = document.createElement("td");
+            tdDebeIni.style.padding = paddingVal;
+            tdDebeIni.style.textAlign = "right";
+            tdDebeIni.style.background = "#f0f4ff";
+            
+            var tdHaberIni = document.createElement("td");
+            tdHaberIni.style.padding = paddingVal;
+            tdHaberIni.style.textAlign = "right";
+            tdHaberIni.style.background = "#f0fdf4";
+            
+            if (cta.saldoInicial >= 0) {
+                tdDebeIni.textContent = formatNumberOnly(cta.saldoInicial);
+            } else {
+                tdHaberIni.textContent = formatNumberOnly(Math.abs(cta.saldoInicial));
+            }
+            
+            var tdAcumIni = document.createElement("td");
+            tdAcumIni.textContent = formatNumberOnly(cta.saldoInicial);
+            tdAcumIni.style.padding = paddingVal;
+            tdAcumIni.style.textAlign = "right";
+            tdAcumIni.style.fontWeight = "600";
+            
+            trInicial.appendChild(tdFechaIni);
+            trInicial.appendChild(tdAsientoIni);
+            trInicial.appendChild(tdDescIni);
+            
+            if (comparativaActiva) {
+                trInicial.appendChild(tdDebeIniAnt);
+                trInicial.appendChild(tdHaberIniAnt);
+            }
+            
+            trInicial.appendChild(tdDebeIni);
+            trInicial.appendChild(tdHaberIni);
+            trInicial.appendChild(tdAcumIni);
+            tableBody.appendChild(trInicial);
+            
+            // Arrays para Chart.js
+            var chartFechas = ["Ini"];
+            var chartDebe = [cta.saldoInicial >= 0 ? cta.saldoInicial : 0];
+            var chartHaber = [cta.saldoInicial < 0 ? Math.abs(cta.saldoInicial) : 0];
+            var chartSaldos = [cta.saldoInicial];
+            
+            // Inyectar movimientos
+            var runningBalance = cta.saldoInicial;
+            var sumDebe = 0;
+            var sumHaber = 0;
+            var sumDebeAnt = 0;
+            var sumHaberAnt = 0;
+            
+            movsFiltrados.forEach(function(m) {
+                runningBalance = runningBalance + (m.debe - m.haber);
+                sumDebe += m.debe;
+                sumHaber += m.haber;
+                sumDebeAnt += m.debeAnt;
+                sumHaberAnt += m.haberAnt;
+                
+                // Recopilar datos de gráfico
+                chartFechas.push(m.fecha.split("-").reverse().slice(0,2).join("/"));
+                chartDebe.push(m.debe);
+                chartHaber.push(m.haber);
+                chartSaldos.push(runningBalance);
+                
+                // Aplicar filtro de búsqueda client-side en Descripción
+                var descHtml = m.descripcion;
+                if (buscarVal) {
+                    var idx = descHtml.toLowerCase().indexOf(buscarVal);
+                    if (idx !== -1) {
+                        // 3. Resaltado de Texto Buscado
+                        var originalText = descHtml.substring(idx, idx + buscarVal.length);
+                        descHtml = descHtml.replace(new RegExp(buscarVal, "gi"), '<span style="background-color: #ffeb3b; font-weight: 700; color: #000000; padding: 2px 4px; border-radius: 2px;">' + originalText + '</span>');
+                    } else if (buscarVal) {
+                        // Si hay término buscado pero no coincide con la descripción, omitir fila
+                        return;
+                    }
+                }
+                
+                var tr = document.createElement("tr");
+                tr.className = "factura-row";
+                tr.style.borderBottom = "1px solid var(--cta-border)";
+                
+                var tdF = document.createElement("td");
+                tdF.textContent = m.fecha.split("-").reverse().join("/");
+                tdF.style.padding = paddingVal;
+                
+                var tdA = document.createElement("td");
+                tdA.textContent = m.asiento;
+                tdA.style.padding = paddingVal;
+                tdA.style.fontFamily = "monospace";
+                tdA.style.fontWeight = "600";
+                
+                var tdD = document.createElement("td");
+                tdD.innerHTML = descHtml;
+                tdD.style.padding = paddingVal;
+                if (vistaCompacta) tdD.style.display = "none";
+                
+                // Debe / Haber del periodo anterior
+                var tdDbAnt = document.createElement("td");
+                tdDbAnt.textContent = m.debeAnt > 0 ? formatNumberOnly(m.debeAnt) : "-";
+                tdDbAnt.style.padding = paddingVal;
+                tdDbAnt.style.textAlign = "right";
+                tdDbAnt.style.color = "var(--cta-text-secondary)";
+                tdDbAnt.className = "col-comparativa";
+                tdDbAnt.style.display = comparativaActiva ? "" : "none";
+                
+                var tdHbAnt = document.createElement("td");
+                tdHbAnt.textContent = m.haberAnt > 0 ? formatNumberOnly(m.haberAnt) : "-";
+                tdHbAnt.style.padding = paddingVal;
+                tdHbAnt.style.textAlign = "right";
+                tdHbAnt.style.color = "var(--cta-text-secondary)";
+                tdHbAnt.className = "col-comparativa";
+                tdHbAnt.style.display = comparativaActiva ? "" : "none";
+                
+                var tdDb = document.createElement("td");
+                tdDb.textContent = m.debe > 0 ? formatNumberOnly(m.debe) : "-";
+                tdDb.style.padding = paddingVal;
+                tdDb.style.textAlign = "right";
+                tdDb.style.background = "#f0f4ff";
+                
+                var tdHb = document.createElement("td");
+                tdHb.textContent = m.haber > 0 ? formatNumberOnly(m.haber) : "-";
+                tdHb.style.padding = paddingVal;
+                tdHb.style.textAlign = "right";
+                tdHb.style.background = "#f0fdf4";
+                
+                var tdAc = document.createElement("td");
+                tdAc.textContent = formatNumberOnly(runningBalance);
+                tdAc.style.padding = paddingVal;
+                tdAc.style.textAlign = "right";
+                tdAc.style.fontFamily = "monospace";
+                tdAc.style.fontWeight = "600";
+                
+                tr.appendChild(tdF);
+                tr.appendChild(tdA);
+                tr.appendChild(tdD);
+                
+                if (comparativaActiva) {
+                    tr.appendChild(tdDbAnt);
+                    tr.appendChild(tdHbAnt);
+                }
+                
+                tr.appendChild(tdDb);
+                tr.appendChild(tdHb);
+                tr.appendChild(tdAc);
+                tableBody.appendChild(tr);
+            });
+            
+            // Actualizar Totales del Footer
+            tableTotalDebe.textContent = formatNumberOnly(sumDebe);
+            tableTotalHaber.textContent = formatNumberOnly(sumHaber);
+            
+            if (comparativaActiva) {
+                tableTotalDebeAnt.textContent = formatNumberOnly(sumDebeAnt);
+                tableTotalHaberAnt.textContent = formatNumberOnly(sumHaberAnt);
+            }
+            
+            // Actualizar Tarjetas Resumen Principales
+            var finalBalance = cta.saldoInicial + (sumDebe - sumHaber);
+            resumeDebeEl.textContent = formatMoney(sumDebe);
+            resumeHaberEl.textContent = formatMoney(sumHaber);
+            resumeSaldoEl.textContent = formatMoney(finalBalance);
+            resumeSaldoEl.style.color = (finalBalance >= 0) ? "#10b981" : "#ef4444";
+            
+            // --- 2. VARIACIONES PORCENTUALES COMPARATIVAS ---
+            if (comparativaActiva) {
+                varDebeEl.style.display = "";
+                varHaberEl.style.display = "";
+                varSaldoEl.style.display = "";
+                
+                // Variación Debe
+                var pctDebe = cta.debeAnt > 0 ? ((sumDebe - cta.debeAnt) / cta.debeAnt) * 100 : 0;
+                varDebeEl.innerHTML = (pctDebe >= 0 ? "↑ +" : "↓ ") + pctDebe.toFixed(1) + "% vs anterior";
+                varDebeEl.style.color = pctDebe >= 0 ? "#10b981" : "#ef4444";
+                
+                // Variación Haber
+                var pctHaber = cta.haberAnt > 0 ? ((sumHaber - cta.haberAnt) / cta.haberAnt) * 100 : 0;
+                varHaberEl.innerHTML = (pctHaber >= 0 ? "↑ +" : "↓ ") + pctHaber.toFixed(1) + "% vs anterior";
+                varHaberEl.style.color = pctHaber >= 0 ? "#10b981" : "#ef4444";
+                
+                // Variación Saldo
+                var pctSaldo = cta.saldoAnt !== 0 ? ((finalBalance - cta.saldoAnt) / Math.abs(cta.saldoAnt)) * 100 : 0;
+                varSaldoEl.innerHTML = (pctSaldo >= 0 ? "↑ +" : "↓ ") + pctSaldo.toFixed(1) + "% vs anterior";
+                varSaldoEl.style.color = pctSaldo >= 0 ? "#10b981" : "#ef4444";
+            } else {
+                varDebeEl.style.display = "none";
+                varHaberEl.style.display = "none";
+                varSaldoEl.style.display = "none";
+            }
+            
+            // Renderizar Gráfico
+            renderizarGrafico(chartFechas, chartDebe, chartHaber, chartSaldos);
+            
+            // Recargar sidebar
+            recalcularCuentasSidebar();
+        }
+
+        // --- 5. EXPORTAR A CSV DE FORMA DINÁMICA ---
+        function exportarCSV() {
+            var selectedCod = selectCuenta.value;
+            var mesVal = selectMes.value;
+            var anioVal = selectAnio.value;
+            
+            var cta = dbCuentas.find(function(c) { return c.codigo === selectedCod; });
+            if (!cta) return;
+            
+            var movsFiltrados = dbMovimientos.filter(function(m) {
+                var matchesCuenta = m.cuenta === selectedCod;
+                var matchesMes = m.fecha.split("-")[1] === mesVal;
+                return matchesCuenta && matchesMes;
+            });
+            
+            var csvRows = [];
+            csvRows.push("Fecha,Asiento,Descripcion,Debe,Haber,Saldo Acumulado");
+            
+            // Saldo Inicial
+            csvRows.push(["-", "-", "SALDO INICIAL DEL PERIODO", cta.saldoInicial >= 0 ? cta.saldoInicial : 0, cta.saldoInicial < 0 ? Math.abs(cta.saldoInicial) : 0, cta.saldoInicial].join(","));
+            
+            var balance = cta.saldoInicial;
+            movsFiltrados.forEach(function(m) {
+                balance += (m.debe - m.haber);
+                var desc = '"' + m.descripcion.replace(/"/g, '""') + '"';
+                csvRows.push([m.fecha, m.asiento, desc, m.debe, m.haber, balance].join(","));
+            });
+            
+            var csvContent = "\uFEFF" + csvRows.join("\n");
+            var blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            var url = URL.createObjectURL(blob);
+            
+            var link = document.createElement("a");
+            link.href = url;
+            
+            var perText = mesesText[mesVal] + anioVal;
+            link.download = "libromay_" + selectedCod + "_" + perText + ".csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- EVENTOS Y EVENT BINDINGS ---
+        
+        // Ejecutar consulta
+        btnConsultar.addEventListener("click", consultarMayor);
+        checkComparativa.addEventListener("change", consultarMayor);
+        
+        // 3. Búsqueda en tiempo real (Keyup)
+        inputBuscar.addEventListener("keyup", consultarMayor);
+        
+        // 6. Toggle Vista Compacta
+        btnToggleVista.addEventListener("click", function() {
+            vistaCompacta = !vistaCompacta;
+            
+            var thDesc = document.getElementById("th-descripcion");
+            if (thDesc) thDesc.style.display = vistaCompacta ? "none" : "";
+            
+            if (vistaCompacta) {
+                btnToggleVista.style.background = "var(--cta-primary)";
+                btnToggleVista.querySelector("span").style.transform = "translateX(22px)";
+            } else {
+                btnToggleVista.style.background = "#e2e8f0";
+                btnToggleVista.querySelector("span").style.transform = "translateX(0)";
+            }
+            
+            consultarMayor();
+        });
+        
+        // 4. Navegación por Período (< Mes anterior / Mes Siguiente >)
+        navPeriodoPrev.addEventListener("click", function() {
+            var currentMonth = parseInt(selectMes.value);
+            if (currentMonth > 4) { // Límite inferior de datos: Abril (04)
+                var prevMonthStr = String(currentMonth - 1).padStart(2, '0');
+                selectMes.value = prevMonthStr;
+                consultarMayor();
+            } else {
+                alert("No hay registros cargados anteriores a Abril de 2024.");
+            }
+        });
+        
+        navPeriodoNext.addEventListener("click", function() {
+            var currentMonth = parseInt(selectMes.value);
+            if (currentMonth < 6) { // Límite superior de datos: Junio (06)
+                var nextMonthStr = String(currentMonth + 1).padStart(2, '0');
+                selectMes.value = nextMonthStr;
+                consultarMayor();
+            } else {
+                alert("No hay registros cargados posteriores a Junio de 2024.");
+            }
+        });
+        
+        // Botón exportar
+        btnExportar.addEventListener("click", exportarCSV);
+        
+        // Carga inicial al cargar el DOM
+        consultarMayor();
+    });
+</script>
