@@ -8,6 +8,8 @@ namespace Sis_ERP.Controllers
     // =========================================================
     // Controlador CRM (Vista + API)
     // =========================================================
+    [Route("api/[controller]")]
+    [ApiController]
     public class CrmController : Controller
     {
         // Vista principal
@@ -22,9 +24,6 @@ namespace Sis_ERP.Controllers
         private readonly string _conn;
         public CrmController(IConfiguration config)
             => _conn = config.GetConnectionString("DefaultConnection")!;
-
-        [Route("api/[controller]")]
-        [ApiController]
 
         // ════════════════════════════════════════════════════════════════
         //  ETAPAS

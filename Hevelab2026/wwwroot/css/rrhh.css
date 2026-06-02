@@ -82,3 +82,35 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
+
+/* ── Encabezado interno de cada tab (título + botón agregar) ── */
+.tab-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    margin-bottom: 4px;
+}
+
+.tab-section-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-primary, #0f172a);
+    letter-spacing: 0.01em;
+}
+
+/* ── Variante compacta del botón guardar para usar dentro de tabs ── */
+.frm-btn-sm {
+    padding: 6px 14px !important;
+    font-size: 12.5px !important;
+    gap: 6px !important;
+    height: auto !important;
+    min-height: unset !important;
+}
+
+.frm-btn-sm svg {
+    width: 14px;
+    height: 14px;
+}
+

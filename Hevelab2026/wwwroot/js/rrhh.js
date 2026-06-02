@@ -51,18 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (response.ok) {
-                    // Limpiar formulario
                     frmNuevoEmpleado.reset();
                     document.getElementById('empFechaIngreso').valueAsDate = new Date();
                     
-                    // Cerrar el modal usando la API de Bootstrap
                     const modalEl = document.getElementById('modalNuevoEmpleado');
                     const modal = bootstrap.Modal.getInstance(modalEl);
                     if (modal) modal.hide();
 
-                    // Recargar la tabla
                     cargarEmpleados();
-                    
                     alert('Empleado registrado exitosamente.');
                 } else {
                     const errorText = await response.text();
@@ -71,6 +67,81 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 console.error("Error en la petición POST:", err);
                 alert("Ocurrió un error al intentar guardar el empleado.");
+            }
+        });
+    }
+
+    // 4. Manejo del formulario de Nuevo Departamento
+    const frmNuevoDepartamento = document.getElementById('frmNuevoDepartamento');
+    if (frmNuevoDepartamento) {
+        frmNuevoDepartamento.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nuevoDepartamento = {
+                nombre: document.getElementById('deptNombre').value.trim(),
+                responsableNombre: document.getElementById('deptResponsable').value.trim()
+            };
+
+            try {
+                const response = await fetch('/api/Rrhh/departamentos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevoDepartamento)
+                });
+
+                if (response.ok) {
+                    frmNuevoDepartamento.reset();
+
+                    const modalEl = document.getElementById('modalNuevoDepartamento');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+
+                    cargarDepartamentos();
+                    alert('Departamento creado exitosamente.');
+                } else {
+                    const errorText = await response.text();
+                    alert(`Error al crear departamento: ${errorText}`);
+                }
+            } catch (err) {
+                console.error("Error al crear departamento:", err);
+                alert("Ocurrió un error al intentar guardar el departamento.");
+            }
+        });
+    }
+
+    // 5. Manejo del formulario de Nuevo Cargo
+    const frmNuevoCargo = document.getElementById('frmNuevoCargo');
+    if (frmNuevoCargo) {
+        frmNuevoCargo.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nuevoCargo = {
+                nombre: document.getElementById('cargoNombre').value.trim()
+            };
+
+            try {
+                const response = await fetch('/api/Rrhh/cargos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevoCargo)
+                });
+
+                if (response.ok) {
+                    frmNuevoCargo.reset();
+
+                    const modalEl = document.getElementById('modalNuevoCargo');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+
+                    cargarCargos();
+                    alert('Cargo creado exitosamente.');
+                } else {
+                    const errorText = await response.text();
+                    alert(`Error al crear cargo: ${errorText}`);
+                }
+            } catch (err) {
+                console.error("Error al crear cargo:", err);
+                alert("Ocurrió un error al intentar guardar el cargo.");
             }
         });
     }
@@ -99,9 +170,7 @@ async function cargarEmpleados() {
         empleados.forEach(emp => {
             const tr = document.createElement('tr');
             
-            // Iniciales para el avatar (ej: Juan Perez -> JP)
             const iniciales = (emp.nombres.charAt(0) + emp.apellidos.charAt(0)).toUpperCase();
-            // Formatear fecha
             const fechaIngreso = new Date(emp.fechaIngreso).toLocaleDateString('es-ES');
             
             const badge = emp.activo 
@@ -164,7 +233,7 @@ async function cargarDepartamentos() {
             });
         }
 
-        // 2. Llenar select del formulario
+        // 2. Llenar select del formulario de empleados
         const selectDepto = document.getElementById('empDepto');
         if (selectDepto) {
             selectDepto.innerHTML = '<option value="">Seleccione...</option>';
@@ -184,7 +253,30 @@ async function cargarCargos() {
         if (!res.ok) return;
         const cargos = await res.json();
 
-        // Llenar select del formulario
+        // 1. Llenar tabla de cargos
+        const tbody = document.getElementById('tbCargos');
+        if (tbody) {
+            tbody.innerHTML = '';
+            if (cargos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4">No hay cargos registrados.</td></tr>`;
+            } else {
+                cargos.forEach(c => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${c.id}</td>
+                        <td>${c.nombre}</td>
+                        <td>
+                            <button class="action-btn" title="Editar">
+                                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        // 2. Llenar select del formulario de empleados
         const selectCargo = document.getElementById('empCargo');
         if (selectCargo) {
             selectCargo.innerHTML = '<option value="">Seleccione...</option>';

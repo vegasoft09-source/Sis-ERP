@@ -75,6 +75,7 @@
         <div class="frm-tabs" id="rrhhTabs">
             <button class="frm-tab active" data-target="#tab-empleados">Directorio</button>
             <button class="frm-tab" data-target="#tab-departamentos">Departamentos</button>
+            <button class="frm-tab" data-target="#tab-cargos">Cargos</button>
             <button class="frm-tab" data-target="#tab-ausencias">Ausencias</button>
         </div>
 
@@ -101,6 +102,16 @@
         
         <!-- Tab: Departamentos -->
         <div id="tab-departamentos" class="tab-content" style="display: none;">
+            <div class="tab-section-header">
+                <span class="tab-section-title">Lista de Departamentos</span>
+                <button class="frm-btn-save frm-btn-sm" id="btnNuevoDepartamento" data-bs-toggle="modal" data-bs-target="#modalNuevoDepartamento">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nuevo Departamento
+                </button>
+            </div>
             <div class="table-responsive">
                 <table class="frm-table-clean">
                     <thead>
@@ -112,6 +123,34 @@
                         </tr>
                     </thead>
                     <tbody id="tbDepartamentos">
+                        <!-- Llenado dinámicamente vía JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Cargos -->
+        <div id="tab-cargos" class="tab-content" style="display: none;">
+            <div class="tab-section-header">
+                <span class="tab-section-title">Lista de Cargos</span>
+                <button class="frm-btn-save frm-btn-sm" id="btnNuevoCargo" data-bs-toggle="modal" data-bs-target="#modalNuevoCargo">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nuevo Cargo
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre del Cargo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbCargos">
                         <!-- Llenado dinámicamente vía JS -->
                     </tbody>
                 </table>
@@ -198,6 +237,62 @@
             <button type="submit" class="frm-btn-save">
                 Guardar Empleado
             </button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nuevo Departamento -->
+<div class="modal fade" id="modalNuevoDepartamento" tabindex="-1" aria-labelledby="modalNuevoDepartamentoLabel" aria-hidden="true" data-bs-theme="light">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+      <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+        <h5 class="modal-title" id="modalNuevoDepartamentoLabel" style="font-weight: 700; font-size: 1.1rem;">Nuevo Departamento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form id="frmNuevoDepartamento">
+          <div class="modal-body p-4">
+              <div class="frm-grid">
+                  <div class="frm-field frm-field--full">
+                      <label class="frm-label">Nombre del Departamento <span class="frm-req">*</span></label>
+                      <input type="text" class="frm-input" id="deptNombre" placeholder="Ej: Administración" required>
+                  </div>
+                  <div class="frm-field frm-field--full">
+                      <label class="frm-label">Responsable</label>
+                      <input type="text" class="frm-input" id="deptResponsable" placeholder="Nombre del responsable">
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+            <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="frm-btn-save">Guardar Departamento</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nuevo Cargo -->
+<div class="modal fade" id="modalNuevoCargo" tabindex="-1" aria-labelledby="modalNuevoCargoLabel" aria-hidden="true" data-bs-theme="light">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+      <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+        <h5 class="modal-title" id="modalNuevoCargoLabel" style="font-weight: 700; font-size: 1.1rem;">Nuevo Cargo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form id="frmNuevoCargo">
+          <div class="modal-body p-4">
+              <div class="frm-grid">
+                  <div class="frm-field frm-field--full">
+                      <label class="frm-label">Nombre del Cargo <span class="frm-req">*</span></label>
+                      <input type="text" class="frm-input" id="cargoNombre" placeholder="Ej: Gerente de Ventas" required>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+            <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="frm-btn-save">Guardar Cargo</button>
           </div>
       </form>
     </div>

@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Tabs
+
+    // ─── 1. LÓGICA DE PESTAÑAS ───────────────────────────────────────────────
     const tabs = document.querySelectorAll('.frm-tab');
     const contents = document.querySelectorAll('.tab-content');
 
@@ -7,207 +8,213 @@ document.addEventListener('DOMContentLoaded', () => {
         tab.addEventListener('click', () => {
             tabs.forEach(t => t.classList.remove('active'));
             contents.forEach(c => c.style.display = 'none');
-
             tab.classList.add('active');
             const target = document.querySelector(tab.dataset.target);
             if (target) target.style.display = 'block';
         });
     });
 
-    // Inicialización
-    cargarEtapas();
-    cargarLeads();
-    cargarActividadesPendientes();
+    // ─── 2. INICIALIZACIÓN ───────────────────────────────────────────────────
+    inicializar();
 
-    // Nuevo Lead
+    // ─── 3. FORMULARIO NUEVO LEAD ────────────────────────────────────────────
     const frmNuevoLead = document.getElementById('frmNuevoLead');
     if (frmNuevoLead) {
         frmNuevoLead.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const dto = {
-                nombreNegocio: document.getElementById('leadNegocio')?.value.trim(),
-                contactoNombre: document.getElementById('leadContacto')?.value.trim() || '',
-                contactoCorreo: document.getElementById('leadCorreo')?.value.trim() || '',
-                contactoTelefono: document.getElementById('leadTelefono')?.value.trim() || '',
-                origen: document.getElementById('leadOrigen')?.value || 'Directo',
-                prioridad: parseInt(document.getElementById('leadPrioridad')?.value ?? '0', 10),
-                vendedorId: parseInt(document.getElementById('leadVendedor')?.value ?? '0', 10),
-                etapaId: parseInt(document.getElementById('leadEtapa')?.value ?? '0', 10),
-                // según CrmController.CrearLead
-                etiquetaIds: []
+            const nuevoLead = {
+                nombreNegocio:    document.getElementById('leadNegocio').value.trim(),
+                contactoNombre:   document.getElementById('leadContacto').value.trim(),
+                contactoCorreo:   document.getElementById('leadCorreo').value.trim(),
+                contactoTelefono: document.getElementById('leadTelefono').value.trim(),
+                origen:           document.getElementById('leadOrigen').value,
+                prioridad:        parseInt(document.getElementById('leadPrioridad').value),
+                vendedorId:       parseInt(document.getElementById('leadVendedor').value),
+                vendedorNombre:   document.getElementById('leadVendedor').options[document.getElementById('leadVendedor').selectedIndex].text,
+                etapaId:          parseInt(document.getElementById('leadEtapa').value),
+                activo:           true
             };
 
             try {
-                const res = await fetch('/api/Crm/leads', {
+                const response = await fetch('/api/Crm/leads', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dto)
+                    body: JSON.stringify(nuevoLead)
                 });
 
-                if (!res.ok) {
-                    const err = await res.text();
-                    alert(`Error al guardar lead: ${err}`);
-                    return;
-                }
-
-                frmNuevoLead.reset();
-                await cargarEtapas();
-                await cargarLeads();
-                await cargarActividadesPendientes();
-
-                // Cerrar modal
-                const modalEl = document.getElementById('modalNuevoLead');
-                if (modalEl && window.bootstrap?.Modal) {
-                    const modal = window.bootstrap.Modal.getInstance(modalEl);
+                if (response.ok) {
+                    frmNuevoLead.reset();
+                    // Cerrar modal Bootstrap
+                    const modalEl = document.getElementById('modalNuevoLead');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
                     if (modal) modal.hide();
+
+                    // Recargar todo el tablero
+                    await cargarLeads();
+                    alert('Lead registrado exitosamente.');
+                } else {
+                    const errorText = await response.text();
+                    alert(`Error: ${errorText}`);
                 }
             } catch (err) {
-                console.error('Error POST /api/Crm/leads', err);
+                console.error('Error al crear lead:', err);
                 alert('Ocurrió un error al guardar el lead.');
             }
         });
     }
 });
 
+// ─── INICIALIZACIÓN PRINCIPAL ─────────────────────────────────────────────────
+async function inicializar() {
+    await cargarEtapas();   // Arma columnas Kanban + llena select del modal
+    await cargarLeads();    // Llena tarjetas Kanban + tabla Lista
+}
+
+// ─── CARGAR ETAPAS Y CONSTRUIR KANBAN ────────────────────────────────────────
+let etapasGlobales = [];
+
 async function cargarEtapas() {
     try {
         const res = await fetch('/api/Crm/etapas');
         if (!res.ok) return;
-        const etapas = await res.json();
+        etapasGlobales = await res.json();
 
+        // 1. Construir columnas del Kanban
+        const board = document.getElementById('kanbanBoard');
+        if (board) {
+            board.innerHTML = '';
+            etapasGlobales.forEach(etapa => {
+                const borderColor = etapa.esGanado
+                    ? '#10b981'
+                    : etapa.esPerdido
+                        ? '#ef4444'
+                        : 'var(--sys-primary, #4338ca)';
+
+                board.innerHTML += `
+                    <div class="crm-kanban-col" id="col-etapa-${etapa.id}">
+                        <div class="crm-kanban-col-header" style="border-top: 3px solid ${borderColor};">
+                            <span class="col-title">${etapa.nombre}</span>
+                            <span class="col-count" id="count-etapa-${etapa.id}">0</span>
+                        </div>
+                        <div class="crm-kanban-cards" id="cards-etapa-${etapa.id}">
+                            <!-- Tarjetas de leads -->
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // 2. Llenar select del modal con las etapas
         const selectEtapa = document.getElementById('leadEtapa');
         if (selectEtapa) {
-            selectEtapa.innerHTML = '';
-            selectEtapa.innerHTML = '<option value="">Seleccione...</option>';
-            etapas.forEach(etapa => {
-                const opt = document.createElement('option');
-                opt.value = etapa.id;
-                opt.textContent = etapa.nombre;
-                selectEtapa.appendChild(opt);
-            });
+            selectEtapa.innerHTML = '<option value="">Seleccione una etapa...</option>';
+            etapasGlobales
+                .filter(e => !e.esGanado && !e.esPerdido)
+                .forEach(e => {
+                    selectEtapa.innerHTML += `<option value="${e.id}">${e.nombre}</option>`;
+                });
         }
 
-        // Si ya tenemos leads, reconstruimos el kanban
-        renderKanban(etapas, null);
     } catch (err) {
-        console.error('Error cargarEtapas', err);
+        console.error('Error al cargar etapas:', err);
     }
 }
 
+// ─── CARGAR LEADS Y LLENAR KANBAN + LISTA ────────────────────────────────────
 async function cargarLeads() {
     try {
-        const [resEtapas, resLeads] = await Promise.all([
-            fetch('/api/Crm/etapas'),
-            fetch('/api/Crm/leads')
-        ]);
+        const res = await fetch('/api/Crm/leads');
+        if (!res.ok) return;
+        const leads = await res.json();
 
-        if (!resEtapas.ok || !resLeads.ok) return;
+        // Resetear contadores y tarjetas de cada columna
+        etapasGlobales.forEach(etapa => {
+            const cards = document.getElementById(`cards-etapa-${etapa.id}`);
+            const count = document.getElementById(`count-etapa-${etapa.id}`);
+            if (cards) cards.innerHTML = '';
+            if (count) count.textContent = '0';
+        });
 
-        const etapas = await resEtapas.json();
-        const leads = await resLeads.json();
+        // KPIs
+        document.getElementById('kpiLeads').textContent = leads.length;
+        const totalIngresos = leads.reduce((sum, l) => sum + (l.ingresoEsperado || 0), 0);
+        document.getElementById('kpiIngresos').textContent =
+            '$' + totalIngresos.toLocaleString('es-PE', { minimumFractionDigits: 2 });
 
-        // KPI
-        const kpi = document.getElementById('kpiLeads');
-        if (kpi) kpi.innerText = leads.length;
+        // Llenar Kanban y tabla lista
+        const tbLista = document.getElementById('tbLeadsList');
+        if (tbLista) tbLista.innerHTML = '';
 
-        renderKanban(etapas, leads);
-        renderLeadsList(leads);
-
-    } catch (err) {
-        console.error('Error cargarLeads', err);
-    }
-}
-
-function renderKanban(etapas, leads) {
-    const board = document.getElementById('kanbanBoard');
-    if (!board) return;
-
-    board.innerHTML = '';
-
-    const leadMapByEtapa = new Map();
-    (leads || []).forEach(l => {
-        const arr = leadMapByEtapa.get(l.etapaId) || [];
-        arr.push(l);
-        leadMapByEtapa.set(l.etapaId, arr);
-    });
-
-    etapas.forEach(etapa => {
-        const col = document.createElement('div');
-        col.className = 'crm-kanban-column';
-
-        const header = document.createElement('div');
-        header.className = 'crm-kanban-column-header';
-        header.innerHTML = `
-            <div class="crm-kanban-title">${etapa.nombre}</div>
-            <div class="crm-kanban-sub">Prob: ${etapa.probabilidad}%</div>
-        `;
-
-        const body = document.createElement('div');
-        body.className = 'crm-kanban-column-body';
-
-        const leadsInCol = leadMapByEtapa.get(etapa.id) || [];
-        if (leadsInCol.length === 0) {
-            body.innerHTML = `<div class="crm-kanban-empty">Sin leads</div>`;
-        } else {
-            leadsInCol.forEach(lead => {
-                const card = document.createElement('div');
-                card.className = 'crm-lead-card';
-                card.dataset.leadId = lead.id;
-                card.innerHTML = `
-                    <div class="crm-lead-card-top">
-                        <div class="crm-lead-business">${lead.nombreNegocio}</div>
-                        <div class="crm-lead-priority">Prioridad: ${lead.prioridad}</div>
-                    </div>
-                    <div class="crm-lead-card-mid">
-                        <div class="crm-lead-contact">${lead.contactoNombre || ''}</div>
-                        <div class="crm-lead-ingreso">Ingreso est.: ${lead.ingresoEsperado ?? 0}</div>
-                    </div>
-                    <div class="crm-lead-card-actions">
-                        <button type="button" class="frm-btn-small" data-action="ver">Ver</button>
-                    </div>
-                `;
-
-                body.appendChild(card);
-            });
+        if (leads.length === 0) {
+            if (tbLista) tbLista.innerHTML = `<tr><td colspan="6" class="text-center py-4">No hay leads registrados.</td></tr>`;
+            return;
         }
 
-        col.appendChild(header);
-        col.appendChild(body);
-        board.appendChild(col);
-    });
-}
+        // Mapa de contadores por etapa
+        const conteoPorEtapa = {};
 
-function renderLeadsList(leads) {
-    const tbody = document.getElementById('tbLeadsList');
-    if (!tbody) return;
+        leads.forEach(lead => {
+            // ── KANBAN CARD ──────────────────────────────────
+            const prioridadMap = {
+                0: { cls: 'low',    label: 'Baja'  },
+                1: { cls: 'medium', label: 'Media' },
+                2: { cls: 'high',   label: 'Alta'  }
+            };
+            const prio = prioridadMap[lead.prioridad] || prioridadMap[0];
+            const ingreso = lead.ingresoEsperado
+                ? '$' + Number(lead.ingresoEsperado).toLocaleString('es-PE', { minimumFractionDigits: 2 })
+                : '—';
 
-    tbody.innerHTML = '';
+            const cardsContainer = document.getElementById(`cards-etapa-${lead.etapaId}`);
+            if (cardsContainer) {
+                const card = document.createElement('div');
+                card.className = 'crm-card';
+                card.dataset.leadId = lead.id;
+                card.innerHTML = `
+                    <div class="crm-card-title">${lead.nombreNegocio}</div>
+                    <div class="crm-card-contact">${lead.contactoNombre || 'Sin contacto'}</div>
+                    <div class="crm-card-footer">
+                        <span class="crm-priority ${prio.cls}">${prio.label}</span>
+                        <span class="crm-amount">${ingreso}</span>
+                    </div>`;
+                cardsContainer.appendChild(card);
 
-    if (!leads || leads.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">No hay leads.</td></tr>';
-        return;
+                // Actualizar contador de la columna
+                conteoPorEtapa[lead.etapaId] = (conteoPorEtapa[lead.etapaId] || 0) + 1;
+                const countEl = document.getElementById(`count-etapa-${lead.etapaId}`);
+                if (countEl) countEl.textContent = conteoPorEtapa[lead.etapaId];
+            }
+
+            // ── FILA EN TABLA LISTA ──────────────────────────
+            if (tbLista) {
+                const badge = lead.esOportunidad
+                    ? `<span class="frm-badge frm-badge-accepted">${lead.etapaNombre}</span>`
+                    : `<span class="frm-badge frm-badge-draft">${lead.etapaNombre}</span>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${lead.nombreNegocio}</strong></td>
+                    <td>${lead.contactoNombre || '—'}<br>
+                        <small style="color: var(--text-secondary)">${lead.contactoCorreo || ''}</small>
+                    </td>
+                    <td>${badge}</td>
+                    <td>${lead.vendedorNombre || '—'}</td>
+                    <td style="font-weight:700; color:#10b981;">${ingreso}</td>
+                    <td>
+                        <button class="action-btn" title="Ver Detalles" onclick="verLead(${lead.id})">
+                            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </td>`;
+                tbLista.appendChild(tr);
+            }
+        });
+
+    } catch (err) {
+        console.error('Error al cargar leads:', err);
     }
-
-    leads.forEach(lead => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${lead.nombreNegocio}</td>
-            <td>${lead.contactoNombre || ''}</td>
-            <td>${lead.etapaNombre || ''}</td>
-            <td>${lead.vendedorNombre || ''}</td>
-            <td>${lead.ingresoEsperado ?? 0}</td>
-            <td>
-                <button class="frm-btn-small" type="button" data-action="convertir" data-lead-id="${lead.id}">Convertir</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
 }
 
-async function cargarActividadesPendientes() {
-    // Como en el controlador no existe un endpoint "actividades pendientes" global,
-    // la KPI se deja en 0 si no existe estructura adicional.
-    // Si en el futuro agregas un endpoint, conectamos aquí.
-    const kpi = document.getElementById('kpiActividades');
-    if (kpi) kpi.innerText = '0';
+// ─── VER DETALLE DE UN LEAD (placeholder) ────────────────────────────────────
+function verLead(id) {
+    alert(`Detalle del Lead #${id}\nPróximamente: modal de detalle con actividades.`);
+}
