@@ -1,0 +1,192 @@
+@{
+    ViewData["Title"] = "CRM";
+}
+
+@section Styles {
+    <!-- Reutilizamos forms.css para mantener la estructura limpia y premium -->
+    <link rel="stylesheet" href="~/css/forms.css" />
+    <!-- Estilos específicos del CRM -->
+    <link rel="stylesheet" href="~/css/crm.css" />
+}
+
+<div class="frm-wrap crm-dashboard">
+    <!-- Header -->
+    <div class="frm-header crm-header">
+        <div>
+            <h1 class="frm-title">CRM - Ventas</h1>
+            <p class="frm-subtitle">Gestión de Oportunidades, Leads y Seguimiento Comercial</p>
+        </div>
+        <div class="frm-actions">
+            <!-- Botón que abre el modal -->
+            <button class="frm-btn-save" id="btnNuevoLead" data-bs-toggle="modal" data-bs-target="#modalNuevoLead">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <line x1="19" y1="8" x2="19" y2="14"></line>
+                    <line x1="22" y1="11" x2="16" y2="11"></line>
+                </svg>
+                Nuevo Lead
+            </button>
+        </div>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="frm-analytics">
+        <div class="frm-analytic-item">
+            <span class="frm-analytic-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"></path></svg> 
+                Leads Activos
+            </span>
+            <span class="frm-analytic-value" id="kpiLeads">0</span>
+        </div>
+        <div class="frm-analytic-item">
+            <span class="frm-analytic-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 
+                Actividades Pendientes
+            </span>
+            <span class="frm-analytic-value" id="kpiActividades">0</span>
+        </div>
+        <div class="frm-analytic-item">
+            <span class="frm-analytic-label" style="color: #10b981;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> 
+                Ingreso Esperado
+            </span>
+            <span class="frm-analytic-value" id="kpiIngresos">$0.00</span>
+        </div>
+    </div>
+
+    <!-- Panel Principal -->
+    <div class="frm-panel-clean">
+        <!-- Navegación por pestañas -->
+        <div class="frm-tabs" id="crmTabs">
+            <button class="frm-tab active" data-target="#tab-pipeline">Pipeline (Kanban)</button>
+            <button class="frm-tab" data-target="#tab-list">Lista de Leads</button>
+            <button class="frm-tab" data-target="#tab-actividades">Mis Actividades</button>
+        </div>
+
+        <!-- Tab: Kanban Pipeline -->
+        <div id="tab-pipeline" class="tab-content active">
+            <div class="crm-kanban-board" id="kanbanBoard">
+                <!-- Se llenará dinámicamente vía JS con columnas para cada Etapa -->
+            </div>
+        </div>
+        
+        <!-- Tab: Lista de Leads -->
+        <div id="tab-list" class="tab-content" style="display: none;">
+            <div class="table-responsive">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>Negocio</th>
+                            <th>Contacto</th>
+                            <th>Etapa</th>
+                            <th>Vendedor</th>
+                            <th>Ingreso Est.</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbLeadsList">
+                        <!-- Llenado vía JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Actividades -->
+        <div id="tab-actividades" class="tab-content" style="display: none;">
+            <div class="table-responsive">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Título</th>
+                            <th>Fecha Prog.</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbActividades">
+                        <!-- Llenado vía JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Registrar Nuevo Lead -->
+<div class="modal fade" id="modalNuevoLead" tabindex="-1" aria-labelledby="modalNuevoLeadLabel" aria-hidden="true" data-bs-theme="light">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+      <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+        <h5 class="modal-title" id="modalNuevoLeadLabel" style="font-weight: 700; font-size: 1.1rem;">Nuevo Lead / Oportunidad</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form id="frmNuevoLead">
+          <div class="modal-body p-4">
+              <div class="frm-grid">
+                  <div class="frm-field frm-field--full">
+                      <label class="frm-label">Nombre del Negocio <span class="frm-req">*</span></label>
+                      <input type="text" class="frm-input" id="leadNegocio" required placeholder="Ej: Renovación Sistema ERP">
+                  </div>
+                  
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Nombre de Contacto</label>
+                      <input type="text" class="frm-input" id="leadContacto" placeholder="Ej: María Gómez">
+                  </div>
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Correo de Contacto</label>
+                      <input type="email" class="frm-input" id="leadCorreo" placeholder="maria@empresa.com">
+                  </div>
+
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Teléfono</label>
+                      <input type="text" class="frm-input" id="leadTelefono">
+                  </div>
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Origen</label>
+                      <select class="frm-input frm-select" id="leadOrigen">
+                          <option value="Directo">Directo</option>
+                          <option value="Referido">Referido</option>
+                          <option value="Web">Web</option>
+                          <option value="Redes Sociales">Redes Sociales</option>
+                      </select>
+                  </div>
+
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Prioridad</label>
+                      <select class="frm-input frm-select" id="leadPrioridad">
+                          <option value="0">Baja</option>
+                          <option value="1">Media</option>
+                          <option value="2">Alta</option>
+                      </select>
+                  </div>
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Vendedor <span class="frm-req">*</span></label>
+                      <select class="frm-input frm-select" id="leadVendedor" required>
+                          <!-- Idealmente esto vendría de un endpoint de usuarios, usamos valores fijos como ejemplo -->
+                          <option value="1">Administrador (Tú)</option>
+                          <option value="2">Ejecutivo de Ventas</option>
+                      </select>
+                  </div>
+
+                  <div class="frm-field frm-field--full">
+                      <label class="frm-label">Etapa Inicial <span class="frm-req">*</span></label>
+                      <select class="frm-input frm-select" id="leadEtapa" required>
+                          <option value="">Cargando etapas...</option>
+                      </select>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+            <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="frm-btn-save">Guardar Lead</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/crm.js"></script>
+}

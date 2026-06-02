@@ -7,11 +7,22 @@ namespace Sis_ERP.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RrhhController : ControllerBase
+    public class RrhhController : Controller
     {
         private readonly string _conn;
         public RrhhController(IConfiguration config)
             => _conn = config.GetConnectionString("DefaultConnection")!;
+
+        // ════════════════════════════════════════════════════════════════
+        //  VISTA PRINCIPAL RRHH
+        // ════════════════════════════════════════════════════════════════
+        
+        [HttpGet("/RRHH")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult Index()
+        {
+            return View("~/Views/RRHH/Index.cshtml");
+        }
 
         // ════════════════════════════════════════════════════════════════
         //  DEPARTAMENTOS

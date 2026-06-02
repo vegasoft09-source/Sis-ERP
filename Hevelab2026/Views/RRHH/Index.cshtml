@@ -1,0 +1,209 @@
+@{
+    ViewData["Title"] = "Recursos Humanos";
+}
+
+@section Styles {
+    <!-- Reutilizamos forms.css para mantener la estructura limpia y premium -->
+    <link rel="stylesheet" href="~/css/forms.css" />
+    <!-- Agregamos los estilos específicos para RRHH -->
+    <link rel="stylesheet" href="~/css/rrhh.css" />
+}
+
+<div class="frm-wrap rrhh-dashboard">
+    <!-- Header de la sección -->
+    <div class="frm-header rrhh-header">
+        <div>
+            <h1 class="frm-title">Recursos Humanos</h1>
+            <p class="frm-subtitle">Gestión integral de personal, departamentos y asistencia</p>
+        </div>
+        <div class="frm-actions">
+            <!-- Botón que abre el modal -->
+            <button class="frm-btn-save" id="btnNuevoEmpleado" data-bs-toggle="modal" data-bs-target="#modalNuevoEmpleado">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <line x1="19" y1="8" x2="19" y2="14"></line>
+                    <line x1="22" y1="11" x2="16" y2="11"></line>
+                </svg>
+                Registrar Empleado
+            </button>
+        </div>
+    </div>
+
+    <!-- Indicadores / Analytics Premium -->
+    <div class="frm-analytics">
+        <div class="frm-analytic-item">
+            <span class="frm-analytic-label">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                Empleados Activos
+            </span>
+            <span class="frm-analytic-value" id="kpiEmpleados">0</span>
+        </div>
+        <div class="frm-analytic-item">
+            <span class="frm-analytic-label">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Contratos
+            </span>
+            <span class="frm-analytic-value" id="kpiContratos">0</span>
+        </div>
+        <div class="frm-analytic-item">
+            <span class="frm-analytic-label">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Asistencias Hoy
+            </span>
+            <span class="frm-analytic-value" id="kpiAsistencias">0</span>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal (Tabs y Tablas) -->
+    <div class="frm-panel-clean">
+        <!-- Navegación por pestañas -->
+        <div class="frm-tabs" id="rrhhTabs">
+            <button class="frm-tab active" data-target="#tab-empleados">Directorio</button>
+            <button class="frm-tab" data-target="#tab-departamentos">Departamentos</button>
+            <button class="frm-tab" data-target="#tab-ausencias">Ausencias</button>
+        </div>
+
+        <!-- Tab: Empleados -->
+        <div id="tab-empleados" class="tab-content active">
+            <div class="table-responsive">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>Empleado</th>
+                            <th>Departamento</th>
+                            <th>Cargo</th>
+                            <th>Documento</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbEmpleados">
+                        <!-- Llenado dinámicamente vía JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Tab: Departamentos -->
+        <div id="tab-departamentos" class="tab-content" style="display: none;">
+            <div class="table-responsive">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre del Departamento</th>
+                            <th>Responsable</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbDepartamentos">
+                        <!-- Llenado dinámicamente vía JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Ausencias -->
+        <div id="tab-ausencias" class="tab-content" style="display: none;">
+            <div class="table-responsive">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>Empleado</th>
+                            <th>Tipo de Ausencia</th>
+                            <th>Fechas</th>
+                            <th>Días</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbAusencias">
+                         <!-- Llenado dinámicamente vía JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Registrar Empleado -->
+<div class="modal fade" id="modalNuevoEmpleado" tabindex="-1" aria-labelledby="modalNuevoEmpleadoLabel" aria-hidden="true" data-bs-theme="light">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+      <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+        <h5 class="modal-title" id="modalNuevoEmpleadoLabel" style="font-weight: 700; font-size: 1.1rem;">Nuevo Empleado</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form id="frmNuevoEmpleado">
+          <div class="modal-body p-4">
+              <div class="frm-grid">
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Nombres <span class="frm-req">*</span></label>
+                      <input type="text" class="frm-input" id="empNombres" required>
+                  </div>
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Apellidos <span class="frm-req">*</span></label>
+                      <input type="text" class="frm-input" id="empApellidos" required>
+                  </div>
+                  
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Tipo Documento</label>
+                      <select class="frm-input frm-select" id="empTipoDoc">
+                          <option value="DNI">DNI</option>
+                          <option value="CE">Carné de Extranjería</option>
+                          <option value="Pasaporte">Pasaporte</option>
+                      </select>
+                  </div>
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Número Documento <span class="frm-req">*</span></label>
+                      <input type="text" class="frm-input" id="empNumDoc" required>
+                  </div>
+
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Departamento <span class="frm-req">*</span></label>
+                      <select class="frm-input frm-select" id="empDepto" required>
+                          <option value="">Cargando...</option>
+                      </select>
+                  </div>
+                  <div class="frm-field frm-field--half">
+                      <label class="frm-label">Cargo <span class="frm-req">*</span></label>
+                      <select class="frm-input frm-select" id="empCargo" required>
+                          <option value="">Cargando...</option>
+                      </select>
+                  </div>
+
+                  <div class="frm-field frm-field--full">
+                      <label class="frm-label">Fecha de Ingreso</label>
+                      <input type="date" class="frm-input" id="empFechaIngreso" required>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+            <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="frm-btn-save">
+                Guardar Empleado
+            </button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/rrhh.js"></script>
+}

@@ -5,13 +5,26 @@ using Sis_ERP.Models;
 
 namespace Sis_ERP.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CrmController : ControllerBase
+    // =========================================================
+    // Controlador CRM (Vista + API)
+    // =========================================================
+    public class CrmController : Controller
     {
+        // Vista principal
+        [HttpGet("/CRM")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult Index()
+        {
+            return View("~/Views/CRM/Index.cshtml");
+        }
+
+        // API CRM
         private readonly string _conn;
         public CrmController(IConfiguration config)
             => _conn = config.GetConnectionString("DefaultConnection")!;
+
+        [Route("api/[controller]")]
+        [ApiController]
 
         // ════════════════════════════════════════════════════════════════
         //  ETAPAS

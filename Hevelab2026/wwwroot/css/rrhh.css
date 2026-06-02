@@ -1,0 +1,84 @@
+/* ======================================================
+   RRHH Dashboard Styles (rrhh.css)
+   ====================================================== */
+
+.rrhh-dashboard {
+    max-width: 1100px;
+}
+
+.rrhh-header {
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+/* Transiciones para los contenidos de las pestañas */
+.tab-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Componente visual del Empleado (Avatar + Textos) */
+.empleado-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.empleado-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--sys-soft, #e0e7ff);
+    color: var(--sys-primary, #4338ca);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.empleado-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.empleado-name {
+    font-weight: 600;
+    color: var(--text-primary, #0f172a);
+    font-size: 13.5px;
+    margin-bottom: 2px;
+}
+
+.empleado-date {
+    font-size: 11.5px;
+    color: var(--text-muted, #94a3b8);
+}
+
+/* Modificadores de colores adicionales para botones de acciones en la tabla */
+.action-btn.text-success:hover {
+    color: #16a34a !important;
+}
+
+.action-btn.text-danger:hover {
+    color: #dc2626 !important;
+}
+
+/* Fix para responsive tables */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
