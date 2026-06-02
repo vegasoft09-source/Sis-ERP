@@ -1,0 +1,94 @@
+@model IEnumerable<Hevelab2026.Models.RecepcionModel>
+
+@{
+    ViewData["Title"] = "Recepciones de Inventario";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/recepciones.css" asp-append-version="true" />
+}
+
+<div class="recepciones-container">
+
+    <header class="recepciones-header">
+        <div class="header-info">
+            <h2>Recepciones</h2>
+            <p>Gestiona y realiza seguimiento a tus recepciones hechas por compras.</p>
+        </div>
+        <button class="btn btn-primary" id="btnNuevo">+ Nuevo</button>
+    </header>
+
+    <section class="filters-card" id="seccionFiltros">
+        <div class="filter-group">
+            <label>RANGO DE FECHA</label>
+            <input type="text" placeholder="Seleccionar fechas..." id="filterFecha">
+        </div>
+        <div class="filter-group">
+            <label>CLIENTE / RAZÓN SOCIAL</label>
+            <input type="text" placeholder="Buscar cliente..." id="filterCliente">
+        </div>
+        <div class="filter-group">
+            <label>ESTADO</label>
+            <select id="filterEstado">
+                <option value="">Todos los estados</option>
+                <option value="BORRADOR">Borrador</option>
+                <option value="ENVIADO">Enviado</option>
+                <option value="ACEPTADO">Aceptado</option>
+                <option value="RECHAZADO">Rechazado</option>
+            </select>
+        </div>
+        <button class="btn btn-secondary" id="btnAplicarFiltros">APLICAR FILTROS</button>
+    </section>
+
+    <main class="table-responsive">
+        <table class="recepciones-table">
+            <thead>
+                <tr>
+                    <th>REFERENCIA</th>
+                    <th>DESDE</th>
+                    <th>A</th>
+                    <th>CONTACTO</th>
+                    <th>FECHA PROGRAMADA</th>
+                    <th>DOCUMENTO ORIGEN</th>
+                    <th>ESTADO</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody id="tbodyRecepciones">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-primary text-bold">@item.Referencia</td>
+                            <td>@item.Desde</td>
+                            <td>@item.A</td>
+                            <td>@item.Contacto</td>
+                            <td>@item.FechaProgramada.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@item.DocumentoOrigen</td>
+                            <td>
+                                <span class="badge badge-@item.Estado.ToLower()">@item.Estado</span>
+                            </td>
+                            <td class="actions-cell">
+                                <button class="btn-action view-details" data-id="@item.Referencia" title="Ver detalle">👁️</button>
+                                <button class="btn-action edit-item" title="Editar">📝</button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No hay recepciones disponibles.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </main>
+</div>
+
+@section Scripts {
+    <script src="~/js/recepciones.js" asp-append-version="true" defer></script>
+}

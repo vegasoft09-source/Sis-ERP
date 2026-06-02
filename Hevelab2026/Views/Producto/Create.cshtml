@@ -1,0 +1,492 @@
+﻿@{
+    ViewData["Title"] = "Nuevo Producto";
+}
+<style>
+    .productos-form-page {
+        width: 100%;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .productos-form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+        .productos-form-header h1 {
+            margin: 0;
+            font-size: 34px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.04em;
+        }
+
+        .productos-form-header p {
+            margin-top: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+    .btn-volver {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 38px;
+        padding: 0 16px;
+        border-radius: var(--radius-lg);
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+        box-shadow: var(--shadow-sm);
+    }
+
+        .btn-volver:hover {
+            background: #f8fafc;
+            color: var(--text-primary);
+        }
+
+    .producto-form {
+        width: 100%;
+        max-width: none;
+    }
+
+    .form-card {
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-xl);
+        padding: 18px 22px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 28px;
+        align-items: start;
+    }
+
+    .form-main {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .form-side {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: #f8fafc;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-group input,
+        .form-group select {
+            height: 38px;
+            padding: 0 12px;
+        }
+
+        .form-group textarea {
+            min-height: 58px;
+            padding: 10px 12px;
+            resize: none;
+        }
+
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                border-color: var(--sys-primary);
+                background: #ffffff;
+            }
+
+    .image-upload-box {
+        height: 150px;
+        border: 2px dashed #cbd5e1;
+        border-radius: var(--radius-lg);
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-align: center;
+        color: var(--text-secondary);
+    }
+
+    .image-upload-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        font-weight: 500;
+        color: var(--text-muted);
+        line-height: 1;
+    }
+
+    .image-upload-box strong {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+
+    .image-upload-box span {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    .btn-upload {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 32px;
+        padding: 0 14px;
+        margin-top: 4px;
+        border-radius: var(--radius-md);
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        color: var(--sys-primary) !important;
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        cursor: pointer;
+    }
+
+    .checkbox-disponible {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 38px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+        .checkbox-disponible input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--sys-primary);
+        }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .btn-cancelar,
+    .btn-guardar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 40px;
+        padding: 0 22px;
+        border-radius: var(--radius-lg);
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .btn-cancelar {
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+
+        .btn-cancelar:hover {
+            background: #f8fafc;
+            color: var(--text-primary);
+        }
+
+    .btn-guardar {
+        background: var(--sys-primary);
+        color: var(--sys-on-primary);
+    }
+
+        .btn-guardar:hover {
+            background: var(--sys-primary-hover);
+        }
+
+    @@media (max-width: 1100px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .form-side {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .image-upload-box {
+            height: 130px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .productos-form-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+            .productos-form-header h1 {
+                font-size: 30px;
+            }
+
+        .form-row,
+        .form-side {
+            grid-template-columns: 1fr;
+        }
+
+        .form-card {
+            padding: 16px;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .btn-cancelar,
+        .btn-guardar,
+        .btn-volver {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="productos-form-page">
+
+    <div class="productos-form-header">
+        <div>
+            <h1>Nuevo Producto</h1>
+            <p>Registra la información básica del producto.</p>
+        </div>
+
+        <a asp-controller="Producto" asp-action="Index" class="btn-volver">
+            Volver
+        </a>
+    </div>
+
+    <form asp-controller="Producto" asp-action="Create" method="post" class="producto-form" enctype="multipart/form-data">
+
+        <div class="form-card">
+
+            <div class="form-grid">
+
+                <div class="form-main">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="sku">SKU</label>
+                            <input type="text" id="sku" name="Sku" placeholder="Ejemplo: PR-006" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="codigoBarras">Código de barras</label>
+                            <input type="text" id="codigoBarras" name="CodigoBarras" placeholder="Ejemplo: 7501234567890" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nombre">Nombre del producto</label>
+                        <input type="text" id="nombre" name="Nombre" placeholder="Ejemplo: Alcohol en Gel 1L" />
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="precio">Precio</label>
+                            <input type="number" id="precio" name="Precio" placeholder="0.00" step="0.01" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stock">Stock</label>
+                            <input type="number" id="stock" name="Stock" placeholder="0" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="unidad">Unidad</label>
+                            <select id="unidad" name="Unidad">
+                                <option value="">Seleccionar</option>
+                                <option value="Unidades">Unidades</option>
+                                <option value="Botellas">Botellas</option>
+                                <option value="Packs">Packs</option>
+                                <option value="Cajas">Cajas</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="categoria">Categoría</label>
+                            <select id="categoria" name="Categoria">
+                                <option value="">Seleccionar categoría</option>
+                                <option value="Farmaceuticos">Productos Farmacéuticos y de Salud</option>
+                                <option value="Bienestar">Bienestar y Cuidado Personal</option>
+                                <option value="Limpieza">Limpiadores concentrados</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fechaCaducidad">Fecha de caducidad</label>
+                            <input type="date" id="fechaCaducidad" name="FechaCaducidad" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lote">Lote</label>
+                            <input type="text" id="lote" name="Lote" placeholder="Ejemplo: LOTE-2024-05" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="presentacion">Presentación</label>
+                            <input type="text" id="presentacion" name="Presentacion" placeholder="Ejemplo: Botella 1L / Frasco 500ml" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pesoVolumen">Peso / Volumen</label>
+                            <input type="text" id="pesoVolumen" name="PesoVolumen" placeholder="Ejemplo: 1L, 500ml, 2kg" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ubicacionAlmacen">Ubicación en almacén</label>
+                            <input type="text" id="ubicacionAlmacen" name="UbicacionAlmacen" placeholder="Ejemplo: Pasillo 2 - Estante A3" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stockMinimo">Nivel de stock mínimo</label>
+                            <input type="number" id="stockMinimo" name="StockMinimo" placeholder="Ejemplo: 10" />
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-side">
+
+                    <div class="form-group">
+                        <label>Imagen del producto</label>
+
+                        <div class="image-upload-box">
+                            <div class="image-upload-icon">＋</div>
+                            <strong>Subir imagen</strong>
+                            <span>PNG, JPG o WEBP máx. 5MB</span>
+
+                            <label for="imagenProducto" class="btn-upload">
+                                Seleccionar archivo
+                            </label>
+
+                            <input type="file" id="imagenProducto" name="ImagenProducto" accept="image/png,image/jpeg,image/webp" hidden />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Está disponible?</label>
+
+                        <label class="checkbox-disponible">
+                            <input type="checkbox" id="disponible" name="Disponible" value="true" checked />
+                            <span>Sí, disponible para venta</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="marca">Marca</label>
+                        <select id="marca" name="Marca">
+                            <option value="">Seleccionar marca</option>
+                            <option value="Genérico">Genérico</option>
+                            <option value="Medifarma">Medifarma</option>
+                            <option value="Inkafarma">Inkafarma</option>
+                            <option value="Laboratorio Portugal">Laboratorio Portugal</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="proveedor">Proveedor</label>
+                        <select id="proveedor" name="Proveedor">
+                            <option value="">Seleccionar proveedor</option>
+                            <option value="Proveedor A">Proveedor A</option>
+                            <option value="Proveedor B">Proveedor B</option>
+                            <option value="Proveedor C">Proveedor C</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="unidadMedida">Unidad de medida</label>
+                        <select id="unidadMedida" name="UnidadMedida">
+                            <option value="">Seleccionar</option>
+                            <option value="ml">Mililitros</option>
+                            <option value="l">Litros</option>
+                            <option value="g">Gramos</option>
+                            <option value="kg">Kilogramos</option>
+                            <option value="unidad">Unidad</option>
+                        </select>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion">Descripción</label>
+                <textarea id="descripcion" name="Descripcion" rows="4" placeholder="Descripción breve del producto, usos, indicaciones, etc."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <a asp-controller="Producto" asp-action="Index" class="btn-cancelar">
+                    Cancelar
+                </a>
+
+                <button type="submit" class="btn-guardar">
+                    Guardar Producto
+                </button>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
