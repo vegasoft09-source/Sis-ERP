@@ -1,0 +1,136 @@
+﻿@{
+    ViewData["Title"] = "Solicitudes de cotización";
+}
+
+<div class="w-full space-y-6 text-slate-800 antialiased">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h3 class="text-xl font-bold tracking-tight text-slate-900">Solicitudes de cotización</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Gestiona y realiza seguimiento a tus solicitudes de compra y mermas.</p>
+        </div>
+        <div>
+            <button class="inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl shadow-sm transition-colors duration-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Nuevo
+            </button>
+        </div>
+    </div>
+
+    <div class="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+            <div class="md:col-span-3">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Rango de Fecha</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </span>
+                    <input type="text" placeholder="Seleccionar fechas..." class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all text-slate-600" />
+                </div>
+            </div>
+            <div class="md:col-span-4">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Buscar</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" placeholder="Referencia o producto..." class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all text-slate-600" />
+                </div>
+            </div>
+            <div class="md:col-span-3">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Estado</label>
+                <select class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all text-slate-600 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.5rem_center] bg-no-repeat">
+                    <option>Todos los estados</option>
+                </select>
+            </div>
+            <div class="md:col-span-2">
+                <button class="w-full py-2 text-[11px] font-bold uppercase tracking-wider bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200 shadow-sm transition-all">Aplicar Filtros</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        <div class="p-4 bg-white border-t-4 border-blue-500 rounded-2xl shadow-sm">
+            <h2 class="text-2xl font-bold text-slate-900">1</h2>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mt-1">Nuevo</span>
+        </div>
+        <div class="p-4 bg-white border-t-4 border-indigo-500 rounded-2xl shadow-sm">
+            <h2 class="text-2xl font-bold text-slate-900">0</h2>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mt-1">Cotización Enviada</span>
+        </div>
+        <div class="p-4 bg-white border-t-4 border-orange-500 rounded-2xl shadow-sm">
+            <h2 class="text-2xl font-bold text-slate-900">1</h2>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mt-1">Cotización Atrasada</span>
+        </div>
+        <div class="p-4 bg-white border-t-4 border-cyan-500 rounded-2xl shadow-sm">
+            <h2 class="text-2xl font-bold text-slate-900">1</h2>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mt-1">No Reconocido</span>
+        </div>
+        <div class="p-4 bg-white border-t-4 border-pink-500 rounded-2xl shadow-sm">
+            <h2 class="text-2xl font-bold text-slate-900">5</h2>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mt-1">Recepción Atrasada</span>
+        </div>
+    </div>
+
+    <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead class="bg-slate-50/70 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                    <tr>
+                        <th class="pl-6 py-3.5">Referencia</th>
+                        <th class="py-3.5">Proveedor</th>
+                        <th class="py-3.5">Comprador</th>
+                        <th class="py-3.5">Fecha Creación</th>
+                        <th class="py-3.5">Fecha Límite</th>
+                        <th class="py-3.5">Total</th>
+                        <th class="py-3.5">Estado</th>
+                        <th class="text-center pr-6 py-3.5">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-600">
+                    <tr class="hover:bg-slate-50/40 transition-colors">
+                        <td class="pl-6 py-4"><a href="#" class="font-bold text-indigo-600 hover:text-indigo-800 transition-colors">RFQ-2024-001</a></td>
+                        <td class="font-semibold text-slate-700">Tech Solutions Inc.</td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold flex items-center justify-center">JD</span>
+                                <span>Juan Delgado</span>
+                            </div>
+                        </td>
+                        <td>12/05/2024</td>
+                        <td class="font-medium text-slate-900">20/05/2024</td>
+                        <td class="font-bold text-slate-900">$12,450.00</td>
+                        <td>
+                            <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-full bg-blue-50 text-blue-700 border border-blue-200">NUEVO</span>
+                        </td>
+                        <td class="text-center pr-6">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button class="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-50 transition-all" title="Ver"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                                <button class="p-1.5 text-slate-400 hover:text-amber-600 rounded-lg hover:bg-slate-50 transition-all" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="px-6 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div>Mostrando <span class="font-semibold text-slate-700">1</span> de <span class="font-semibold text-slate-700">125</span> registros.</div>
+            <div class="flex gap-1">
+                <button class="px-2 py-1 bg-white border border-slate-200 text-slate-400 rounded-lg cursor-not-allowed text-[11px]" disabled>&lsaquo;</button>
+                <button class="px-2.5 py-1 bg-indigo-600 text-white rounded-lg font-semibold text-[11px]">1</button>
+                <button class="px-2.5 py-1 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg text-[11px]">2</button>
+                <button class="px-2.5 py-1 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg text-[11px]">&rsaquo;</button>
+            </div>
+        </div>
+    </div>
+</div>
