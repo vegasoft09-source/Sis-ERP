@@ -803,13 +803,11 @@ input, select, textarea {
 }
 
 .truncate {
-<<<<<<< HEAD
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-<<<<<<< HEAD
 /* ==========================================================
    HEVELAB — Premium Dark Mode & Bootstrap Enhancements
    ========================================================== */
@@ -997,13 +995,7 @@ input, select, textarea {
     --reveal-radius-animated: calc(var(--reveal-radius) * 2.5);
   }
 }
-=======
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
->>>>>>> origin/grupo4
-=======
+
 /* ================================================================
    MÓDULO CLIENTES / TABLAS — estilos globales (.cl-)
    ================================================================ */
@@ -1170,8 +1162,8 @@ input, select, textarea {
 }
 .cl-hide-sm { display:none; }
 .cl-hide-md { display:none; }
-@@media (min-width:640px) { .cl-hide-sm { display:table-cell; } }
-@@media (min-width:900px) { .cl-hide-md { display:table-cell; } }
+@media (min-width:640px) { .cl-hide-sm { display:table-cell; } }
+@media (min-width:900px) { .cl-hide-md { display:table-cell; } }
 
 /* Radio selector */
 .cl-radio {
@@ -1249,4 +1241,3 @@ input, select, textarea {
     stroke:var(--sys-primary); stroke-width:2.5;
     fill:none; stroke-linecap:round; stroke-linejoin:round;
 }
->>>>>>> origin/grupo5
