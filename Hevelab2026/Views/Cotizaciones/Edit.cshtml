@@ -47,11 +47,16 @@
 
                 <div class="frm-field frm-field--half">
                     <label class="frm-label">Cliente / Razón Social</label>
-                    <input type="text" name="RazonSocial" class="frm-input" value="@Model.RazonSocial" required />
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" name="RazonSocial" id="input_razon" class="frm-input" value="@Model.RazonSocial" required style="flex: 1;" />
+                        <button type="button" class="cl-btn-secondary" onclick="document.getElementById('modal-clientes').style.display='flex'">
+                            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="frm-field frm-field--half">
                     <label class="frm-label">RUC</label>
-                    <input type="text" name="RUC" class="frm-input" value="@Model.RUC" required />
+                    <input type="text" name="RUC" id="input_ruc" class="frm-input" value="@Model.RUC" required />
                 </div>
                 <div class="frm-field frm-field--full">
                     <label class="frm-label">Dirección</label>
@@ -107,7 +112,7 @@
                     </tbody>
                 </table>
                 <div style="padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; gap: 20px;">
-                    <button type="button" onclick="addMockItem('producto')" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                    <button type="button" onclick="abrirModalCatalogo()" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
                         <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> AGREGAR UN PRODUCTO
                     </button>
                     <button type="button" onclick="addMockItem('seccion')" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
@@ -116,7 +121,7 @@
                     <button type="button" onclick="addMockItem('nota')" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
                         <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> AGREGAR UNA NOTA
                     </button>
-                    <button type="button" onclick="alert('Abriendo catálogo...')" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                    <button type="button" onclick="abrirModalCatalogo()" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
                         <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> CATÁLOGO
                     </button>
                 </div>
@@ -153,8 +158,84 @@
     </form>
 </div>
 
+<!-- MODALES -->
+<style>
+    .hl-modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 9999; display: none; align-items: center; justify-content: center; }
+    .hl-modal { background: var(--bg-sidebar); border: 1px solid var(--border-color); border-radius: var(--radius-lg); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg); overflow: hidden; display: flex; flex-direction: column; max-height: 85vh; }
+    .hl-modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .hl-modal-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin:0; }
+    .hl-modal-close { background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; }
+    .hl-modal-close:hover { background: var(--sys-soft); color: var(--sys-primary); }
+    .hl-modal-body { padding: 20px; overflow-y: auto; }
+    .modal-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 8px; transition: all 0.2s; }
+    .modal-list-item:hover { border-color: var(--sys-primary); background: var(--sys-soft-bg); }
+    .modal-list-title { font-weight: 600; color: var(--text-primary); font-size: 14px; }
+    .modal-list-sub { font-size: 12px; color: var(--text-muted); }
+</style>
+
+<div id="modal-clientes" class="hl-modal-overlay">
+    <div class="hl-modal">
+        <div class="hl-modal-header">
+            <h3 class="hl-modal-title">Seleccionar Cliente</h3>
+            <button class="hl-modal-close" onclick="document.getElementById('modal-clientes').style.display='none'"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="hl-modal-body">
+            <div class="modal-list-item"><div><div class="modal-list-title">Construcciones S.A.C.</div><div class="modal-list-sub">RUC: 20123456789</div></div><button type="button" class="cl-btn-secondary" onclick="seleccionarCliente('Construcciones S.A.C.', '20123456789')">Seleccionar</button></div>
+            <div class="modal-list-item"><div><div class="modal-list-title">Tecnología Avanzada S.A.</div><div class="modal-list-sub">RUC: 20556677889</div></div><button type="button" class="cl-btn-secondary" onclick="seleccionarCliente('Tecnología Avanzada S.A.', '20556677889')">Seleccionar</button></div>
+            <div class="modal-list-item"><div><div class="modal-list-title">Logística Global E.I.R.L.</div><div class="modal-list-sub">RUC: 20987654321</div></div><button type="button" class="cl-btn-secondary" onclick="seleccionarCliente('Logística Global E.I.R.L.', '20987654321')">Seleccionar</button></div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-catalogo" class="hl-modal-overlay">
+    <div class="hl-modal">
+        <div class="hl-modal-header">
+            <h3 class="hl-modal-title">Catálogo de Productos</h3>
+            <button class="hl-modal-close" onclick="document.getElementById('modal-catalogo').style.display='none'"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="hl-modal-body">
+            <div class="modal-list-item"><div><div class="modal-list-title">Cemento Portland Tipo I</div><div class="modal-list-sub">Código: MAT-0010 | Stock: 1200 UND</div></div><div style="text-align:right;"><div style="font-weight:700; color:var(--sys-primary); margin-bottom:5px;">S/ 28.50</div><button type="button" class="cl-btn-secondary" onclick="agregarDeCatalogo('MAT-0010', 'Cemento Portland Tipo I', 28.50)">Agregar</button></div></div>
+            <div class="modal-list-item"><div><div class="modal-list-title">Concreto Premezclado f'c=250</div><div class="modal-list-sub">Código: CON-0155 | Stock: 500 M3</div></div><div style="text-align:right;"><div style="font-weight:700; color:var(--sys-primary); margin-bottom:5px;">S/ 2150.00</div><button type="button" class="cl-btn-secondary" onclick="agregarDeCatalogo('CON-0155', 'Concreto Premezclado f\\'c=250', 2150.00)">Agregar</button></div></div>
+            <div class="modal-list-item"><div><div class="modal-list-title">Taladro Percutor Industrial</div><div class="modal-list-sub">Código: HER-0021 | Stock: 12 UND</div></div><div style="text-align:right;"><div style="font-weight:700; color:var(--sys-primary); margin-bottom:5px;">S/ 850.00</div><button type="button" class="cl-btn-secondary" onclick="agregarDeCatalogo('HER-0021', 'Taladro Percutor Industrial', 850.00)">Agregar</button></div></div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
 <script>
+    function abrirModalCatalogo() {
+        document.getElementById('modal-catalogo').style.display = 'flex';
+    }
+
+    function seleccionarCliente(razon, ruc) {
+        document.getElementById('input_razon').value = razon;
+        document.getElementById('input_ruc').value = ruc;
+        if(document.getElementById('cliente_hid')) document.getElementById('cliente_hid').value = razon;
+        document.getElementById('modal-clientes').style.display = 'none';
+    }
+
+    function agregarDeCatalogo(codigo, descripcion, precio) {
+        const tbody = document.getElementById('tbody-items');
+        if (tbody.querySelector('td[colspan="6"]') || tbody.querySelector('td[colspan="7"]')) {
+            tbody.innerHTML = '';
+        }
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${mockItemId + 1}<input type="hidden" name="Items[${mockItemId}].Tipo" value="producto" /></td>
+            <td><input type="text" name="Items[${mockItemId}].Codigo" value="${codigo}" class="frm-input" style="height:28px; font-size:12px;"></td>
+            <td><input type="text" name="Items[${mockItemId}].Descripcion" value="${descripcion}" class="frm-input" style="height:28px; font-size:12px;"></td>
+            <td><div class="num-ctrl"><button type="button" tabindex="-1" onclick="this.nextElementSibling.stepDown(); calcTotals()">-</button><input type="number" name="Items[${mockItemId}].Cantidad" value="1" class="frm-input item-qty" min="1"  style="height:28px; font-size:12px; text-align:right;" oninput="calcTotals()"><button type="button" tabindex="-1" onclick="this.previousElementSibling.stepUp(); calcTotals()">+</button></div></td>
+            <td><div class="num-ctrl"><button type="button" tabindex="-1" onclick="this.nextElementSibling.stepDown(); calcTotals()">-</button><input type="number" name="Items[${mockItemId}].PrecioUnitario" value="${precio.toFixed(2)}" class="frm-input item-price" min="0" step="0.01"  style="height:28px; font-size:12px; text-align:right;" oninput="calcTotals()"><button type="button" tabindex="-1" onclick="this.previousElementSibling.stepUp(); calcTotals()">+</button></div></td>
+            <td style="text-align:right; font-weight:800;" class="item-total">${precio.toFixed(2)}<input type="hidden" name="Items[${mockItemId}].Importe" value="${precio.toFixed(2)}" class="item-importe" /><input type="hidden" name="Items[${mockItemId}].PrecioIgv" value="${(precio*0.18).toFixed(2)}" class="item-igv" /></td>
+            <td><button type="button" onclick="this.closest('tr').remove(); calcTotals();" style="border:none;background:none;color:red;">x</button></td>
+        `;
+        mockItemId++;
+        tbody.appendChild(tr);
+        calcTotals();
+        document.getElementById('modal-catalogo').style.display = 'none';
+    }
+
     let mockItemId = 0;
     function addMockItem(type) {
         const tbody = document.getElementById('tbody-items');
@@ -168,8 +249,8 @@
                 <td>${mockItemId + 1}<input type="hidden" name="Items[${mockItemId}].Tipo" value="producto" /></td>
                 <td><input type="text" name="Items[${mockItemId}].Codigo" class="frm-input" placeholder="PRD-00X" style="height:28px; font-size:12px;"></td>
                 <td><input type="text" name="Items[${mockItemId}].Descripcion" class="frm-input" placeholder="Descripción" style="height:28px; font-size:12px;"></td>
-                <td><input type="number" name="Items[${mockItemId}].Cantidad" value="1" class="frm-input item-qty" style="height:28px; font-size:12px; text-align:right;" oninput="calcTotals()"></td>
-                <td><input type="number" name="Items[${mockItemId}].PrecioUnitario" value="100.00" class="frm-input item-price" style="height:28px; font-size:12px; text-align:right;" oninput="calcTotals()"></td>
+                <td><div class="num-ctrl"><button type="button" tabindex="-1" onclick="this.nextElementSibling.stepDown(); calcTotals()">-</button><input type="number" name="Items[${mockItemId}].Cantidad" value="1" class="frm-input item-qty" min="1"  style="height:28px; font-size:12px; text-align:right;" oninput="calcTotals()"><button type="button" tabindex="-1" onclick="this.previousElementSibling.stepUp(); calcTotals()">+</button></div></td>
+                <td><div class="num-ctrl"><button type="button" tabindex="-1" onclick="this.nextElementSibling.stepDown(); calcTotals()">-</button><input type="number" name="Items[${mockItemId}].PrecioUnitario" value="100.00" class="frm-input item-price" min="0" step="0.01"  style="height:28px; font-size:12px; text-align:right;" oninput="calcTotals()"><button type="button" tabindex="-1" onclick="this.previousElementSibling.stepUp(); calcTotals()">+</button></div></td>
                 <td style="text-align:right; font-weight:800;" class="item-total">100.00<input type="hidden" name="Items[${mockItemId}].Importe" value="100.00" class="item-importe" /><input type="hidden" name="Items[${mockItemId}].PrecioIgv" value="18.00" class="item-igv" /></td>
                 <td><button type="button" onclick="this.closest('tr').remove(); calcTotals();" style="border:none;background:none;color:red;">x</button></td>
             `;
@@ -207,8 +288,10 @@
             const igvHidden = tr.querySelector('.item-igv');
             
             if(qtyInput && priceInput && totalTd) {
-                const qty = parseFloat(qtyInput.value) || 0;
-                const price = parseFloat(priceInput.value) || 0;
+                let qty = parseFloat(qtyInput.value) || 0;
+                if(qty < 1) { qty = 1; qtyInput.value = 1; }
+                let price = parseFloat(priceInput.value) || 0;
+                if(price < 0) { price = 0; priceInput.value = '0.00'; }
                 const rowTotal = qty * price;
                 const rowIgv = rowTotal * 0.18;
                 

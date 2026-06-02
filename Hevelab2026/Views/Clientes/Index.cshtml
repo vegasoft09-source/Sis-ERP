@@ -198,16 +198,23 @@
             </tbody>
         </table>
     </div>
-    <div class="cl-foot">
-        <span id="contadorClientes">
-            Mostrando <strong>@clientes.Count</strong> cliente@(clientes.Count != 1 ? "s" : "")
-            @if (!string.IsNullOrEmpty(ViewBag.Busqueda as string) || !string.IsNullOrEmpty(ViewBag.Estado as string))
-            { <span class="cl-filtered">(filtrado)</span> }
-        </span>
-        <span id="seleccionInfo" class="cl-sel-info" style="display:none;">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            Cliente seleccionado: <strong id="seleccionNombre"></strong>
-        </span>
+    <div class="cl-foot" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <span id="contadorClientes">
+                Mostrando <strong id="lbl-start">1</strong> - <strong id="lbl-end">10</strong> de <strong id="lbl-total">@clientes.Count</strong> cliente@(clientes.Count != 1 ? "s" : "")
+                @if (!string.IsNullOrEmpty(ViewBag.Busqueda as string) || !string.IsNullOrEmpty(ViewBag.Estado as string))
+                { <span class="cl-filtered">(filtrado)</span> }
+            </span>
+            <span id="seleccionInfo" class="cl-sel-info" style="display:none;">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                Cliente seleccionado: <strong id="seleccionNombre"></strong>
+            </span>
+        </div>
+        
+        <!-- Pagination UI -->
+        <div style="display: flex; gap: 5px;" id="pagination-container">
+            <!-- Rendered via JS -->
+        </div>
     </div>
 </div>
 
@@ -338,6 +345,121 @@
             if (!confirm('¿Confirmas cambiar el estado de este cliente?')) e.preventDefault();
         });
     });
+
+    /* ---- Pagination Logic ---- */
+    const rowsPerPage = 10;
+    let currentPage = 1;
+    let visibleRows = Array.from(document.querySelectorAll('.cliente-row'));
+
+    function renderPagination() {
+        const totalRows = visibleRows.length;
+        const totalPages = Math.ceil(totalRows / rowsPerPage);
+        const container = document.getElementById('pagination-container');
+        container.innerHTML = '';
+
+        if (totalRows === 0) {
+            document.getElementById('lbl-start').textContent = '0';
+            document.getElementById('lbl-end').textContent = '0';
+            document.getElementById('lbl-total').textContent = '0';
+            return;
+        }
+
+        const startIdx = (currentPage - 1) * rowsPerPage;
+        const endIdx = Math.min(startIdx + rowsPerPage, totalRows);
+        
+        document.getElementById('lbl-start').textContent = startIdx + 1;
+        document.getElementById('lbl-end').textContent = endIdx;
+        document.getElementById('lbl-total').textContent = totalRows;
+
+        // Hide all rows first
+        document.querySelectorAll('.cliente-row').forEach(r => r.style.display = 'none');
+        // Show only current page rows
+        for (let i = startIdx; i < endIdx; i++) {
+            visibleRows[i].style.display = '';
+        }
+
+        // Render buttons
+        const btnStyle = "padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #fff; color: var(--text-muted); cursor: pointer; text-decoration: none; font-size: 13px; transition: 0.2s;";
+        const activeStyle = "padding: 6px 12px; border: 1px solid var(--sys-primary); border-radius: 8px; background: var(--sys-primary); color: #fff; cursor: pointer; text-decoration: none; font-size: 13px; font-weight: bold;";
+        const disabledStyle = "padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #f8fafc; color: #cbd5e1; cursor: not-allowed; text-decoration: none; font-size: 13px;";
+
+        // Prev
+        const prevBtn = document.createElement('button');
+        prevBtn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><polyline points="15 18 9 12 15 6"/></svg>';
+        prevBtn.type = 'button';
+        if (currentPage === 1) {
+            prevBtn.style.cssText = disabledStyle;
+            prevBtn.disabled = true;
+        } else {
+            prevBtn.style.cssText = btnStyle;
+            prevBtn.onclick = () => { currentPage--; renderPagination(); };
+        }
+        container.appendChild(prevBtn);
+
+        // Pages
+        for (let i = 1; i <= totalPages; i++) {
+            // Simple pagination (show all if few, or dots if many - simplified for demo)
+            if (totalPages > 7 && i > 3 && i < totalPages - 1 && i !== currentPage) {
+                if (i === 4 && currentPage > 4) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    dots.style.cssText = "padding: 6px 4px; color: var(--text-muted);";
+                    container.appendChild(dots);
+                } else if (i === totalPages - 2 && currentPage < totalPages - 3) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    dots.style.cssText = "padding: 6px 4px; color: var(--text-muted);";
+                    container.appendChild(dots);
+                }
+                if (Math.abs(currentPage - i) > 1) continue;
+            }
+
+            const pageBtn = document.createElement('button');
+            pageBtn.textContent = i;
+            pageBtn.type = 'button';
+            pageBtn.style.cssText = i === currentPage ? activeStyle : btnStyle;
+            if (i !== currentPage) {
+                pageBtn.onclick = () => { currentPage = i; renderPagination(); };
+            }
+            container.appendChild(pageBtn);
+        }
+
+        // Next
+        const nextBtn = document.createElement('button');
+        nextBtn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><polyline points="9 18 15 12 9 6"/></svg>';
+        nextBtn.type = 'button';
+        if (currentPage === totalPages) {
+            nextBtn.style.cssText = disabledStyle;
+            nextBtn.disabled = true;
+        } else {
+            nextBtn.style.cssText = btnStyle;
+            nextBtn.onclick = () => { currentPage++; renderPagination(); };
+        }
+        container.appendChild(nextBtn);
+    }
+
+    // Initial render
+    renderPagination();
+
+    /* ---- Fix search to work with pagination ---- */
+    var busquedaInput = document.getElementById('busquedaInput');
+    if (busquedaInput) {
+        // Remove old listener and add new one
+        const oldClone = busquedaInput.cloneNode(true);
+        busquedaInput.parentNode.replaceChild(oldClone, busquedaInput);
+        
+        oldClone.addEventListener('input', function () {
+            var term = this.value.toLowerCase().trim();
+            var allRows = Array.from(document.querySelectorAll('.cliente-row'));
+            visibleRows = allRows.filter(function (row) {
+                var razon = (row.dataset.razon || '').toLowerCase();
+                var doc   = (row.dataset.documento || '').toLowerCase();
+                return razon.includes(term) || doc.includes(term);
+            });
+            currentPage = 1;
+            renderPagination();
+        });
+    }
 
 })();
 </script>

@@ -44,8 +44,8 @@
                         <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                     </div>
                     <div>
-                        <div class="cl-kpi__label">Ventas Totales (Mayo)</div>
-                        <div class="cl-kpi__value" style="color: var(--sys-primary);">S/ 79,600.70</div>
+                        <div class="cl-kpi__label">Ventas Totales (USD)</div>
+                        <div class="cl-kpi__value" style="color: var(--sys-primary);">$@Model.Sum(x => x.Monto).ToString("N2")</div>
                         <div style="font-size: 0.8rem; color: #16a34a; font-weight: 600;">+12.5% vs Mes Anterior</div>
                     </div>
                 </div>
@@ -57,8 +57,8 @@
                     </div>
                     <div>
                         <div class="cl-kpi__label">Órdenes Cerradas</div>
-                        <div class="cl-kpi__value" style="color: #16a34a;">5</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">2 nuevas esta semana</div>
+                        <div class="cl-kpi__value" style="color: #16a34a;">@Model.Count</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Actualizado en tiempo real</div>
                     </div>
                 </div>
             </div>

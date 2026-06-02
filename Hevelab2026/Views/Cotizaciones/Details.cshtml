@@ -150,11 +150,52 @@
                             <td style="text-align:right; font-weight:800; color:var(--text-primary);">S/ 24,510.00</td>
                         </tr>
                     }
+                    else
+                    {
+                        var idx = 1;
+                        foreach (var item in Model.Items)
+                        {
+                            if (item.Tipo == "producto")
+                            {
+                                <tr>
+                                    <td>@idx</td>
+                                    <td style="font-weight: 700; color: #4338ca;">@item.Codigo</td>
+                                    <td>
+                                        <div style="font-weight: 700; color: var(--text-primary);">@item.Descripcion</div>
+                                    </td>
+                                    <td style="text-align:right;">-</td>
+                                    <td style="text-align:right; font-weight:700;">@item.Cantidad <svg viewBox="0 0 24 24" style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2;"><polyline points="7 10 12 15 17 10"/></svg></td>
+                                    <td style="text-align:right;">@item.Descuento.ToString("N2")</td>
+                                    <td>UND</td>
+                                    <td style="text-align:right; font-weight:700;">@item.PrecioUnitario.ToString("N2")</td>
+                                    <td style="text-align:right;">@item.PrecioIgv.ToString("N2")</td>
+                                    <td style="text-align:right; font-weight:800; color:var(--text-primary);">@item.Importe.ToString("N2")</td>
+                                </tr>
+                            }
+                            else if (item.Tipo == "seccion")
+                            {
+                                <tr>
+                                    <td colspan="10" style="background: #f1f5f9; font-weight: 800; color: var(--sys-primary); text-transform: uppercase;">
+                                        @item.Descripcion
+                                    </td>
+                                </tr>
+                            }
+                            else if (item.Tipo == "nota")
+                            {
+                                <tr>
+                                    <td colspan="10" style="font-style: italic; color: #e11d48; text-align: center;">
+                                        @item.Descripcion
+                                    </td>
+                                </tr>
+                            }
+                            idx++;
+                        }
+                    }
                 </tbody>
             </table>
 
-            <div style="padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; gap: 20px;">
-                <button type="button" onclick="addMockItem('producto')" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
+            <div class="no-print" style="padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; gap: 20px;">
+                <button type="button" onclick="abrirModalCatalogo()" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
                     <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> AGREGAR UN PRODUCTO
                 </button>
                 <button type="button" onclick="addMockItem('seccion')" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
@@ -163,7 +204,7 @@
                 <button type="button" onclick="addMockItem('nota')" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
                     <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> AGREGAR UNA NOTA
                 </button>
-                <button type="button" onclick="alert('Abriendo catálogo de productos...')" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                <button type="button" onclick="abrirModalCatalogo()" style="background:none; border:none; color:var(--sys-primary); font-size:11px; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:5px; cursor:pointer;">
                     <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> CATÁLOGO
                 </button>
             </div>
@@ -181,11 +222,11 @@
             <div style="width: 300px;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                     <span style="font-size:13px; font-weight:700; color:var(--text-secondary);">Subtotal:</span>
-                    <span style="font-size:13px; font-weight:800; color:var(--text-primary);">@(Model.Moneda == "PEN" ? "S/" : "$") @Model.Subtotal.ToString("N2")</span>
+                    <span style="font-size:13px; font-weight:800; color:var(--text-primary);"><span id="lbl-moneda">@(Model.Moneda == "PEN" ? "S/" : "$")</span> <span id="lbl-subtotal">@Model.Subtotal.ToString("N2")</span></span>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                     <span style="font-size:13px; font-weight:700; color:var(--text-secondary);">IVA / IGV (18%):</span>
-                    <span style="font-size:13px; font-weight:800; color:var(--text-primary);">@(Model.Moneda == "PEN" ? "S/" : "$") @Model.Impuestos.ToString("N2")</span>
+                    <span style="font-size:13px; font-weight:800; color:var(--text-primary);"><span id="lbl-moneda2">@(Model.Moneda == "PEN" ? "S/" : "$")</span> <span id="lbl-igv">@Model.Impuestos.ToString("N2")</span></span>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
                     <span style="font-size:13px; font-weight:700; color:var(--text-secondary);">Retención:</span>
@@ -194,7 +235,7 @@
 
                 <div style="background: #eef2ff; padding: 15px 20px; border-radius: 12px; display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-size:12px; font-weight:800; color:#4338ca; text-transform:uppercase;">TOTAL COTIZADO</span>
-                    <span style="font-size:22px; font-weight:900; color:#312e81;">@(Model.Moneda == "PEN" ? "S/" : "$") @Model.Total.ToString("N2")</span>
+                    <span style="font-size:22px; font-weight:900; color:#312e81;"><span id="lbl-moneda3">@(Model.Moneda == "PEN" ? "S/" : "$")</span> <span id="lbl-total">@Model.Total.ToString("N2")</span></span>
                 </div>
             </div>
         </div>
@@ -207,44 +248,129 @@
     </div>
 </div>
 
+<!-- MODALES -->
+<style>
+    .hl-modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 9999; display: none; align-items: center; justify-content: center; }
+    .hl-modal { background: var(--bg-sidebar); border: 1px solid var(--border-color); border-radius: var(--radius-lg); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg); overflow: hidden; display: flex; flex-direction: column; max-height: 85vh; }
+    .hl-modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .hl-modal-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin:0; }
+    .hl-modal-close { background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; }
+    .hl-modal-close:hover { background: var(--sys-soft); color: var(--sys-primary); }
+    .hl-modal-body { padding: 20px; overflow-y: auto; }
+    .modal-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 8px; transition: all 0.2s; }
+    .modal-list-item:hover { border-color: var(--sys-primary); background: var(--sys-soft-bg); }
+    .modal-list-title { font-weight: 600; color: var(--text-primary); font-size: 14px; }
+    .modal-list-sub { font-size: 12px; color: var(--text-muted); }
+</style>
+
+<div id="modal-catalogo" class="hl-modal-overlay no-print">
+    <div class="hl-modal">
+        <div class="hl-modal-header">
+            <h3 class="hl-modal-title">Catálogo de Productos</h3>
+            <button class="hl-modal-close" onclick="document.getElementById('modal-catalogo').style.display='none'"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="hl-modal-body">
+            <div class="modal-list-item"><div><div class="modal-list-title">Cemento Portland Tipo I</div><div class="modal-list-sub">Código: MAT-0010 | Stock: 1200 UND</div></div><div style="text-align:right;"><div style="font-weight:700; color:var(--sys-primary); margin-bottom:5px;">S/ 28.50</div><button type="button" class="cl-btn-secondary" onclick="agregarDeCatalogo('MAT-0010', 'Cemento Portland Tipo I', 28.50)">Agregar</button></div></div>
+            <div class="modal-list-item"><div><div class="modal-list-title">Concreto Premezclado f'c=250</div><div class="modal-list-sub">Código: CON-0155 | Stock: 500 M3</div></div><div style="text-align:right;"><div style="font-weight:700; color:var(--sys-primary); margin-bottom:5px;">S/ 2150.00</div><button type="button" class="cl-btn-secondary" onclick="agregarDeCatalogo('CON-0155', 'Concreto Premezclado f\\'c=250', 2150.00)">Agregar</button></div></div>
+            <div class="modal-list-item"><div><div class="modal-list-title">Taladro Percutor Industrial</div><div class="modal-list-sub">Código: HER-0021 | Stock: 12 UND</div></div><div style="text-align:right;"><div style="font-weight:700; color:var(--sys-primary); margin-bottom:5px;">S/ 850.00</div><button type="button" class="cl-btn-secondary" onclick="agregarDeCatalogo('HER-0021', 'Taladro Percutor Industrial', 850.00)">Agregar</button></div></div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
 <script>
-    let mockItemId = 3;
+    function abrirModalCatalogo() {
+        document.getElementById('modal-catalogo').style.display = 'flex';
+    }
+
+    let mockItemId = 99;
+
+    function agregarDeCatalogo(codigo, descripcion, precio) {
+        const tbody = document.getElementById('tbody-items');
+        
+        // Remove empty placeholders if any
+        if (tbody.innerHTML.includes('No hay productos agregados')) {
+            tbody.innerHTML = '';
+        }
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${mockItemId++}</td>
+            <td style="font-weight: 700; color: #4338ca;">${codigo}</td>
+            <td>
+                <div style="font-weight: 700; color: var(--text-primary);">${descripcion}</div>
+            </td>
+            <td style="text-align:right;">-</td>
+            <td style="text-align:right; font-weight:700;"><div class="num-ctrl"><button type="button" tabindex="-1" onclick="this.nextElementSibling.stepDown(); calcTotals()">-</button><input type="number" class="item-qty" min="1"  value="1" style="width: 50px; text-align:right;" oninput="calcTotals()" /><button type="button" tabindex="-1" onclick="this.previousElementSibling.stepUp(); calcTotals()">+</button></div> <svg viewBox="0 0 24 24" style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2;"><polyline points="7 10 12 15 17 10"/></svg></td>
+            <td style="text-align:right;">0.00</td>
+            <td>UND</td>
+            <td style="text-align:right; font-weight:700;"><div class="num-ctrl"><button type="button" tabindex="-1" onclick="this.nextElementSibling.stepDown(); calcTotals()">-</button><input type="number" class="item-price" min="0" step="0.01"  value="${precio.toFixed(2)}" style="width: 70px; text-align:right;" oninput="calcTotals()" /><button type="button" tabindex="-1" onclick="this.previousElementSibling.stepUp(); calcTotals()">+</button></div></td>
+            <td style="text-align:right;" class="item-igv">${(precio * 0.18).toFixed(2)}</td>
+            <td style="text-align:right; font-weight:800; color:var(--text-primary);" class="item-total">${precio.toFixed(2)}</td>
+            <td class="no-print"><button type="button" onclick="this.closest('tr').remove(); calcTotals();" style="border:none;background:none;color:red;cursor:pointer;">x</button></td>
+        `;
+        tbody.appendChild(tr);
+        calcTotals();
+        document.getElementById('modal-catalogo').style.display = 'none';
+    }
+
     function addMockItem(type) {
         const tbody = document.getElementById('tbody-items');
         const tr = document.createElement('tr');
         
-        if (type === 'producto') {
-            tr.innerHTML = `
-                <td>${mockItemId++}</td>
-                <td style="font-weight: 700; color: #4338ca;">PRD-00${mockItemId}</td>
-                <td>
-                    <div style="font-weight: 700; color: var(--text-primary);">Producto Nuevo</div>
-                    <div style="font-size: 11px; color: var(--text-muted);">Descripción genérica del producto agregado</div>
-                </td>
-                <td style="text-align:right;">100.00</td>
-                <td style="text-align:right; font-weight:700;">10 <svg viewBox="0 0 24 24" style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2;"><polyline points="7 10 12 15 17 10"/></svg></td>
-                <td style="text-align:right;">0.00%</td>
-                <td>UND</td>
-                <td style="text-align:right; font-weight:700;">$100</td>
-                <td style="text-align:right;">$118.00</td>
-                <td style="text-align:right; font-weight:800; color:var(--text-primary);">S/ 1,180.00</td>
-            `;
-        } else if (type === 'seccion') {
+        if (type === 'seccion') {
             tr.innerHTML = `
                 <td colspan="10" style="background: #f1f5f9; font-weight: 800; color: var(--sys-primary); text-transform: uppercase;">
-                    NUEVA SECCIÓN AGREGADA
+                    <input type="text" value="NUEVA SECCIÓN" style="background:transparent; border:none; width:100%; font-weight:800; color:var(--sys-primary);" />
                 </td>
+                <td class="no-print"><button type="button" onclick="this.closest('tr').remove();" style="border:none;background:none;color:red;cursor:pointer;">x</button></td>
             `;
         } else if (type === 'nota') {
             tr.innerHTML = `
                 <td colspan="10" style="font-style: italic; color: #e11d48; text-align: center;">
-                    * Nota importante: Revisar condiciones de entrega para este ítem.
+                    <input type="text" value="* Escriba una nota aquí..." style="background:transparent; border:none; width:100%; text-align:center; color:#e11d48;" />
                 </td>
+                <td class="no-print"><button type="button" onclick="this.closest('tr').remove();" style="border:none;background:none;color:red;cursor:pointer;">x</button></td>
             `;
         }
         
         tbody.appendChild(tr);
+    }
+
+    function calcTotals() {
+        const tbody = document.getElementById('tbody-items');
+        let subtotal = 0;
+        
+        // Sumar items originales (los que no tienen inputs)
+        tbody.querySelectorAll('tr').forEach(tr => {
+            // Check if it's a static original item
+            if (!tr.querySelector('.item-qty') && tr.children.length >= 10 && !tr.querySelector('input')) {
+                const totalText = tr.children[9].innerText.replace(/[^0-9.-]+/g,"");
+                const rowTotal = parseFloat(totalText);
+                if(!isNaN(rowTotal)) subtotal += rowTotal;
+            } 
+            // Check if it's a dynamic added item
+            else if (tr.querySelector('.item-qty')) {
+                let qty = parseFloat(tr.querySelector('.item-qty').value) || 0;
+                if(qty < 1) { qty = 1; tr.querySelector('.item-qty').value = 1; }
+                let price = parseFloat(tr.querySelector('.item-price').value) || 0;
+                if(price < 0) { price = 0; tr.querySelector('.item-price').value = '0.00'; }
+                const rowTotal = qty * price;
+                const rowIgv = rowTotal * 0.18;
+                
+                tr.querySelector('.item-total').innerText = rowTotal.toFixed(2);
+                tr.querySelector('.item-igv').innerText = rowIgv.toFixed(2);
+                
+                subtotal += rowTotal;
+            }
+        });
+        
+        const igv = subtotal * 0.18;
+        const total = subtotal + igv;
+        
+        document.getElementById('lbl-subtotal').innerText = subtotal.toFixed(2);
+        document.getElementById('lbl-igv').innerText = igv.toFixed(2);
+        document.getElementById('lbl-total').innerText = total.toFixed(2);
     }
 </script>
 }

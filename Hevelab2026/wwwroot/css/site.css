@@ -918,7 +918,7 @@ input, select, textarea {
     transition:all var(--transition);
 }
 .cl-act svg {
-    width:13px; height:13px;
+    width:16px; height:16px;
     stroke:currentColor; stroke-width:2;
     fill:none; stroke-linecap:round; stroke-linejoin:round;
 }
@@ -952,4 +952,57 @@ input, select, textarea {
     width:13px; height:13px;
     stroke:var(--sys-primary); stroke-width:2.5;
     fill:none; stroke-linecap:round; stroke-linejoin:round;
+}
+/* Custom Number Input Controls */
+.num-ctrl {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: #fff;
+    overflow: hidden;
+    height: 28px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.num-ctrl:focus-within {
+    border-color: var(--sys-primary);
+    box-shadow: 0 0 0 2px var(--sys-soft);
+}
+.num-ctrl button {
+    background: #f1f5f9;
+    color: var(--text-secondary);
+    border: none;
+    padding: 0 10px;
+    font-weight: 900;
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+    user-select: none;
+}
+.num-ctrl button:hover {
+    background: #e2e8f0;
+    color: var(--sys-primary);
+}
+.num-ctrl button:active {
+    background: #cbd5e1;
+}
+.num-ctrl input[type=number] {
+    border: none !important;
+    text-align: center !important;
+    width: 60px !important;
+    height: 100% !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    padding: 0 !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    -moz-appearance: textfield;
+}
+.num-ctrl input[type=number]::-webkit-inner-spin-button, 
+.num-ctrl input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }

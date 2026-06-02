@@ -15,34 +15,108 @@
             REGRESAR
         </a>
         
-        <div class="frm-analytics" style="margin-bottom: 0;">
-            <div class="frm-analytic-item">
-                <span class="frm-analytic-label"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> OPORTUNIDADES</span>
-                <span class="frm-analytic-value">0</span>
+        <style>
+            .kpi-ribbon {
+                display: flex;
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 12px 20px;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            }
+            .kpi-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 0 15px;
+                position: relative;
+            }
+            .kpi-item:not(:last-child)::after {
+                content: "";
+                position: absolute;
+                right: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                height: 30px;
+                width: 1px;
+                background-color: #f1f5f9;
+            }
+            .kpi-top {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                margin-bottom: 4px;
+            }
+            .kpi-icon {
+                width: 16px;
+                height: 16px;
+                stroke-width: 2px;
+            }
+            .kpi-label {
+                font-size: 10px;
+                font-weight: 800;
+                color: #8ba3c7;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            .kpi-value {
+                font-size: 13px;
+                font-weight: 800;
+                color: #1e293b;
+            }
+        </style>
+        <div class="kpi-ribbon">
+            <div class="kpi-item">
+                <div class="kpi-top">
+                    <svg class="kpi-icon" style="color:#eab308; fill:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <span class="kpi-label">OPORTUNIDADES</span>
+                </div>
+                <span class="kpi-value">0</span>
             </div>
-            <div class="frm-analytic-item">
-                <span class="frm-analytic-label"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> VENTAS</span>
-                <span class="frm-analytic-value">42</span>
+            <div class="kpi-item">
+                <div class="kpi-top">
+                    <svg class="kpi-icon" style="color:#8b5cf6;" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <span class="kpi-label">VENTAS</span>
+                </div>
+                <span class="kpi-value">42</span>
             </div>
-            <div class="frm-analytic-item">
-                <span class="frm-analytic-label"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> FACTURADO</span>
-                <span class="frm-analytic-value">S/ 1,934.51</span>
+            <div class="kpi-item">
+                <div class="kpi-top">
+                    <svg class="kpi-icon" style="color:#3b82f6;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span class="kpi-label">FACTURADO</span>
+                </div>
+                <span class="kpi-value">S/ 1,934.91</span>
             </div>
-            <div class="frm-analytic-item">
-                <span class="frm-analytic-label" style="color: #e11d48;"><svg viewBox="0 0 24 24" style="color: #e11d48;"><path d="M3 3v18h18"/><line x1="18" y1="9" x2="13" y2="14"/><line x1="13" y1="14" x2="8" y2="9"/><line x1="8" y1="9" x2="3" y2="14"/></svg> ADEUDADO</span>
-                <span class="frm-analytic-value">S/ 2,203.20</span>
+            <div class="kpi-item">
+                <div class="kpi-top">
+                    <svg class="kpi-icon" style="color:#ef4444;" viewBox="0 0 24 24"><path d="M3 3v18h18"/><line x1="18" y1="9" x2="13" y2="14"/><line x1="13" y1="14" x2="8" y2="9"/><line x1="8" y1="9" x2="3" y2="14"/></svg>
+                    <span class="kpi-label">ADEUDADO</span>
+                </div>
+                <span class="kpi-value">S/ 2,283.20</span>
             </div>
-            <div class="frm-analytic-item">
-                <span class="frm-analytic-label"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> REUNIONES</span>
-                <span class="frm-analytic-value">0</span>
+            <div class="kpi-item">
+                <div class="kpi-top">
+                    <svg class="kpi-icon" style="color:#6366f1;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span class="kpi-label">REUNIONES</span>
+                </div>
+                <span class="kpi-value">0</span>
             </div>
-            <div class="frm-analytic-item">
-                <span class="frm-analytic-label"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> TAREAS</span>
-                <span class="frm-analytic-value">0</span>
+            <div class="kpi-item">
+                <div class="kpi-top">
+                    <svg class="kpi-icon" style="color:#f97316;" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                    <span class="kpi-label">TAREAS</span>
+                </div>
+                <span class="kpi-value">0</span>
             </div>
-            <div class="frm-analytic-item">
-                <span class="frm-analytic-label"><svg viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg> TICKETS</span>
-                <span class="frm-analytic-value">0</span>
+            <div class="kpi-item">
+                <div class="kpi-top">
+                    <svg class="kpi-icon" style="color:#4f46e5;" viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>
+                    <span class="kpi-label">TICKETS</span>
+                </div>
+                <span class="kpi-value">0</span>
             </div>
         </div>
     </div>
@@ -56,10 +130,13 @@
             <div style="display: flex; gap: 40px;">
                 <!-- Avatar area -->
                 <div style="width: 150px; display: flex; flex-direction: column; align-items: center; gap: 15px; padding-top: 20px;">
-                    <div style="width: 120px; height: 120px; border-radius: 50%; border: 2px dashed var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: #f8fafc;">
-                        <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    </div>
-                    <span style="font-size: 10px; font-weight: 800; color: var(--sys-primary); text-transform: uppercase; cursor: pointer;">Agregar una fotografía</span>
+                    <label style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+                        <input type="file" accept="image/*" style="display:none;" onchange="previewProfilePhoto(event)" />
+                        <div id="avatar-preview" style="width: 120px; height: 120px; border-radius: 50%; border: 2px dashed var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: #f8fafc; overflow: hidden; position: relative;">
+                            <svg id="avatar-icon" viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <span style="font-size: 10px; font-weight: 800; color: var(--sys-primary); text-transform: uppercase;">Agregar una fotografía</span>
+                    </label>
                 </div>
 
                 <!-- Form fields -->
