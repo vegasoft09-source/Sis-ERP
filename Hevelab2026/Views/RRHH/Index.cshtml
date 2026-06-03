@@ -197,7 +197,7 @@
                         </div>
                     </div>
                     <div class="col-md-3 col-sm-12 d-flex align-items-end justify-content-end">
-                        <button class="frm-btn-save w-100" id="btnNuevoDepartamento">
+                        <button class="frm-btn-save" id="btnNuevoDepartamento">
                             <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" class="me-1">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -239,7 +239,7 @@
                         </div>
                     </div>
                     <div class="col-md-3 col-sm-12 d-flex align-items-end justify-content-end">
-                        <button class="frm-btn-save w-100" id="btnNuevoCargo" data-bs-toggle="modal" data-bs-target="#modalNuevoCargo">
+                        <button class="frm-btn-save" id="btnNuevoCargo" data-bs-toggle="modal" data-bs-target="#modalNuevoCargo">
                             <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" class="me-1">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -300,7 +300,7 @@
                             </div>
                         </div>
                         <div class="col-md-2 col-sm-12 d-flex align-items-end justify-content-end">
-                            <button class="frm-btn-save w-100" id="btnNuevoContrato">
+                            <button class="frm-btn-save" id="btnNuevoContrato">
                                 <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" class="me-1">
                                     <line x1="12" y1="5" x2="12" y2="19"></line>
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -371,9 +371,9 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="col-md-2 col-sm-12">
+                        <div class="col-md-2 col-sm-12 d-flex align-items-end justify-content-end">
                             <label class="frm-label mb-1 text-muted small d-block">&nbsp;</label>
-                            <button class="frm-btn-save w-100" onclick="abrirModalNuevaAsistencia()">
+                            <button class="frm-btn-save" onclick="abrirModalNuevaAsistencia()">
                                 <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" width="16" height="16" class="me-1"><path d="M12 5v14M5 12h14"/></svg>
                                 Nueva Asistencia
                             </button>
@@ -471,7 +471,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="col-md-7 col-sm-12">
+                        <div class="col-md-5 col-sm-12">
                             <label class="frm-label mb-1 text-muted small">Estado de Ausencia</label>
                             <div class="emp-filter-tags mt-1" id="ausenciasFilterTags">
                                 <button class="emp-filter-tag active" data-filter="todas">Todas</button>
@@ -485,6 +485,15 @@
                                     <div class="emp-filter-dot" style="background: #ef4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);"></div> Rechazadas
                                 </button>
                             </div>
+                        </div>
+                        <div class="col-md-2 col-sm-12 d-flex align-items-end justify-content-end">
+                            <button class="frm-btn-save" id="btnNuevaAusencia" data-bs-toggle="modal" data-bs-target="#modalSolicitarAusencia">
+                                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" class="me-1">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                Nueva Ausencia
+                            </button>
                         </div>
                     </div>
                 </div>
