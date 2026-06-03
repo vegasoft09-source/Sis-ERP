@@ -1,0 +1,976 @@
+=== DATABASE SCHEMA ===
+Connection String: Server=localhost;Port=3306;Database=u340197236_SIS_ERP;User=root;Password=;CharSet=utf8mb4;AllowZeroDateTime=true;ConvertZeroDateTime=true;
+Tables found: account_account, account_fiscal_period, account_journal, account_move, account_move_line, account_payment, account_reconcile, account_tax, almacen, catalogos, condicion_pago, crm_actividad, crm_etapa, crm_etiqueta, crm_lead, crm_lead_etiqueta, departamento, departamento_empresa, desecho, detalle_pedido_compra, detalle_pedido_venta, empresa, estado_pedido_compra, estado_pedido_venta, estado_transferencia, fabricantes, grupo_cliente, grupo_proveedor, hr_asistencia, hr_ausencia, hr_cargo, hr_contrato, hr_departamento, hr_employee, hr_tipo_ausencia, impuestos_compras, impuestos_ventas, lista_precio, lista_precio_item, metodo_entrega, metodo_pago, moneda, motivo_desecho, movimiento_stock, pais, pedido_compra, pedido_venta, permiso, pos_config, pos_order, pos_order_line, pos_payment, pos_session, producto_bonificaciones, producto_lotes, producto_precios, productos, rol, rol_permiso, socio, stock, terminos_pago, terminos_pago_detalle, transferencia, transferencia_linea, usuario
+
+Table: account_account
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  cuenta_padre_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  codigo - varchar(30) - Null:NO - Key: - Default:NULL - Extra:
+  nombre - varchar(200) - Null:NO - Key: - Default:NULL - Extra:
+  tipo - varchar(30) - Null:NO - Key: - Default:NULL - Extra:
+  naturaleza - varchar(10) - Null:NO - Key: - Default:DEUDORA - Extra:
+  moneda_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  permite_movimiento - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  requiere_socio - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  requiere_documento - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: account_fiscal_period
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  fecha_inicio - date - Null:NO - Key: - Default:NULL - Extra:
+  fecha_fin - date - Null:NO - Key: - Default:NULL - Extra:
+  estado - varchar(20) - Null:NO - Key: - Default:ABIERTO - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: account_journal
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  codigo - varchar(10) - Null:NO - Key: - Default:NULL - Extra:
+  tipo - varchar(30) - Null:NO - Key: - Default:NULL - Extra:
+  cuenta_debito_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  cuenta_credito_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  cuenta_conciliacion_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  moneda_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  secuencia_prefijo - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  permite_cancelacion - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  requiere_aprobacion - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: account_move
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  journal_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  periodo_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  pedido_venta_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  pedido_compra_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  tipo_movimiento - varchar(30) - Null:NO - Key: - Default:NULL - Extra:
+  numero_documento - varchar(50) - Null:YES - Key: - Default:NULL - Extra:
+  referencia - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  socio_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  moneda_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  tipo_cambio - decimal(12,6) - Null:NO - Key: - Default:1.000000 - Extra:
+  fecha_emision - date - Null:NO - Key: - Default:NULL - Extra:
+  fecha_vencimiento - date - Null:YES - Key: - Default:NULL - Extra:
+  subtotal - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  total_impuestos - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  total - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  monto_pendiente - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  estado - varchar(20) - Null:NO - Key: - Default:BORRADOR - Extra:
+  narracion - text - Null:YES - Key: - Default:NULL - Extra:
+  creado_por - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: account_move_line
+------------------------------------
+  id - bigint(20) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  move_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  cuenta_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  socio_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  tax_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  referencia - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  debe - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  haber - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  debe_empresa - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  haber_empresa - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  conciliado - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  fecha_conciliacion - date - Null:YES - Key: - Default:NULL - Extra:
+  producto_id - bigint(20) - Null:YES - Key:MUL - Default:NULL - Extra:
+  cantidad - decimal(12,2) - Null:YES - Key: - Default:NULL - Extra:
+  precio_unitario - decimal(14,4) - Null:YES - Key: - Default:NULL - Extra:
+  fecha_vencimiento - date - Null:YES - Key: - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  Total Rows: 0
+
+Table: account_payment
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  journal_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  move_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  socio_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  moneda_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  tipo_cambio - decimal(12,6) - Null:NO - Key: - Default:1.000000 - Extra:
+  tipo_pago - varchar(20) - Null:NO - Key: - Default:NULL - Extra:
+  metodo_pago_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  numero_documento - varchar(50) - Null:YES - Key: - Default:NULL - Extra:
+  fecha_pago - date - Null:NO - Key: - Default:NULL - Extra:
+  monto - decimal(14,2) - Null:NO - Key: - Default:NULL - Extra:
+  referencia - varchar(150) - Null:YES - Key: - Default:NULL - Extra:
+  memo - text - Null:YES - Key: - Default:NULL - Extra:
+  estado - varchar(20) - Null:NO - Key: - Default:BORRADOR - Extra:
+  creado_por - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: account_reconcile
+------------------------------------
+  id - bigint(20) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  payment_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  move_line_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  monto - decimal(14,2) - Null:NO - Key: - Default:NULL - Extra:
+  fecha - date - Null:NO - Key: - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  Total Rows: 0
+
+Table: account_tax
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  codigo - varchar(30) - Null:NO - Key: - Default:NULL - Extra:
+  tipo_impuesto - varchar(20) - Null:NO - Key: - Default:NULL - Extra:
+  calculo - varchar(20) - Null:NO - Key: - Default:PORCENTAJE - Extra:
+  porcentaje - decimal(8,4) - Null:NO - Key: - Default:0.0000 - Extra:
+  cuenta_impuesto_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  cuenta_base_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  incluido_en_precio - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  afecta_base_imponible - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  secuencia - int(11) - Null:NO - Key: - Default:1 - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: almacen
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  codigo - varchar(20) - Null:NO - Key:UNI - Default:NULL - Extra:
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 2
+
+Table: catalogos
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  codigo - varchar(50) - Null:NO - Key:UNI - Default:NULL - Extra:
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  descripcion - text - Null:YES - Key: - Default:NULL - Extra:
+  Total Rows: 0
+
+Table: condicion_pago
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  codigo - varchar(50) - Null:NO - Key: - Default:NULL - Extra:
+  nombre - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  dias_credito - int(11) - Null:NO - Key: - Default:0 - Extra:
+  tipo - varchar(20) - Null:NO - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: crm_actividad
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  lead_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  usuario_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  tipo - varchar(30) - Null:NO - Key: - Default:NULL - Extra:
+  titulo - varchar(255) - Null:NO - Key: - Default:NULL - Extra:
+  descripcion - text - Null:YES - Key: - Default:NULL - Extra:
+  fecha_programada - timestamp - Null:YES - Key: - Default:NULL - Extra:
+  fecha_realizada - timestamp - Null:YES - Key: - Default:NULL - Extra:
+  estado - varchar(20) - Null:NO - Key: - Default:PENDIENTE - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: crm_etapa
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  secuencia - int(11) - Null:NO - Key: - Default:1 - Extra:
+  probabilidad - decimal(5,2) - Null:NO - Key: - Default:0.00 - Extra:
+  color - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  es_ganado - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  es_perdido - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 6
+
+Table: crm_etiqueta
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  color - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  Total Rows: 0
+
+Table: crm_lead
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  etapa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  socio_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  vendedor_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  moneda_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  es_oportunidad - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  nombre - varchar(255) - Null:NO - Key: - Default:NULL - Extra:
+  contacto_nombre - varchar(150) - Null:YES - Key: - Default:NULL - Extra:
+  contacto_correo - varchar(150) - Null:YES - Key: - Default:NULL - Extra:
+  contacto_telefono - varchar(30) - Null:YES - Key: - Default:NULL - Extra:
+  empresa_contacto - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  probabilidad - decimal(5,2) - Null:NO - Key: - Default:0.00 - Extra:
+  ingreso_esperado - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  fecha_cierre - date - Null:YES - Key: - Default:NULL - Extra:
+  motivo_perdida - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  origen - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  prioridad - varchar(10) - Null:NO - Key: - Default:NORMAL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_por - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: crm_lead_etiqueta
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  lead_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  etiqueta_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  Total Rows: 0
+
+Table: departamento
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  pais_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  Total Rows: 0
+
+Table: departamento_empresa
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  Total Rows: 0
+
+Table: desecho
+------------------------------------
+  id - bigint(20) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  numero_referencia - varchar(50) - Null:NO - Key:UNI - Default:NULL - Extra:
+  producto_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  lote_id - bigint(20) - Null:YES - Key:MUL - Default:NULL - Extra:
+  cantidad - decimal(12,2) - Null:NO - Key: - Default:NULL - Extra:
+  almacen_origen_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  almacen_desecho_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  motivo_desecho_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  reabastecer - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  documento_origen - varchar(50) - Null:YES - Key: - Default:NULL - Extra:
+  usuario_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  fecha - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  estado - varchar(20) - Null:NO - Key: - Default:NULL - Extra:
+  creado_por - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: detalle_pedido_compra
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  pedido_compra_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  producto_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  descripcion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  cantidad - decimal(12,2) - Null:NO - Key: - Default:NULL - Extra:
+  precio_unitario - decimal(12,2) - Null:NO - Key: - Default:NULL - Extra:
+  porcentaje_descuento - decimal(5,2) - Null:NO - Key: - Default:0.00 - Extra:
+  impuesto_porcentaje - decimal(5,2) - Null:NO - Key: - Default:0.00 - Extra:
+  subtotal - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  total - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  Total Rows: 0
+
+Table: detalle_pedido_venta
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  pedido_venta_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  producto_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  descripcion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  cantidad - decimal(12,2) - Null:NO - Key: - Default:NULL - Extra:
+  unidad_medida - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  precio_unitario - decimal(12,2) - Null:NO - Key: - Default:NULL - Extra:
+  porcentaje_descuento - decimal(5,2) - Null:NO - Key: - Default:0.00 - Extra:
+  subtotal - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  total - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  Total Rows: 0
+
+Table: empresa
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  razon_social - varchar(255) - Null:NO - Key: - Default:NULL - Extra:
+  nombre_comercial - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  ruc - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  telefono - varchar(30) - Null:YES - Key: - Default:NULL - Extra:
+  correo - varchar(150) - Null:YES - Key: - Default:NULL - Extra:
+  sitio_web - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  direccion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  ciudad - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  departamento_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  pais_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  codigo_postal - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  moneda_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  zona_horaria - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  idioma - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  logo - longblob - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 1
+
+Table: estado_pedido_compra
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  color - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  descripcion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 3
+
+Table: estado_pedido_venta
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  color - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  descripcion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 4
+
+Table: estado_transferencia
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  color - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  descripcion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 4
+
+Table: fabricantes
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  pais - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  telefono - varchar(30) - Null:YES - Key: - Default:NULL - Extra:
+  correo - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  direccion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  Total Rows: 0
+
+Table: grupo_cliente
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  codigo - varchar(50) - Null:NO - Key: - Default:NULL - Extra:
+  nombre - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  descripcion - text - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: grupo_proveedor
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  codigo - varchar(50) - Null:NO - Key: - Default:NULL - Extra:
+  nombre - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  descripcion - text - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: hr_asistencia
+------------------------------------
+  id - bigint(20) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empleado_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  fecha - date - Null:NO - Key: - Default:NULL - Extra:
+  hora_entrada - timestamp - Null:YES - Key: - Default:NULL - Extra:
+  hora_salida - timestamp - Null:YES - Key: - Default:NULL - Extra:
+  horas_trabajadas - decimal(5,2) - Null:YES - Key: - Default:NULL - Extra:
+  observaciones - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: hr_ausencia
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empleado_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  tipo_ausencia_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  aprobador_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  fecha_inicio - date - Null:NO - Key: - Default:NULL - Extra:
+  fecha_fin - date - Null:NO - Key: - Default:NULL - Extra:
+  dias_solicitados - decimal(5,2) - Null:NO - Key: - Default:1.00 - Extra:
+  motivo - text - Null:YES - Key: - Default:NULL - Extra:
+  estado - varchar(20) - Null:NO - Key: - Default:BORRADOR - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: hr_cargo
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  descripcion - text - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: hr_contrato
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empleado_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  fecha_inicio - date - Null:NO - Key: - Default:NULL - Extra:
+  fecha_fin - date - Null:YES - Key: - Default:NULL - Extra:
+  sueldo - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  moneda_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  tipo_contrato - varchar(30) - Null:YES - Key: - Default:NULL - Extra:
+  estado - varchar(20) - Null:NO - Key: - Default:BORRADOR - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: hr_departamento
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  padre_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  responsable_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: hr_employee
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  usuario_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  departamento_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  cargo_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  responsable_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  nombres - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  apellidos - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  tipo_documento - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  numero_documento - varchar(30) - Null:YES - Key: - Default:NULL - Extra:
+  fecha_nacimiento - date - Null:YES - Key: - Default:NULL - Extra:
+  genero - varchar(10) - Null:YES - Key: - Default:NULL - Extra:
+  estado_civil - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  telefono - varchar(30) - Null:YES - Key: - Default:NULL - Extra:
+  celular - varchar(30) - Null:YES - Key: - Default:NULL - Extra:
+  correo_personal - varchar(150) - Null:YES - Key: - Default:NULL - Extra:
+  correo_empresa - varchar(150) - Null:YES - Key: - Default:NULL - Extra:
+  direccion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  foto - longblob - Null:YES - Key: - Default:NULL - Extra:
+  fecha_ingreso - date - Null:YES - Key: - Default:NULL - Extra:
+  fecha_cese - date - Null:YES - Key: - Default:NULL - Extra:
+  tipo_contrato - varchar(30) - Null:YES - Key: - Default:NULL - Extra:
+  regimen_laboral - varchar(50) - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: hr_tipo_ausencia
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  requiere_aprobacion - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  dias_maximos - int(11) - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  Total Rows: 0
+
+Table: impuestos_compras
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  porcentaje - decimal(5,2) - Null:NO - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  Total Rows: 0
+
+Table: impuestos_ventas
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  porcentaje - decimal(5,2) - Null:NO - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  Total Rows: 0
+
+Table: lista_precio
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  descripcion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  moneda_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  tipo_calculo - varchar(20) - Null:NO - Key: - Default:FIJO - Extra:
+  porcentaje - decimal(5,2) - Null:NO - Key: - Default:0.00 - Extra:
+  fecha_inicio - date - Null:YES - Key: - Default:NULL - Extra:
+  fecha_fin - date - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: lista_precio_item
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  lista_precio_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  producto_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  cantidad_minima - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  fecha_inicio - date - Null:YES - Key: - Default:NULL - Extra:
+  fecha_fin - date - Null:YES - Key: - Default:NULL - Extra:
+  tipo_calculo - varchar(20) - Null:NO - Key: - Default:FIJO - Extra:
+  precio_fijo - decimal(12,2) - Null:YES - Key: - Default:NULL - Extra:
+  porcentaje - decimal(5,2) - Null:YES - Key: - Default:NULL - Extra:
+  precio_minimo - decimal(12,2) - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: metodo_entrega
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  codigo - varchar(50) - Null:NO - Key: - Default:NULL - Extra:
+  nombre - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  descripcion - text - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: metodo_pago
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  es_venta - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  es_compra - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  Total Rows: 0
+
+Table: moneda
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  codigo - varchar(10) - Null:NO - Key: - Default:NULL - Extra:
+  simbolo - varchar(10) - Null:NO - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  Total Rows: 1
+
+Table: motivo_desecho
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: movimiento_stock
+------------------------------------
+  id - bigint(20) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  producto_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  lote_id - bigint(20) - Null:YES - Key:MUL - Default:NULL - Extra:
+  almacen_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  tipo_movimiento - varchar(20) - Null:NO - Key: - Default:NULL - Extra:
+  origen - varchar(20) - Null:NO - Key: - Default:NULL - Extra:
+  transferencia_id - bigint(20) - Null:YES - Key:MUL - Default:NULL - Extra:
+  desecho_id - bigint(20) - Null:YES - Key:MUL - Default:NULL - Extra:
+  cantidad - decimal(12,2) - Null:NO - Key: - Default:NULL - Extra:
+  saldo - decimal(12,2) - Null:NO - Key: - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  Total Rows: 0
+
+Table: pais
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  codigo_iso - varchar(10) - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  Total Rows: 2
+
+Table: pedido_compra
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  proveedor_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  comprador_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  moneda_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  terminos_pago_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  metodo_pago_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  estado_pedido_compra_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  numero_documento - varchar(50) - Null:YES - Key: - Default:NULL - Extra:
+  fecha_emision - date - Null:NO - Key: - Default:NULL - Extra:
+  direccion_proveedor - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  subtotal - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  descuento_total - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  total - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  observaciones - text - Null:YES - Key: - Default:NULL - Extra:
+  creado_por - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: pedido_venta
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  cliente_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  vendedor_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  moneda_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  metodo_pago_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  estado_pedido_venta_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  termino_pago_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  numero_documento - varchar(50) - Null:YES - Key: - Default:NULL - Extra:
+  fecha_emision - date - Null:NO - Key: - Default:NULL - Extra:
+  direccion_cliente - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  subtotal - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  descuento_total - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  total - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  observaciones - text - Null:YES - Key: - Default:NULL - Extra:
+  creado_por - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: permiso
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  codigo - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  descripcion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  Total Rows: 4
+
+Table: pos_config
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  almacen_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  lista_precio_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  journal_id - int(11) - Null:YES - Key: - Default:NULL - Extra:
+  impuesto_predeterminado - int(11) - Null:YES - Key: - Default:NULL - Extra:
+  permite_descuento - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  descuento_maximo - decimal(5,2) - Null:NO - Key: - Default:100.00 - Extra:
+  permite_cliente_anonimo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  imprime_ticket - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: pos_order
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  session_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  pos_config_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  cliente_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  cajero_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  moneda_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  numero_ticket - varchar(50) - Null:NO - Key: - Default:NULL - Extra:
+  fecha - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  subtotal - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  descuento_total - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  total_impuestos - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  total - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  estado - varchar(20) - Null:NO - Key: - Default:BORRADOR - Extra:
+  move_id - int(11) - Null:YES - Key: - Default:NULL - Extra:
+  observaciones - text - Null:YES - Key: - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: pos_order_line
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  order_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  producto_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  descripcion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  cantidad - decimal(12,2) - Null:NO - Key: - Default:NULL - Extra:
+  precio_unitario - decimal(14,4) - Null:NO - Key: - Default:NULL - Extra:
+  porcentaje_descuento - decimal(5,2) - Null:NO - Key: - Default:0.00 - Extra:
+  impuesto_porcentaje - decimal(5,2) - Null:NO - Key: - Default:0.00 - Extra:
+  subtotal - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  total - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  es_devolucion - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  Total Rows: 0
+
+Table: pos_payment
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  order_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  metodo_pago_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  monto - decimal(14,2) - Null:NO - Key: - Default:NULL - Extra:
+  referencia - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  Total Rows: 0
+
+Table: pos_session
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  pos_config_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  usuario_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(50) - Null:NO - Key: - Default:NULL - Extra:
+  fecha_apertura - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  fecha_cierre - timestamp - Null:YES - Key: - Default:NULL - Extra:
+  efectivo_apertura - decimal(14,2) - Null:NO - Key: - Default:0.00 - Extra:
+  efectivo_cierre - decimal(14,2) - Null:YES - Key: - Default:NULL - Extra:
+  efectivo_diferencia - decimal(14,2) - Null:YES - Key: - Default:NULL - Extra:
+  estado - varchar(20) - Null:NO - Key: - Default:ABIERTA - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: producto_bonificaciones
+------------------------------------
+  id - bigint(20) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  producto_origen_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  producto_bonificacion_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  cantidad_bonificacion - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  Total Rows: 0
+
+Table: producto_lotes
+------------------------------------
+  id - bigint(20) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  producto_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  numero_lote - varchar(50) - Null:NO - Key: - Default:NULL - Extra:
+  fecha_caducidad - date - Null:YES - Key: - Default:NULL - Extra:
+  cantidad_actual - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  cantidad_vendida - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  stock_bonificacion - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  valorizacion_promedio - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  Total Rows: 0
+
+Table: producto_precios
+------------------------------------
+  id - bigint(20) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  producto_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  lista_precio_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  nombre_lista - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  precio - decimal(12,2) - Null:NO - Key: - Default:NULL - Extra:
+  cantidad_minima - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  Total Rows: 0
+
+Table: productos
+------------------------------------
+  id - bigint(20) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  codigo_producto - varchar(50) - Null:NO - Key:UNI - Default:NULL - Extra:
+  nombre - varchar(255) - Null:NO - Key: - Default:NULL - Extra:
+  grupo_articulos - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  imagen_url - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  permite_ventas - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  permite_punto_venta - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  permite_comprar - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  es_bonificacion - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  tipo_producto - varchar(20) - Null:NO - Key: - Default:NULL - Extra:
+  politica_facturacion - varchar(50) - Null:YES - Key: - Default:NULL - Extra:
+  seguimiento_inventario - varchar(20) - Null:NO - Key: - Default:SIN_CONTROL - Extra:
+  codigo_barras - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  fabricante - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  catalogo - varchar(50) - Null:YES - Key: - Default:NULL - Extra:
+  moneda - varchar(5) - Null:NO - Key: - Default:PEN - Extra:
+  precio_venta_base - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  impuesto_ventas_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  costo - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  impuesto_compras_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  responsable_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  peso_kg - decimal(10,2) - Null:NO - Key: - Default:0.00 - Extra:
+  volumen_m3 - decimal(10,4) - Null:NO - Key: - Default:0.0000 - Extra:
+  tiempo_entrega_dias - int(11) - Null:NO - Key: - Default:0 - Extra:
+  almacen_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  Total Rows: 3
+
+Table: rol
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  descripcion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  Total Rows: 2
+
+Table: rol_permiso
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  rol_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  permiso_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  Total Rows: 4
+
+Table: socio
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  socio_padre_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  grupo_cliente_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  grupo_proveedor_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  vendedor_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  comprador_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  condicion_pago_venta_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  condicion_pago_compra_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  lista_precio_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  metodo_entrega_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  tipo_persona - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  codigo - varchar(50) - Null:YES - Key: - Default:NULL - Extra:
+  nombres - varchar(150) - Null:YES - Key: - Default:NULL - Extra:
+  apellidos - varchar(150) - Null:YES - Key: - Default:NULL - Extra:
+  razon_social - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  nombre_comercial - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  puesto_trabajo - varchar(150) - Null:YES - Key: - Default:NULL - Extra:
+  tipo_documento - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  numero_documento - varchar(30) - Null:YES - Key: - Default:NULL - Extra:
+  telefono - varchar(30) - Null:YES - Key: - Default:NULL - Extra:
+  celular - varchar(30) - Null:YES - Key: - Default:NULL - Extra:
+  correo - varchar(150) - Null:YES - Key: - Default:NULL - Extra:
+  sitio_web - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  direccion - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  distrito - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  provincia - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  ciudad - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  departamento_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  pais_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  codigo_postal - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  metodo_pago_venta - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  metodo_pago_compra - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  referencia_cliente - varchar(255) - Null:YES - Key: - Default:NULL - Extra:
+  es_cliente - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  es_proveedor - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  es_contacto - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  foto - longblob - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 4
+
+Table: stock
+------------------------------------
+  id - bigint(20) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  producto_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  lote_id - bigint(20) - Null:YES - Key:MUL - Default:NULL - Extra:
+  almacen_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  cantidad - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 2
+
+Table: terminos_pago
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  nombre - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  tipo_pago - varchar(20) - Null:NO - Key: - Default:NULL - Extra:
+  cuotas - int(11) - Null:NO - Key: - Default:1 - Extra:
+  dias_entre_cuotas - int(11) - Null:NO - Key: - Default:0 - Extra:
+  porcentaje_inicial - decimal(5,2) - Null:NO - Key: - Default:0.00 - Extra:
+  permite_descuento - tinyint(1) - Null:NO - Key: - Default:0 - Extra:
+  porcentaje_descuento - decimal(5,2) - Null:NO - Key: - Default:0.00 - Extra:
+  dias_descuento - int(11) - Null:NO - Key: - Default:0 - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  es_venta - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  es_compra - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  Total Rows: 0
+
+Table: terminos_pago_detalle
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  terminos_pago_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  numero_cuota - int(11) - Null:NO - Key: - Default:NULL - Extra:
+  porcentaje - decimal(5,2) - Null:NO - Key: - Default:NULL - Extra:
+  dias_vencimiento - int(11) - Null:NO - Key: - Default:0 - Extra:
+  descripcion - varchar(200) - Null:YES - Key: - Default:NULL - Extra:
+  Total Rows: 0
+
+Table: transferencia
+------------------------------------
+  id - bigint(20) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  numero_referencia - varchar(50) - Null:NO - Key:UNI - Default:NULL - Extra:
+  tipo_operacion - varchar(20) - Null:NO - Key: - Default:NULL - Extra:
+  almacen_origen_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  almacen_destino_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  contacto_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  usuario_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  pedido_compra_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  pedido_venta_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  documento_origen - varchar(50) - Null:YES - Key: - Default:NULL - Extra:
+  fecha_programada - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  fecha_realizada - timestamp - Null:YES - Key: - Default:NULL - Extra:
+  estado_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  observaciones - text - Null:YES - Key: - Default:NULL - Extra:
+  creado_por - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 0
+
+Table: transferencia_linea
+------------------------------------
+  id - bigint(20) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  transferencia_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  producto_id - bigint(20) - Null:NO - Key:MUL - Default:NULL - Extra:
+  lote_id - bigint(20) - Null:YES - Key:MUL - Default:NULL - Extra:
+  cantidad_demanda - decimal(12,2) - Null:NO - Key: - Default:NULL - Extra:
+  cantidad_hecha - decimal(12,2) - Null:NO - Key: - Default:0.00 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  Total Rows: 0
+
+Table: usuario
+------------------------------------
+  id - int(11) - Null:NO - Key:PRI - Default:NULL - Extra:auto_increment
+  empresa_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  rol_id - int(11) - Null:NO - Key:MUL - Default:NULL - Extra:
+  departamento_empresa_id - int(11) - Null:YES - Key:MUL - Default:NULL - Extra:
+  nombre - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  apellido - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  nombre_usuario - varchar(100) - Null:NO - Key: - Default:NULL - Extra:
+  correo - varchar(150) - Null:NO - Key: - Default:NULL - Extra:
+  contrasena - varchar(255) - Null:NO - Key: - Default:NULL - Extra:
+  telefono - varchar(30) - Null:YES - Key: - Default:NULL - Extra:
+  foto - longblob - Null:YES - Key: - Default:NULL - Extra:
+  idioma - varchar(20) - Null:YES - Key: - Default:NULL - Extra:
+  zona_horaria - varchar(100) - Null:YES - Key: - Default:NULL - Extra:
+  ultimo_acceso - timestamp - Null:YES - Key: - Default:NULL - Extra:
+  activo - tinyint(1) - Null:NO - Key: - Default:1 - Extra:
+  creado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:
+  actualizado_en - timestamp - Null:NO - Key: - Default:current_timestamp() - Extra:on update current_timestamp()
+  Total Rows: 2
+

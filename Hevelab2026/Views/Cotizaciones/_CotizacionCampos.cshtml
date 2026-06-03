@@ -1,0 +1,242 @@
+@model Hevelab2026.Models.Cotizacion
+@using System.Globalization
+
+@{
+    var modo      = ViewData["Modo"] as string ?? ViewBag.Modo as string ?? "create";
+    var esDetalle = modo == "details";
+    var esEditar  = modo == "edit";
+    var cultura   = new CultureInfo("es-MX");
+
+    var fecha = Model.FechaCreacion != default
+        ? Model.FechaCreacion
+        : (ViewBag.FechaEmision as DateTime? ?? DateTime.Now);
+    var fechaTexto = fecha.ToString("d 'de' MMMM, yyyy", cultura);
+
+    string MonedaTexto(string? m) => m switch
+    {
+        "PEN" => "PEN - Sol Peruano",
+        "USD" => "USD - Dólar Americano",
+        _     => string.IsNullOrWhiteSpace(m) ? "—" : m
+    };
+
+    string Val(string? v) => string.IsNullOrWhiteSpace(v) ? "—" : v!;
+}
+
+<!-- Encabezado -->
+<div class="cot-create__header">
+    <div class="cot-create__col">
+        <div class="cot-create__field">
+            <span class="cot-create__label">ID de Cotización</span>
+            @if (esDetalle || esEditar)
+            {
+                <span class="cot-create__id">@Model.NumeroPedido</span>
+            }
+            else
+            {
+                <span class="cot-create__id--pending">Se asignará al guardar</span>
+            }
+        </div>
+        <div class="cot-create__field">
+            <label class="cot-create__label" for="cotCliente">Cliente</label>
+            @if (esDetalle)
+            {
+                <span class="cot-create__value-readonly">@Val(Model.Cliente)</span>
+            }
+            else
+            {
+                <input type="text" id="cotCliente" name="Cliente" class="cot-create__input" value="@Model.Cliente" autocomplete="off" placeholder="Nombre o razón social del cliente" required />
+            }
+        </div>
+        <div class="cot-create__field">
+            <label class="cot-create__label" for="cotRuc">RUC</label>
+            @if (esDetalle)
+            {
+                <span class="cot-create__value-readonly">@Val(Model.RUC)</span>
+            }
+            else
+            {
+                <input type="text" id="cotRuc" name="RUC" class="cot-create__input" value="@Model.RUC" autocomplete="off" placeholder="Número de RUC" />
+            }
+        </div>
+        <div class="cot-create__field">
+            <label class="cot-create__label" for="cotDireccion">Dirección</label>
+            @if (esDetalle)
+            {
+                <span class="cot-create__value-readonly">@Val(Model.Direccion)</span>
+            }
+            else
+            {
+                <input type="text" id="cotDireccion" name="Direccion" class="cot-create__input" value="@Model.Direccion" autocomplete="off" placeholder="Dirección fiscal o de entrega" />
+            }
+        </div>
+        <div class="cot-create__field">
+            <span class="cot-create__label">Fecha de Emisión</span>
+            <span class="cot-create__value-readonly">@fechaTexto</span>
+        </div>
+    </div>
+
+    <div class="cot-create__col">
+        <div class="cot-create__field">
+            <label class="cot-create__label" for="cotMetodoPago">Método de Pago</label>
+            @if (esDetalle)
+            {
+                <span class="cot-create__value-readonly">@Val(Model.MetodoPago)</span>
+            }
+            else
+            {
+                <select id="cotMetodoPago" name="MetodoPago" class="cot-create__input cot-create__input--select">
+                    <option value="" disabled selected="@(string.IsNullOrEmpty(Model.MetodoPago))">Seleccionar método de pago</option>
+                    <option value="PPD - Por definir" selected="@(Model.MetodoPago == "PPD - Por definir")">PPD - Por definir</option>
+                    <option value="PUE - Pago en una sola exhibición" selected="@(Model.MetodoPago == "PUE - Pago en una sola exhibición")">PUE - Pago en una sola exhibición</option>
+                    <option value="Contado" selected="@(Model.MetodoPago == "Contado")">Contado</option>
+                    <option value="Transferencia" selected="@(Model.MetodoPago == "Transferencia")">Transferencia</option>
+                </select>
+            }
+        </div>
+        <div class="cot-create__field">
+            <label class="cot-create__label" for="cotMoneda">Moneda</label>
+            @if (esDetalle)
+            {
+                <span class="cot-create__value-readonly">@MonedaTexto(Model.Moneda)</span>
+            }
+            else
+            {
+                <select id="cotMoneda" name="Moneda" class="cot-create__input cot-create__input--select" autocomplete="off">
+                    <option value="" disabled selected="@(string.IsNullOrEmpty(Model.Moneda))">Seleccionar moneda</option>
+                    <option value="PEN" selected="@(Model.Moneda == "PEN")">PEN - Sol Peruano</option>
+                    <option value="USD" selected="@(Model.Moneda == "USD")">USD - Dólar Americano</option>
+                </select>
+            }
+        </div>
+        <div class="cot-create__field">
+            <label class="cot-create__label" for="cotVendedor">Vendedor</label>
+            @if (esDetalle)
+            {
+                <span class="cot-create__value-readonly">@Val(Model.Vendedor)</span>
+            }
+            else
+            {
+                <input type="text" id="cotVendedor" name="Vendedor" class="cot-create__input" value="@Model.Vendedor" placeholder="Nombre del vendedor" />
+            }
+        </div>
+        <div class="cot-create__field">
+            <label class="cot-create__label" for="cotCondicion">Condición de Pago</label>
+            @if (esDetalle)
+            {
+                <span class="cot-create__value-readonly">@Val(Model.CondicionPago)</span>
+            }
+            else
+            {
+                <select id="cotCondicion" name="CondicionPago" class="cot-create__input cot-create__input--select">
+                    <option value="" disabled selected="@(string.IsNullOrEmpty(Model.CondicionPago))">Seleccionar condición</option>
+                    <option value="Contado" selected="@(Model.CondicionPago == "Contado")">Contado</option>
+                    <option value="Crédito 15 días" selected="@(Model.CondicionPago == "Crédito 15 días")">Crédito 15 días</option>
+                    <option value="Crédito 30 días" selected="@(Model.CondicionPago == "Crédito 30 días")">Crédito 30 días</option>
+                    <option value="Crédito 60 días" selected="@(Model.CondicionPago == "Crédito 60 días")">Crédito 60 días</option>
+                </select>
+            }
+        </div>
+        @if (esEditar || esDetalle)
+        {
+            <div class="cot-create__field">
+                <label class="cot-create__label" for="cotEstado">Estado</label>
+                @if (esDetalle)
+                {
+                    <span class="cot-create__estado cot-create__estado--@Model.Estado.ToLower()">@Val(Model.Estado)</span>
+                }
+                else
+                {
+                    <select id="cotEstado" name="Estado" class="cot-create__input cot-create__input--select">
+                        <option value="Pendiente" selected="@(Model.Estado == "Pendiente")">Pendiente</option>
+                        <option value="Aprobado" selected="@(Model.Estado == "Aprobado")">Aprobado</option>
+                        <option value="Rechazado" selected="@(Model.Estado == "Rechazado")">Rechazado</option>
+                    </select>
+                }
+            </div>
+        }
+        <div class="cot-create__field">
+            <label class="cot-create__label" for="cotNotas">Notas generales</label>
+            @if (esDetalle)
+            {
+                <span class="cot-create__value-readonly">@Val(Model.Notas)</span>
+            }
+            else
+            {
+                <input type="text" id="cotNotas" name="Notas" class="cot-create__input" value="@Model.Notas" placeholder="Observaciones adicionales (opcional)" />
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de productos -->
+<p class="cot-create__section-title">Detalle de Productos y Servicios</p>
+
+<div class="cot-create__table-wrap">
+    <div class="cot-create__table-scroll">
+        <table class="cot-create__table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Stock</th>
+                    <th>Cantidad</th>
+                    <th>Descuento</th>
+                    <th>Unidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Precio IGV</th>
+                    <th>Importe</th>
+                    @if (!esDetalle) { <th class="col-actions"></th> }
+                </tr>
+            </thead>
+            <tbody id="cotItemsBody"></tbody>
+        </table>
+    </div>
+
+    @if (!esDetalle)
+    {
+        <div class="cot-create__table-footer">
+            <button type="button" id="btnAddProduct" class="cot-create__footer-btn">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Agregar un Producto
+            </button>
+            <button type="button" id="btnAddSection" class="cot-create__footer-btn">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+                Agregar una Sección
+            </button>
+            <button type="button" id="btnAddNote" class="cot-create__footer-btn">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Agregar una Nota
+            </button>
+            <button type="button" id="btnCatalog" class="cot-create__footer-btn">
+                <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                Catálogo
+            </button>
+        </div>
+    }
+</div>
+
+<!-- Totales -->
+<div class="cot-create__totals">
+    <div class="cot-create__totals-box">
+        <div class="cot-create__totals-row">
+            <span>Subtotal</span>
+            <span id="cotSubtotal">@Model.Subtotal.ToString("N2")</span>
+        </div>
+        <div class="cot-create__totals-row">
+            <span>IGV (18%)</span>
+            <span id="cotImpuestos">@Model.Impuestos.ToString("N2")</span>
+        </div>
+        <div class="cot-create__totals-row">
+            <span>Total</span>
+            <span id="cotTotal">@Model.Total.ToString("N2")</span>
+        </div>
+    </div>
+</div>
+
+@if (esDetalle)
+{
+    <input type="hidden" id="hidSubtotal" value="@Model.Subtotal.ToString(CultureInfo.InvariantCulture)" />
+    <input type="hidden" id="hidImpuestos" value="@Model.Impuestos.ToString(CultureInfo.InvariantCulture)" />
+    <input type="hidden" id="hidTotal" value="@Model.Total.ToString(CultureInfo.InvariantCulture)" />
+}

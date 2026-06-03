@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="HeveLab — Sistema de gestión empresarial" />
+    <title>@ViewData["Title"] - HeveLab</title>
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Tailwind CDN: habilita utilidades usadas en las vistas (sin compilar CSS local) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HeveLab CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
+
+    <style>
+      .hl-nav-group { display: flex; flex-direction: column; }
+      .hl-nav-group-btn { width: 100%; text-align: left; background: none; border: none; }
+      .hl-nav-sub { padding-left: 16px; display: flex; flex-direction: column; gap: 2px; }
+      .hl-nav-sub-link { font-size: 13px; padding-left: 12px; }
+      .hl-nav-chevron { transition: transform var(--transition); flex-shrink: 0; }
+      .nav-group-btn[aria-expanded="true"] .nav-chevron { transform: rotate(180deg); }
+
+      @@media print {
+          .hl-sidebar, .hl-topbar, #hl-overlay { display: none !important; }
+          .hl-content, .hl-main { 
+              margin: 0 !important; 
+              padding: 0 !important; 
+              width: 100% !important; 
+              left: 0 !important; 
+              top: 0 !important; 
+              position: static !important; 
+              overflow: visible !important;
+          }
+          .hl-shell { display: block !important; overflow: visible !important; }
+          body, html { background: white !important; overflow: visible !important; height: auto !important; }
+          .frm-wrap { margin: 0 !important; padding: 0 !important; max-width: 100% !important; border: none !important; box-shadow: none !important; }
+          .no-print, .frm-actions, .frm-stepper, .frm-back { display: none !important; }
+      }
+    </style>
+
+    <link rel="stylesheet" href="~/css/inventario.css" asp-append-version="true" />
+
+    <style>
+        /* ═══════════════════════════════════════════════
+           WELCOME ERP LOADER (Light Mode)
+           ═══════════════════════════════════════════════ */
+        .erp-loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #ffffff;
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.5s;
+        }
+
+        .erp-loader-overlay.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .erp-loader-content {
+            text-align: center;
+            max-width: 480px;
+            padding: 2rem;
+            animation: erpScaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        .erp-loader-logo {
+            margin-bottom: 1.8rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .erp-loader-logo img {
+            height: 64px;
+            width: auto;
+            object-fit: contain;
+            animation: erpLogoPulse 2s infinite ease-in-out;
+        }
+
+        .erp-loader-dots {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        .erp-loader-dots span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #2563eb;
+            display: block;
+            animation: erpBounce 1.4s infinite ease-in-out both;
+        }
+        .erp-loader-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .erp-loader-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        .erp-loader-welcome {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.6rem;
+            letter-spacing: -0.02em;
+        }
+
+        .erp-loader-welcome .user-highlight {
+            color: #2563eb;
+            position: relative;
+            display: inline-block;
+        }
+
+        .erp-loader-text {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin-bottom: 2.2rem;
+            font-weight: 500;
+        }
+
+        .erp-progress-bar {
+            width: 280px;
+            height: 5px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .erp-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2563eb, #60a5fa);
+            border-radius: 10px;
+            animation: erpFillProgress 1.6s cubic-bezier(0.65, 0.05, 0.36, 1) forwards;
+        }
+
+        @@keyframes erpLogoPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @@keyframes erpBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+
+        @@keyframes erpFillProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        @@keyframes erpScaleIn {
+            from { opacity: 0; transform: scale(0.92) translateY(12px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+    @if (User?.Identity?.IsAuthenticated == true && TempData["ShowWelcomeLoader"] != null)
+    {
+        var nombreCompleto = User.FindFirst("NombreCompleto")?.Value ?? User.Identity.Name ?? "Usuario";
+        <div id="erp-loader" class="erp-loader-overlay">
+            <div class="erp-loader-content">
+                <div class="erp-loader-logo">
+                    <img src="/img/Logos/vission.png" alt="HeveLab" onerror="this.style.display='none'; document.getElementById('loaderDots').style.display='flex';" />
+                    <div class="erp-loader-dots" id="loaderDots" style="display:none;">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+                <h2 class="erp-loader-welcome">¡Bienvenido, <span class="user-highlight">@nombreCompleto</span>!</h2>
+                <p class="erp-loader-text">Iniciando sesión en HeveLab ERP...</p>
+                <div class="erp-progress-bar">
+                    <div class="erp-progress-fill"></div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Mobile overlay -->
+    <div id="hl-overlay" class="hl-overlay" aria-hidden="true"></div>
+
+    <div class="hl-shell">
+
+        <aside id="hl-sidebar" class="hl-sidebar" role="navigation" aria-label="Navegación principal">
+
+            <div class="hl-sidebar-header">
+                <img id="hl-brand-logo"
+                     src="~/img/Logos/vission.png"
+                     alt="HeveLab logo"
+                     class="hl-brand-logo"
+                     draggable="false" />
+
+                <span id="hl-brand-name" class="hl-brand-name truncate">HeveLab</span>
+
+                <button id="hl-btn-close" class="hl-sidebar-close" aria-label="Cerrar menú">
+                    <svg class="hl-icon" viewBox="0 0 24 24">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+
+                <button id="hl-btn-toggle" class="hl-sidebar-toggle" aria-label="Colapsar menú">
+                    <span id="hl-toggle-icon">
+                        <svg class="hl-icon" viewBox="0 0 24 24">
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                    </span>
+                </button>
+            </div>
+
+            <nav class="hl-nav">
+                <div class="hl-nav-section-label">
+                    <span>MAIN</span>
+                    <span class="hl-label-line"></span>
+                </div>
+
+                <a href="/" class="hl-nav-link" aria-label="Dashboard">
+                    <svg class="hl-icon" viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                    </svg>
+                    <span class="hl-nav-label">Dashboard</span>
+                </a>
+
+                <!-- Contabilidad -->
+                <div class="hl-nav-group">
+                  <button class="hl-nav-link hl-nav-group-btn" aria-label="Contabilidad" aria-expanded="false">
+                    <svg class="hl-icon" viewBox="0 0 24 24">
+                      <rect x="3" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="14" width="7" height="7"></rect>
+                      <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <span class="hl-nav-label">Contabilidad</span>
+                    <svg class="hl-icon hl-nav-chevron" viewBox="0 0 24 24" style="margin-left:auto">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                  <div class="hl-nav-sub" style="display:none">
+                    <a href="/Facturas" class="hl-nav-link hl-nav-sub-link" aria-label="Facturas">
+                      <span class="hl-nav-label">Facturas</span>
+                    </a>
+                    <a href="/LibroMayor" class="hl-nav-link hl-nav-sub-link" aria-label="Libro mayor">
+                      <span class="hl-nav-label">Libro mayor</span>
+                    </a>
+                    <a href="/Sire" class="hl-nav-link hl-nav-sub-link" aria-label="SIRE">
+                      <span class="hl-nav-label">SIRE</span>
+                    </a>
+                    <a href="/Documentos" class="hl-nav-link hl-nav-sub-link" aria-label="Documentos">
+                      <span class="hl-nav-label">Documentos</span>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Compras -->
+                <div class="hl-nav-item-group">
+                    <button class="hl-nav-link w-100 border-0 bg-transparent text-start d-flex align-items-center justify-content-between"
+                            type="button"
+                            id="btnMenuCompras"
+                            aria-expanded="false"
+                            aria-controls="menuCompras">
+                        <div class="d-flex align-items-center">
+                            <svg class="hl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <path d="M16 10a4 4 0 0 1-8 0"></path>
+                            </svg>
+                            <span class="hl-nav-label ms-2">Compras</span>
+                        </div>
+                        <svg class="hl-icon hl-icon-sm transition-transform" id="iconMenuCompras" style="width: 12px; height: 12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+
+                    <div class="ms-4 ps-2 border-start" id="menuCompras" style="border-color: rgba(0,0,0,0.08) !important; display: none;">
+                        <ul class="list-unstyled m-0 p-0 d-flex flex-column gap-1 pt-1">
+                            <li>
+                                <a asp-controller="SolicitudDeCotizacion" asp-action="Index" class="hl-nav-link">
+                                    Solicitudes de cotización
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-controller="OrdenesDeCompra" asp-action="Index" class="hl-nav-link">
+                                    Órdenes de compra
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-controller="Proveedores" asp-action="Index" class="hl-nav-link">
+                                    Proveedores
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="hl-nav-section-label">
+                    <span>OPERACIONES</span>
+                    <span class="hl-label-line"></span>
+                </div>
+
+                <div class="hl-nav-group">
+                    <button type="button" class="hl-nav-link hl-nav-parent" id="hl-inventory-toggle" aria-expanded="false">
+                        <svg class="hl-icon" viewBox="0 0 24 24">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                            <line x1="12" y1="22.08" x2="12" y2="12" />
+                        </svg>
+
+                        <span class="hl-nav-label">Inventario</span>
+
+                        <svg class="hl-icon hl-submenu-arrow" viewBox="0 0 24 24">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+
+                    <div class="hl-submenu" id="hl-inventory-submenu">
+                        <a asp-controller="RecepcionesView" asp-action="Index" class="hl-submenu-link">Recepciones</a>
+
+                        <a href="#" class="hl-submenu-link">Entregas</a>
+                        <a href="#" class="hl-submenu-link">Desechar</a>
+                        <a asp-controller="Producto" asp-action="Index" class="hl-submenu-link">Productos</a>
+                    </div>
+                </div>
+
+                <!-- Ventas -->
+                <div class="hl-nav-group">
+                  <button class="hl-nav-link hl-nav-group-btn" aria-label="Ventas" aria-expanded="false">
+                    <svg class="hl-icon" viewBox="0 0 24 24">
+                      <circle cx="9" cy="21" r="1"/>
+                      <circle cx="20" cy="21" r="1"/>
+                      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    <span class="hl-nav-label">Ventas</span>
+                    <svg class="hl-icon hl-nav-chevron" viewBox="0 0 24 24" style="margin-left:auto">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                  <div class="hl-nav-sub" style="display:none">
+                    <a href="/Clientes" class="hl-nav-link hl-nav-sub-link" aria-label="Clientes">
+                      <span class="hl-nav-label">Clientes</span>
+                    </a>
+                    <a href="/Cotizaciones" class="hl-nav-link hl-nav-sub-link" aria-label="Cotizaciones">
+                      <span class="hl-nav-label">Cotizaciones</span>
+                    </a>
+                    <a href="/Ordenes" class="hl-nav-link hl-nav-sub-link" aria-label="Órdenes">
+                      <span class="hl-nav-label">Órdenes</span>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- REPORTES -->
+                <a href="/Reportes" class="hl-nav-link" aria-label="Reportes">
+                    <svg class="hl-icon" viewBox="0 0 24 24">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                    <span class="hl-nav-label">Reportes</span>
+                </a>
+                <div class="hl-nav-settings-gap">
+                    <div class="hl-nav-section-label">
+                        <span>AJUSTES</span>
+                        <span class="hl-label-line"></span>
+                    </div>
+
+                    <a href="/settings" class="hl-nav-link" aria-label="Configuración">
+                        <svg class="hl-icon" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                        <span class="hl-nav-label">Configuración</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <div class="hl-content">
+
+            <header class="hl-topbar">
+                <div class="hl-topbar-left">
+                    <button id="hl-btn-menu" class="hl-menu-btn" aria-label="Abrir menú">
+                        <svg class="hl-icon hl-icon-lg" viewBox="0 0 24 24">
+                            <line x1="3" y1="12" x2="21" y2="12" />
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                    </button>
+
+                    <nav class="hl-breadcrumb" aria-label="Breadcrumb">
+                        @if (ViewData["Breadcrumbs"] != null)
+                        {
+                            var crumbs = (IEnumerable<(string Label, string Url)>)ViewData["Breadcrumbs"]!;
+                            var crumbList = crumbs.ToList();
+                            for (int i = 0; i < crumbList.Count; i++)
+                            {
+                                var crumb = crumbList[i];
+                                bool isLast = i == crumbList.Count - 1;
+                                if (isLast)
+                                {
+                                    <span class="hl-breadcrumb-current" aria-current="page">@crumb.Label</span>
+                                }
+                                else
+                                {
+                                    <a href="@crumb.Url">@crumb.Label</a>
+                                    <span class="hl-breadcrumb-sep" aria-hidden="true">&rsaquo;</span>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <span class="hl-breadcrumb-current" aria-current="page">
+                                @(ViewData["Title"] ?? "HeveLab")
+                            </span>
+                        }
+                    </nav>
+                </div>
+
+                <div class="hl-topbar-right">
+
+                    <div class="hl-clock" aria-label="Hora actual" aria-live="polite">
+                        <svg class="hl-clock-icon hl-icon" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span id="hl-clock-time">--:--:--</span>
+                    </div>
+
+                    <button id="hl-btn-theme" class="hl-icon-btn" title="Cambiar tema" aria-label="Cambiar tema">
+                        <span id="hl-theme-icon">
+                            <svg class="hl-icon hl-icon-lg" viewBox="0 0 24 24">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                            </svg>
+                        </span>
+                    </button>
+
+                    <button class="hl-icon-btn" aria-label="Notificaciones">
+                        <svg class="hl-icon hl-icon-lg" viewBox="0 0 24 24">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg>
+                        <span class="hl-notif-dot" aria-hidden="true"></span>
+                    </button>
+
+                    <div class="hl-topbar-divider" aria-hidden="true"></div>
+
+                    <div class="hl-profile-wrap" id="hl-profile-wrap">
+                        <button id="hl-profile-btn" class="hl-profile-btn" aria-label="Menú de usuario" aria-haspopup="true" aria-expanded="false">
+                            <div class="hl-profile-info">
+                                <span class="hl-profile-name">@(User?.Identity?.Name ?? "Usuario")</span>
+                                <span class="hl-profile-role">Administrador</span>
+                            </div>
+                            <div class="hl-avatar" aria-hidden="true">
+                                <svg class="hl-icon" viewBox="0 0 24 24">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                            </div>
+                        </button>
+
+                        <div id="hl-profile-dropdown" class="hl-profile-dropdown" role="menu" aria-label="Menú de usuario">
+                            <div class="hl-dropdown-header">
+                                <div class="name">@(User?.Identity?.Name ?? "Usuario")</div>
+                                <div class="role">Administrador</div>
+                            </div>
+                            <div class="hl-dropdown-body">
+                                <a href="/settings?tab=profile" class="hl-dropdown-item" role="menuitem">
+                                    <svg class="hl-icon" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="3" />
+                                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                                    </svg>
+                                    Ajustes
+                                </a>
+                                <form method="post" asp-action="Logout" asp-controller="Auth" style="margin:0;padding:0;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" id="hl-btn-logout" class="hl-dropdown-item danger" role="menuitem">
+                                        <svg class="hl-icon" viewBox="0 0 24 24">
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                            <polyline points="16 17 21 12 16 7"/>
+                                            <line x1="21" y1="12" x2="9" y2="12"/>
+                                        </svg>
+                                        Cerrar sesión
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="hl-main" role="main">
+                @RenderBody()
+            </main>
+
+        </div><!-- /hl-content -->
+
+    </div><!-- /hl-shell -->
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmxc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Scripts -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/inventario.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    @if (User?.Identity?.IsAuthenticated == true && TempData["ShowWelcomeLoader"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const loader = document.getElementById('erp-loader');
+                if (loader) {
+                    // Esperar 1.8 segundos para una animación fluida
+                    setTimeout(() => {
+                        loader.classList.add('fade-out');
+                        setTimeout(() => {
+                            loader.remove();
+                        }, 500);
+                    }, 1800);
+                }
+            });
+        </script>
+    }
+
+</body>
+</html>

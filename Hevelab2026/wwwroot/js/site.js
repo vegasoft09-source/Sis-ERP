@@ -1,0 +1,346 @@
+/* ==========================================================
+   HEVELAB — site.js
+   Vanilla JS: sidebar toggle, tema claro/oscuro, reloj, dropdown
+   ========================================================== */
+(function () {
+  'use strict';
+
+  /* ---- DOM refs ---- */
+  var sidebar    = document.getElementById('hl-sidebar');
+  var overlay    = document.getElementById('hl-overlay');
+  var btnMenu    = document.getElementById('hl-btn-menu');
+  var btnClose   = document.getElementById('hl-btn-close');
+  var btnToggle  = document.getElementById('hl-btn-toggle');
+  var toggleIcon = document.getElementById('hl-toggle-icon');
+  var clock      = document.getElementById('hl-clock-time');
+  var btnTheme   = document.getElementById('hl-btn-theme');
+  var themeIcon  = document.getElementById('hl-theme-icon');
+  var profileBtn = document.getElementById('hl-profile-btn');
+  var profileDd  = document.getElementById('hl-profile-dropdown');
+  var btnLogout  = document.getElementById('hl-btn-logout');
+
+  /* ---- Theme ---- */
+  var THEME_KEY = 'hevelab.colorScheme';
+
+  function getTheme() {
+    return localStorage.getItem(THEME_KEY) ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    if (themeIcon) {
+      themeIcon.innerHTML = theme === 'dark' ? getSunSvg() : getMoonSvg();
+    }
+    if (btnTheme) {
+      btnTheme.title = theme === 'dark' ? 'Modo claro' : 'Modo oscuro';
+    }
+  }
+
+  function toggleTheme(e) {
+    var current = getTheme();
+    var next = current === 'dark' ? 'light' : 'dark';
+
+    // If the browser doesn't support View Transitions, or if it is not a pointer event:
+    if (!document.startViewTransition || !e || !e.clientX) {
+      localStorage.setItem(THEME_KEY, next);
+      applyTheme(next);
+      return;
+    }
+
+    var x = e.clientX;
+    var y = e.clientY;
+    var endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    document.documentElement.style.setProperty('--reveal-x', x + 'px');
+    document.documentElement.style.setProperty('--reveal-y', y + 'px');
+    document.documentElement.style.setProperty('--reveal-radius', endRadius + 'px');
+
+    document.startViewTransition(function () {
+      localStorage.setItem(THEME_KEY, next);
+      applyTheme(next);
+    });
+  }
+
+  /* ---- Palette ---- */
+  var PALETTE_KEY = 'hevelab.systemPalette';
+  var PALETTES = {
+    indigo: { primary:'#4338ca', onPrimary:'#ffffff', soft:'#e0e7ff', border:'#a5b4fc', ring:'#818cf8' },
+    teal:   { primary:'#0d9488', onPrimary:'#ffffff', soft:'#99f6e4', border:'#5eead4', ring:'#2dd4bf' },
+    purple: { primary:'#7c3aed', onPrimary:'#ffffff', soft:'#ddd6fe', border:'#c4b5fd', ring:'#a78bfa' },
+    blue:   { primary:'#2563eb', onPrimary:'#ffffff', soft:'#bfdbfe', border:'#93c5fd', ring:'#60a5fa' },
+    rose:   { primary:'#e11d48', onPrimary:'#ffffff', soft:'#fecdd3', border:'#fda4af', ring:'#fb7185' },
+    amber:  { primary:'#d97706', onPrimary:'#111827', soft:'#fde68a', border:'#fcd34d', ring:'#fbbf24' },
+  };
+
+  function applyPalette(id) {
+    var p = PALETTES[id] || PALETTES.indigo;
+    var root = document.documentElement;
+    root.style.setProperty('--sys-primary',       p.primary);
+    root.style.setProperty('--sys-on-primary',    p.onPrimary);
+    root.style.setProperty('--sys-soft',          p.soft);
+    root.style.setProperty('--sys-border',        p.border);
+    root.style.setProperty('--sys-ring',          p.ring);
+    root.style.setProperty('--sys-primary-hover', 'color-mix(in srgb, ' + p.primary + ' 82%, black)');
+    root.style.setProperty('--sys-soft-bg',       'color-mix(in srgb, ' + p.soft + ' 18%, white)');
+  }
+
+  /* ---- Sidebar collapsed ---- */
+  var SIDEBAR_KEY = 'hevelab.sidebarCollapsed';
+
+  function getSidebarCollapsed() {
+    return localStorage.getItem(SIDEBAR_KEY) === 'true';
+  }
+
+  function applySidebarCollapsed(collapsed) {
+    if (!sidebar) return;
+    if (collapsed) {
+      sidebar.classList.add('collapsed');
+    } else {
+      sidebar.classList.remove('collapsed');
+    }
+    if (toggleIcon) {
+      toggleIcon.innerHTML = collapsed ? getChevronRightSvg() : getChevronLeftSvg();
+    }
+    localStorage.setItem(SIDEBAR_KEY, String(collapsed));
+  }
+
+  /* ---- Mobile sidebar ---- */
+  function openMobileSidebar() {
+    if (sidebar)  sidebar.classList.add('mobile-open');
+    if (overlay)  overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMobileSidebar() {
+    if (sidebar)  sidebar.classList.remove('mobile-open');
+    if (overlay)  overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  /* ---- Active nav link ---- */
+  function setActiveNavLink() {
+    var path = window.location.pathname.toLowerCase();
+    var links = document.querySelectorAll('.hl-nav-link');
+    links.forEach(function (link) {
+      // Limitar la detección de ruta activa solo a enlaces <a>
+      link.classList.remove('active');
+      if (link.tagName.toLowerCase() !== 'a') return;
+      var href = (link.getAttribute('href') || '').toLowerCase();
+      if (!href || href === '#') return;
+      // Comparar ruta exacta o prefijo (excepto la raíz)
+      if (path === href || (href !== '/' && path.startsWith(href))) {
+        link.classList.add('active');
+      }
+    });
+  }
+
+  /* ---- Clock ---- */
+  function tickClock() {
+    if (!clock) return;
+    var now = new Date();
+    clock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  /* ---- Profile dropdown ---- */
+  function toggleProfileDropdown() {
+    if (!profileDd) return;
+    profileDd.classList.toggle('open');
+  }
+
+  function closeProfileDropdown() {
+    if (profileDd) profileDd.classList.remove('open');
+  }
+
+  /* ---- SVG helpers ---- */
+  function getSunSvg() {
+    return '<svg class="hl-icon hl-icon-lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+  }
+  function getMoonSvg() {
+    return '<svg class="hl-icon hl-icon-lg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  }
+  function getChevronLeftSvg() {
+    return '<svg class="hl-icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>';
+  }
+  function getChevronRightSvg() {
+    return '<svg class="hl-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
+  }
+
+  /* ---- Init ---- */
+  function init() {
+    // Theme
+    applyTheme(getTheme());
+
+    // Palette
+    applyPalette(localStorage.getItem(PALETTE_KEY) || 'indigo');
+
+    // Sidebar collapsed state (desktop only)
+    applySidebarCollapsed(getSidebarCollapsed());
+
+    // Active link
+    setActiveNavLink();
+
+    // Clock
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    // Branding
+    var brandName = localStorage.getItem('hevelab.brandName');
+    if (brandName) {
+      var el = document.getElementById('hl-brand-name');
+      if (el) el.textContent = brandName;
+    }
+    var brandLogo = localStorage.getItem('hevelab.brandLogo');
+    if (brandLogo) {
+      var logoEl = document.getElementById('hl-brand-logo');
+      if (logoEl) logoEl.src = brandLogo;
+    }
+
+    /* ---- Event listeners ---- */
+    if (btnMenu)   btnMenu.addEventListener('click', openMobileSidebar);
+    if (btnClose)  btnClose.addEventListener('click', closeMobileSidebar);
+    if (overlay)   overlay.addEventListener('click', closeMobileSidebar);
+
+    if (btnToggle) {
+      btnToggle.addEventListener('click', function () {
+        var isCollapsed = sidebar && sidebar.classList.contains('collapsed');
+        applySidebarCollapsed(!isCollapsed);
+      });
+    }
+
+    if (btnTheme) btnTheme.addEventListener('click', toggleTheme);
+
+    if (profileBtn) profileBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleProfileDropdown();
+    });
+
+    document.addEventListener('mousedown', function (e) {
+      if (profileDd && !profileDd.contains(e.target) && profileBtn && !profileBtn.contains(e.target)) {
+        closeProfileDropdown();
+      }
+    });
+
+    if (btnLogout) {
+      btnLogout.addEventListener('click', function () {
+        closeProfileDropdown();
+        // TODO: implement real logout
+        window.location.href = '/';
+      });
+    }
+
+    // Only anchor nav links (not accordion buttons) should close mobile sidebar
+    document.querySelectorAll('.hl-nav-link:not(.hl-nav-group-btn)').forEach(function (link) {
+      link.addEventListener('click', closeMobileSidebar);
+    });
+
+    // Menú Compras: toggle collapse vanilla (sin Bootstrap)
+    var btnMenuCompras = document.getElementById('btnMenuCompras');
+    var menuCompras = document.getElementById('menuCompras');
+    var iconMenuCompras = document.getElementById('iconMenuCompras');
+
+    function toggleMenuCompras(show) {
+      if (!menuCompras || !btnMenuCompras) return;
+      var isOpen = menuCompras.style.display !== 'none';
+      if (show !== undefined) {
+        // Forzar estado específico
+        menuCompras.style.display = show ? 'block' : 'none';
+        btnMenuCompras.setAttribute('aria-expanded', show);
+        if (iconMenuCompras) {
+          iconMenuCompras.style.transform = show ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+      } else {
+        // Toggle
+        menuCompras.style.display = isOpen ? 'none' : 'block';
+        btnMenuCompras.setAttribute('aria-expanded', !isOpen);
+        if (iconMenuCompras) {
+          iconMenuCompras.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      }
+    }
+
+    if (btnMenuCompras) {
+      btnMenuCompras.addEventListener('click', function () {
+        toggleMenuCompras();
+      });
+    }
+
+    // Auto-abrir menú Compras si estamos en una página de compras
+    var currentPath = window.location.pathname.toLowerCase();
+    var esCompras = currentPath.includes('/solicitud') || 
+                    currentPath.includes('/ordenes') || 
+                    currentPath.includes('/proveedores');
+    if (esCompras) {
+      toggleMenuCompras(true);
+    }
+
+    // Accordion sidebar toggling — separate from nav-link click
+    var groupBtns = document.querySelectorAll('.hl-nav-group-btn');
+    groupBtns.forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var expanded = btn.getAttribute('aria-expanded') === 'true';
+        var nextState = !expanded;
+
+        // Close all other accordions
+        groupBtns.forEach(function (other) {
+          if (other !== btn) {
+            other.setAttribute('aria-expanded', 'false');
+            var otherSub = other.nextElementSibling;
+            if (otherSub && otherSub.classList.contains('hl-nav-sub')) {
+              otherSub.style.display = 'none';
+            }
+          }
+        });
+
+        // Toggle current
+        btn.setAttribute('aria-expanded', nextState ? 'true' : 'false');
+        var subMenu = btn.nextElementSibling;
+        if (subMenu && subMenu.classList.contains('hl-nav-sub')) {
+          subMenu.style.display = nextState ? 'flex' : 'none';
+          subMenu.style.flexDirection = 'column';
+          subMenu.style.gap = '2px';
+        }
+      });
+    });
+
+    // Auto-expand accordion based on active sub-link path
+    var activePath = window.location.pathname.toLowerCase();
+    if (activePath.startsWith('/clientes') || activePath.startsWith('/cotizaciones') || activePath.startsWith('/ordenes')) {
+      var ventasBtn = document.querySelector('.hl-nav-group-btn[aria-label="Ventas"]');
+      if (ventasBtn) {
+        ventasBtn.setAttribute('aria-expanded', 'true');
+        var subMenu = ventasBtn.nextElementSibling;
+        if (subMenu && subMenu.classList.contains('hl-nav-sub')) {
+          subMenu.style.display = 'flex';
+          subMenu.style.flexDirection = 'column';
+          subMenu.style.gap = '2px';
+        }
+      }
+    }
+    if (activePath.startsWith('/facturas') || activePath.startsWith('/libromayor') || activePath.startsWith('/sire') || activePath.startsWith('/documentos')) {
+      var contabilidadBtn = document.querySelector('.hl-nav-group-btn[aria-label="Contabilidad"]');
+      if (contabilidadBtn) {
+        contabilidadBtn.setAttribute('aria-expanded', 'true');
+        var subMenu = contabilidadBtn.nextElementSibling;
+        if (subMenu && subMenu.classList.contains('hl-nav-sub')) {
+          subMenu.style.display = 'flex';
+          subMenu.style.flexDirection = 'column';
+          subMenu.style.gap = '2px';
+        }
+      }
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();

@@ -1,0 +1,1430 @@
+@model IEnumerable<Factura>
+@{
+    ViewData["Title"] = "Facturas";
+    
+    var facturas = Model;
+}
+
+<div class="cta-module-card" style="background: #ffffff; border: 1px solid var(--cta-border); border-radius: var(--cta-radius); box-shadow: var(--cta-shadow); padding: 24px; animation: ctaFadeIn 300ms ease-out;">
+    
+    <!-- Encabezado de Página -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--cta-border); padding-bottom: 16px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="color: var(--cta-primary); display: flex; align-items: center; justify-content: center; background: var(--cta-primary-soft); width: 42px; height: 42px; border-radius: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+            </div>
+            <div>
+                <h1 style="font-size: 20px; font-weight: 700; color: var(--cta-text-primary); margin: 0;">Facturas</h1>
+                <p style="font-size: 12.5px; color: var(--cta-text-secondary); margin: 2px 0 0 0;">Visualiza y filtra los comprobantes de pago de la empresa.</p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <!-- Botón Exportar CSV (Verde Premium) -->
+            <button id="btn-exportar" class="inline-flex items-center justify-center gap-2 rounded-md border border-transparent bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all cursor-pointer">
+                <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Exportar CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Resumen Estadístico Superior Removido por requerimiento -->
+
+    <!-- 2. Barra de Filtros Ampliada (Rediseño Premium en Modo Claro) -->
+    <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6 shadow-sm">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-4">
+            
+            <!-- Búsqueda -->
+            <div>
+                <label for="filter-search" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Buscar</label>
+                <div class="relative">
+                    <input type="text" id="filter-search" placeholder="Nº Factura o Cliente..." class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-md text-sm text-slate-800 placeholder-slate-400 bg-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors" />
+                    <svg viewBox="0 0 24 24" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400 fill-none stroke-current stroke-[2.5] stroke-linecap-round stroke-linejoin-round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Tipo -->
+            <div>
+                <label for="filter-tipo" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tipo Comprobante</label>
+                <select id="filter-tipo" class="w-full px-3 py-2 border border-slate-200 rounded-md text-sm text-slate-800 bg-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors">
+                    <option value="">Todos</option>
+                    <option value="Factura">Factura</option>
+                    <option value="Boleta">Boleta</option>
+                    <option value="Nota de Crédito">Nota de Crédito</option>
+                </select>
+            </div>
+
+            <!-- Estado -->
+            <div>
+                <label for="filter-estado" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Estado</label>
+                <select id="filter-estado" class="w-full px-3 py-2 border border-slate-200 rounded-md text-sm text-slate-800 bg-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors">
+                    <option value="">Todos</option>
+                    <option value="Emitida">Emitida</option>
+                    <option value="Enviada">Enviada</option>
+                    <option value="Anulada">Anulada</option>
+                    <option value="Pendiente">Pendiente</option>
+                </select>
+            </div>
+
+            <!-- Moneda -->
+            <div>
+                <label for="filter-moneda" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Moneda</label>
+                <select id="filter-moneda" class="w-full px-3 py-2 border border-slate-200 rounded-md text-sm text-slate-800 bg-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors">
+                    <option value="">Todos</option>
+                    <option value="PEN">PEN (Sol)</option>
+                    <option value="USD">USD (Dólar)</option>
+                </select>
+            </div>
+
+            <!-- Fecha Desde -->
+            <div>
+                <label for="filter-fecha-desde" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha Desde</label>
+                <input type="date" id="filter-fecha-desde" class="w-full px-3 py-2 border border-slate-200 rounded-md text-sm text-slate-800 bg-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors" />
+            </div>
+
+            <!-- Fecha Hasta -->
+            <div>
+                <label for="filter-fecha-hasta" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha Hasta</label>
+                <input type="date" id="filter-fecha-hasta" class="w-full px-3 py-2 border border-slate-200 rounded-md text-sm text-slate-800 bg-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors" />
+            </div>
+
+        </div>
+
+        <!-- Botones de Acción con Rediseño y Iconos -->
+        <div class="flex justify-end gap-3 border-t border-slate-100 pt-4">
+            <button id="btn-limpiar" class="inline-flex items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-slate-500">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+                Limpiar
+            </button>
+            <button id="btn-filtrar" class="inline-flex items-center justify-center gap-2 rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+                </svg>
+                Filtrar
+            </button>
+        </div>
+    </div>
+
+    <!-- Pestañas (Tabs) de Filtro de CDR -->
+    <div style="display: flex; gap: 4px; margin-bottom: 16px; background: #f1f5f9; padding: 4px; border-radius: 8px; width: fit-content; border: 1px solid var(--cta-border);">
+        <button id="tab-pendientes" class="active" style="padding: 8px 16px; font-size: 13px; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s; background: #ffffff; color: var(--cta-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            📂 Pendientes de CDR
+        </button>
+        <button id="tab-enviadas" style="padding: 8px 16px; font-size: 13px; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--cta-text-secondary);">
+            ✅ Enviadas (CDR Procesado)
+        </button>
+    </div>
+
+    <!-- Tabla de Facturas -->
+    <div style="border: 1px solid var(--cta-border); border-radius: var(--cta-radius); overflow: hidden; background: #ffffff;">
+        
+        <!-- Paginador Header: Mostrar X registros -->
+        <div style="padding: 12px 24px; border-bottom: 1px solid var(--cta-border); display: flex; justify-content: flex-end; align-items: center; background: #f8fafc; gap: 8px;">
+            <label for="select-page-size" style="font-size: 12.5px; color: var(--cta-text-secondary); font-weight: 500;">Mostrar:</label>
+            <select id="select-page-size" style="padding: 4px 8px; border: 1px solid var(--cta-border); background: #ffffff; border-radius: 4px; font-size: 12px; color: var(--cta-text-primary); outline: none;">
+                <option value="5" selected>Mostrar 5 registros por página</option>
+                <option value="10">Mostrar 10 registros por página</option>
+                <option value="25">Mostrar 25 registros por página</option>
+                <option value="all">Mostrar todos los registros</option>
+            </select>
+        </div>
+
+        <div style="overflow-x: auto; width: 100%;">
+            <table id="tabla-facturas" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;">
+                
+                <thead>
+                    <tr style="background-color: #eef2ff; border-bottom: 1px solid var(--cta-border); color: #3b5bdb; font-weight: 600;">
+                        <!-- 4. Ordenamiento de Columnas (Headers Clickables) -->
+                        <th class="sortable-header" data-column="0" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">N° Factura <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="1" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">Fecha <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="2" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">Cliente <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="3" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">RUC <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="4" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">Tipo <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="5" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none; text-align: center;">Moneda <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="6" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none; text-align: right;">Monto Base <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="7" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none; text-align: right;">IGV (18%) <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="8" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none; text-align: right;">Total <span class="sort-indicator"></span></th>
+                        <th class="sortable-header" data-column="9" style="padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none; text-align: center;">Estado <span class="sort-indicator"></span></th>
+                        <th style="padding: 12px 16px; font-weight: 600; text-align: center; cursor: default; user-select: none;">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabla-body" style="color: var(--cta-text-primary);">
+                    @foreach (var f in facturas)
+                    {
+                        <tr class="factura-row" 
+                            data-id="@f.Id"
+                            data-numero="@f.NumeroFactura" 
+                            data-fecha="@f.Fecha"
+                            data-cliente="@f.Cliente" 
+                            data-ruc="@f.RUC"
+                            data-tipo="@f.TipoComprobante" 
+                            data-estado="@f.Estado" 
+                            data-moneda="@f.Moneda" 
+                            data-base="@f.MontoBase" 
+                            data-igv="@f.IGV" 
+                            data-total="@f.Total"
+                            data-cdr-procesado="@(f.CdrProcesado ? "true" : "false")"
+                            style="border-bottom: 1px solid var(--cta-border); transition: background var(--cta-transition);">
+                            
+                            <td style="padding: 14px 16px; font-weight: 600; color: var(--cta-primary);">@f.NumeroFactura</td>
+                            <td style="padding: 14px 16px; white-space: nowrap;">@f.Fecha</td>
+                            <td style="padding: 14px 16px; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="@f.Cliente">@f.Cliente</td>
+                            <td style="padding: 14px 16px; font-family: monospace; font-size: 13px;">@f.RUC</td>
+                            <td style="padding: 14px 16px;">@f.TipoComprobante</td>
+                            <td style="padding: 14px 16px; text-align: center;">
+                                <span style="font-size: 11px; font-weight: 700; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--cta-border);">@f.Moneda</span>
+                            </td>
+                            <td style="padding: 14px 16px; text-align: right;">@f.MontoBase.ToString("N2")</td>
+                            <td style="padding: 14px 16px; text-align: right;">@f.IGV.ToString("N2")</td>
+                            <td style="padding: 14px 16px; text-align: right; font-weight: 600;">@f.Total.ToString("N2")</td>
+                            
+                            <!-- Badges de Estado -->
+                            <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
+                                @if (f.Estado == "Emitida")
+                                {
+                                    <span style="background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); padding: 4px 10px; border-radius: 9999px; font-size: 11.5px; font-weight: 600;">Emitida</span>
+                                }
+                                else if (f.Estado == "Enviada")
+                                {
+                                    <span style="background: rgba(59, 130, 246, 0.12); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.2); padding: 4px 10px; border-radius: 9999px; font-size: 11.5px; font-weight: 600;">Enviada</span>
+                                }
+                                else if (f.Estado == "Anulada")
+                                {
+                                    <span style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 4px 10px; border-radius: 9999px; font-size: 11.5px; font-weight: 600;">Anulada</span>
+                                }
+                                else
+                                {
+                                    <span style="background: rgba(245, 158, 11, 0.12); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); padding: 4px 10px; border-radius: 9999px; font-size: 11.5px; font-weight: 600;">Pendiente</span>
+                                }
+                            </td>
+
+                            <!-- Acciones (Solo ver detalle por requerimiento de ERP) -->
+                            <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
+                                <div style="display: inline-flex; gap: 4px; align-items: center;">
+                                    <button class="cta-action-btn btn-ver-comprobante" title="Ver detalle" style="background: none; border: 1px solid var(--cta-border); color: var(--cta-text-secondary); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all var(--cta-transition);">
+                                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+
+                <!-- Footer de la Tabla (Totales) -->
+                <tfoot>
+                    <tr style="background: #eef2ff; border-top: 2px solid var(--cta-border); color: #3b5bdb; font-weight: 700;">
+                        <td colspan="6" style="padding: 14px 16px; text-align: right;">Total General (Sujeto a Filtro)</td>
+                        <td id="total-base" style="padding: 14px 16px; text-align: right;">0.00</td>
+                        <td id="total-igv" style="padding: 14px 16px; text-align: right;">0.00</td>
+                        <td id="total-total" style="padding: 14px 16px; text-align: right; font-weight: 800;">0.00</td>
+                        <td colspan="2" style="padding: 14px 16px;"></td>
+                    </tr>
+                </tfoot>
+
+            </table>
+        </div>
+
+        <!-- 1. Paginación Client-Side (Paginador en la parte inferior de la tabla) -->
+        <div style="background: #ffffff; border-top: 1px solid var(--cta-border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div id="footer-mostrando-text" style="font-size: 13.5px; color: var(--cta-text-secondary);">
+                Mostrando 0 de 0 registros
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <!-- Indicador X de Y -->
+                <span id="paginacion-indicador" style="font-size: 13px; color: var(--cta-text-secondary); font-weight: 500;">Página 1 de 1</span>
+                
+                <!-- Botonera -->
+                <div id="paginacion-container" style="display: flex; gap: 4px; border: 1px solid var(--cta-border); border-radius: 6px; padding: 2px; background: #ffffff;">
+                    <!-- Inyectados por Javascript -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- 2. Modal de Detalle (Rediseño ERP con Cuentas y Datos Extendidos) -->
+<div id="detalle-modal" style="display: none; position: fixed; inset: 0; background: rgba(30, 41, 59, 0.45); backdrop-filter: blur(4px); z-index: 200; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 40px 16px; box-sizing: border-box; animation: modalFadeIn 250ms ease-out;">
+    <div style="background: #ffffff; border-radius: var(--cta-radius); max-width: 850px; width: 100%; box-shadow: var(--cta-shadow-md); border: 1px solid var(--cta-border); display: flex; flex-direction: column; overflow: hidden; margin: 0 auto;">
+        
+        <!-- Header -->
+        <div style="padding: 16px 24px; border-bottom: 1px solid var(--cta-border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--cta-text-primary); display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: none; stroke: var(--cta-primary); stroke-width: 2.5;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                Detalle del Comprobante Contable
+            </h3>
+            <button id="modal-cerrar-x" style="background: none; border: none; font-size: 22px; color: var(--cta-text-muted); cursor: pointer; transition: color var(--cta-transition);" onmouseover="this.style.color='var(--cta-text-primary)'" onmouseout="this.style.color='var(--cta-text-muted)'">&times;</button>
+        </div>
+
+        <!-- Body -->
+        <div id="modal-detalle-body" style="padding: 24px; overflow-y: auto; flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- Comprobante Info -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed var(--cta-border); padding-bottom: 16px;">
+                <div>
+                    <h2 id="modal-comprobante-num" style="margin: 0; font-size: 18px; font-weight: 700; color: var(--cta-primary);">F-2024-001</h2>
+                    <span id="modal-comprobante-tipo" style="font-size: 12.5px; color: var(--cta-text-secondary); display: block; margin-top: 4px;">Factura Electrónica</span>
+                </div>
+                <div id="modal-comprobante-estado">
+                    <!-- Badge inyectado -->
+                </div>
+            </div>
+
+            <!-- Datos Emisor, Receptor y Detalles Contables -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; font-size: 13px; line-height: 1.5;">
+                <!-- Emisor -->
+                <div style="background: #f8fafc; border: 1px solid var(--cta-border); padding: 14px; border-radius: 8px;">
+                    <span style="font-weight: 700; color: var(--cta-primary); display: block; margin-bottom: 8px; text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.05em;">Emisor</span>
+                    <strong style="color: var(--cta-text-primary); font-size: 13.5px;">HEVELAB S.A.C.</strong><br />
+                    <span style="color: #64748b;">RUC: 20609876541</span><br />
+                    <span style="color: #64748b;">Av. Javier Prado Este 1024, Lima</span>
+                </div>
+                <!-- Receptor -->
+                <div style="background: #f8fafc; border: 1px solid var(--cta-border); padding: 14px; border-radius: 8px;">
+                    <span style="font-weight: 700; color: var(--cta-primary); display: block; margin-bottom: 8px; text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.05em;">Receptor</span>
+                    <strong id="modal-cliente-nombre" style="color: var(--cta-text-primary); font-size: 13.5px;">Cliente del ERP</strong><br />
+                    <span style="color: #64748b;">RUC: <span id="modal-cliente-ruc" style="font-family: monospace; font-weight: 500;">1020304050</span></span><br />
+                    <span style="color: #64748b;">Fecha Emisión: <span id="modal-comprobante-fecha">12/05/2026</span></span>
+                </div>
+                <!-- Información Adicional -->
+                <div style="background: #f8fafc; border: 1px solid var(--cta-border); padding: 14px; border-radius: 8px;">
+                    <span style="font-weight: 700; color: var(--cta-primary); display: block; margin-bottom: 8px; text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.05em;">Detalles Contables (ERP)</span>
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; color: #475569;">
+                        <strong>Vencimiento:</strong> <span id="modal-comprobante-vencimiento" style="color: var(--cta-text-primary);">--</span>
+                        <strong>Referencia:</strong> <span id="modal-referencia" style="color: var(--cta-text-primary);">--</span>
+                        <strong>Diario:</strong> <span id="modal-diario-contable" style="color: var(--cta-text-primary);">--</span>
+                        <strong>T. Cambio:</strong> <span id="modal-tipo-cambio" style="color: var(--cta-text-primary);">--</span>
+                        <strong>Pendiente:</strong> <span id="modal-monto-pendiente" style="font-weight: 600; color: #e11d48;">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Narración/Notas -->
+            <div id="modal-narracion-container" style="background: #fffbef; border: 1px solid #fef08a; padding: 12px 16px; border-radius: 8px; font-size: 13px; display: none;">
+                <span style="font-weight: 700; color: #a16207; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Glosa / Observación Interna</span>
+                <span id="modal-narracion" style="color: #713f12; font-style: italic;">Sin observaciones.</span>
+            </div>
+
+            <!-- Asiento Contable Detallado -->
+            <div>
+                <h4 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: var(--cta-text-primary); display: flex; align-items: center; gap: 6px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px; color: var(--cta-primary);">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                    </svg>
+                    Asiento Contable Detallado (Entradas de Diario)
+                </h4>
+                <div style="border: 1px solid var(--cta-border); border-radius: 8px; overflow-x: auto; box-shadow: var(--cta-shadow);">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                        <thead>
+                            <tr style="background: #f1f5f9; border-bottom: 1px solid var(--cta-border); color: #475569;">
+                                <th style="padding: 10px 14px; font-weight: 600; width: 100px;">Cuenta</th>
+                                <th style="padding: 10px 14px; font-weight: 600;">Nombre Cuenta</th>
+                                <th style="padding: 10px 14px; font-weight: 600;">Descripción / Glosa</th>
+                                <th style="padding: 10px 14px; font-weight: 600; text-align: right; width: 110px;">Debe</th>
+                                <th style="padding: 10px 14px; font-weight: 600; text-align: right; width: 110px;">Haber</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-asiento-lineas-body" style="color: var(--cta-text-primary);">
+                            <!-- Inyectado vía AJAX -->
+                        </tbody>
+                        <tfoot>
+                            <tr style="background: #f8fafc; border-top: 2px solid var(--cta-border); font-weight: 700; color: var(--cta-text-primary);">
+                                <td colspan="3" style="padding: 12px 14px; text-align: right; font-weight: bold;">Total Asiento</td>
+                                <td id="modal-asiento-debe-tot" style="padding: 12px 14px; text-align: right; color: #3b5bdb; font-weight: bold;">0.00</td>
+                                <td id="modal-asiento-haber-tot" style="padding: 12px 14px; text-align: right; color: #10b981; font-weight: bold;">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Desglose de Cuentas Fiscales -->
+            <div style="border: 1px solid var(--cta-border); border-radius: 8px; overflow-x: auto; box-shadow: var(--cta-shadow);">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                    <thead>
+                        <tr style="background: #f1f5f9; border-bottom: 1px solid var(--cta-border); color: var(--cta-text-secondary);">
+                            <th style="padding: 10px 12px; font-weight: 600;">Resumen Impositivo</th>
+                            <th style="padding: 10px 12px; font-weight: 600; text-align: right; width: 150px;">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--cta-border);">
+                            <td style="padding: 10px 12px; color: var(--cta-text-primary);">Base Imponible / Venta de Mercaderías y Servicios</td>
+                            <td id="modal-base-val" style="padding: 10px 12px; text-align: right; font-weight: 500;">S/ 0.00</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--cta-border); background: #f8fafc; font-size: 12.5px;">
+                            <td style="padding: 10px 12px; text-align: right; color: var(--cta-text-secondary); font-weight: 500;">Subtotal Imponible</td>
+                            <td id="modal-base-subtotal" style="padding: 10px 12px; text-align: right; font-weight: 600; color: var(--cta-text-primary);">S/ 0.00</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--cta-border); background: #f8fafc; font-size: 12.5px;">
+                            <td style="padding: 10px 12px; text-align: right; color: var(--cta-text-secondary); font-weight: 500;">IGV / IVA (18%)</td>
+                            <td id="modal-igv-subtotal" style="padding: 10px 12px; text-align: right; font-weight: 600; color: var(--cta-text-primary);">S/ 0.00</td>
+                        </tr>
+                        <tr style="background: #eef2ff; color: #3b5bdb; font-weight: 700; font-size: 14px;">
+                            <td style="padding: 12px; text-align: right;">Total General (<span id="modal-moneda-label">PEN</span>)</td>
+                            <td id="modal-total-subtotal" style="padding: 12px; text-align: right; font-weight: 800;">S/ 0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div style="padding: 16px 24px; border-top: 1px solid var(--cta-border); display: flex; justify-content: flex-end; gap: 8px; background: #f8fafc;">
+            <button id="modal-cdr-btn" style="background: #2563eb; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background var(--cta-transition); display: inline-flex; align-items: center; gap: 6px;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Proceder CDR
+            </button>
+            <button id="modal-cerrar-btn" style="border: 1px solid var(--cta-border); background: #ffffff; color: var(--cta-text-secondary); padding: 8px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#ffffff'">Cerrar</button>
+            <button id="modal-imprimir-btn" style="background: var(--cta-primary); color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background var(--cta-transition);" onmouseover="this.style.background='var(--cta-primary-hover)'" onmouseout="this.style.background='var(--cta-primary)'">Imprimir</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal de Crear / Editar Comprobante -->
+<div id="formulario-modal" style="display: none; position: fixed; inset: 0; background: rgba(30, 41, 59, 0.45); backdrop-filter: blur(4px); z-index: 200; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 40px 16px; box-sizing: border-box; animation: modalFadeIn 250ms ease-out;">
+    <div style="background: #ffffff; border-radius: var(--cta-radius); max-width: 550px; width: 100%; box-shadow: var(--cta-shadow-md); border: 1px solid var(--cta-border); display: flex; flex-direction: column; overflow: hidden; margin: 0 auto;">
+        
+        <!-- Header -->
+        <div style="padding: 16px 24px; border-bottom: 1px solid var(--cta-border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <h3 id="modal-form-title" style="margin: 0; font-size: 15px; font-weight: 700; color: var(--cta-text-primary); display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: none; stroke: var(--cta-primary); stroke-width: 2.5;">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                Nuevo Comprobante
+            </h3>
+            <button id="modal-form-cerrar-x" style="background: none; border: none; font-size: 22px; color: var(--cta-text-muted); cursor: pointer; transition: color var(--cta-transition);">&times;</button>
+        </div>
+
+        <form method="post" asp-action="GuardarFactura" id="factura-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="originalNumero" id="form-original-numero" />
+            
+            <!-- Body -->
+            <div style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+                
+                <!-- RUC & Razon Social -->
+                <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+                    <div>
+                        <label for="form-ruc" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">RUC Cliente</label>
+                        <input type="text" name="ruc" id="form-ruc" required placeholder="Escriba RUC o DNI..." style="width: 100%; padding: 8px 12px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 13px;" list="socios-list" />
+                        <datalist id="socios-list">
+                            @if (ViewBag.Socios != null)
+                            {
+                                foreach (var s in ViewBag.Socios)
+                                {
+                                    <option value="@s.numero_documento">@s.razon_social</option>
+                                }
+                            }
+                        </datalist>
+                    </div>
+                    <div>
+                        <label for="form-cliente" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Razón Social / Cliente</label>
+                        <input type="text" name="razonSocial" id="form-cliente" required placeholder="Nombre del cliente..." style="width: 100%; padding: 8px 12px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 13px;" />
+                    </div>
+                </div>
+
+                <!-- Tipo Comprobante & Numero & Fecha -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label for="form-tipo" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Tipo de Comprobante</label>
+                        <select name="tipoComprobante" id="form-tipo" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 13px;">
+                            <option value="Factura">Factura</option>
+                            <option value="Boleta">Boleta</option>
+                            <option value="Nota de Crédito">Nota de Crédito</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="form-numero" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Número Comprobante</label>
+                        <input type="text" name="numeroFactura" id="form-numero" required placeholder="F001-0000001" style="width: 100%; padding: 8px 12px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 13px;" />
+                    </div>
+                </div>
+
+                <!-- Fecha & Moneda & Estado -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label for="form-fecha" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Fecha Emisión</label>
+                        <input type="date" name="fecha" id="form-fecha" required style="width: 100%; padding: 7px 10px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 13px;" />
+                    </div>
+                    <div>
+                        <label for="form-moneda" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Moneda</label>
+                        <select name="moneda" id="form-moneda" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 13px;">
+                            <option value="PEN">PEN (Sol)</option>
+                            <option value="USD">USD (Dólar)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Monto Base & IGV & Total -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label for="form-base" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Monto Base</label>
+                        <input type="number" step="0.01" name="montoBase" id="form-base" required value="0.00" style="width: 100%; padding: 8px 12px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 13px; text-align: right;" />
+                    </div>
+                    <div>
+                        <label for="form-igv" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">IGV (18%)</label>
+                        <input type="number" step="0.01" name="igv" id="form-igv" required value="0.00" style="width: 100%; padding: 8px 12px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 13px; text-align: right;" />
+                    </div>
+                    <div>
+                        <label for="form-total" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Total</label>
+                        <input type="number" step="0.01" name="total" id="form-total" required value="0.00" style="width: 100%; padding: 8px 12px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 13px; text-align: right; font-weight: 600;" />
+                    </div>
+                </div>
+
+                <!-- Estado -->
+                <div>
+                    <label for="form-estado" style="display: block; font-size: 12px; font-weight: 600; color: var(--cta-text-secondary); margin-bottom: 4px;">Estado</label>
+                    <select name="estado" id="form-estado" style="width: 100%; padding: 8px 10px; border: 1px solid var(--cta-border); border-radius: 6px; font-size: 13px;">
+                        <option value="Emitida">Emitida</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Anulada">Anulada</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div style="padding: 16px 24px; border-top: 1px solid var(--cta-border); display: flex; justify-content: flex-end; gap: 8px; background: #f8fafc;">
+                <button type="button" id="modal-form-cancelar-btn" style="border: 1px solid var(--cta-border); background: #ffffff; color: var(--cta-text-secondary); padding: 8px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 500; cursor: pointer;">Cancelar</button>
+                <button type="submit" style="background: var(--cta-primary); color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer;">Guardar</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<!-- Estilos CSS complementarios -->
+<style>
+    @@keyframes ctaFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @@keyframes modalFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .factura-row:hover {
+        background-color: #f8fafc !important;
+    }
+
+    .cta-action-btn:hover {
+        background-color: var(--cta-primary-soft) !important;
+        border-color: var(--cta-primary) !important;
+        color: var(--cta-primary) !important;
+    }
+
+    .sortable-header:hover {
+        background-color: #e0e7ff !important;
+    }
+
+    @@keyframes toastSlideIn {
+        from {
+            transform: translateX(120%) scale(0.9);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes toastSlideOut {
+        from {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(120%) scale(0.9);
+            opacity: 0;
+        }
+    }
+</style>
+
+<!-- 5. Scripts: Paginación, Ordenamiento, Modal, Filtros y Exportación (Cliente) -->
+<script>
+    function showToast(message, type = "success") {
+        var color = "#10b981"; // success
+        if (type === "warning") color = "#f59e0b";
+        if (type === "error") color = "#ef4444";
+        if (type === "info") color = "#3b5bdb";
+        
+        var iconSvg = "";
+        if (type === "success") {
+            iconSvg = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:#10b981;stroke-width:3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        } else if (type === "error") {
+            iconSvg = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:#ef4444;stroke-width:3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+        } else if (type === "warning") {
+            iconSvg = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:#f59e0b;stroke-width:2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+        } else {
+            iconSvg = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:#3b5bdb;stroke-width:2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+        }
+
+        var toastHtml = `
+            <div class="cta-toast" style="position: fixed; top: 24px; right: 24px; background: #ffffff; border-left: 4px solid ${color}; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border-radius: 8px; padding: 14px 18px; z-index: 10000; display: flex; align-items: center; gap: 12px; min-width: 300px; max-width: 420px; box-sizing: border-box; pointer-events: auto; border: 1px solid #e2e8f0; border-left-color: ${color}; animation: toastSlideIn 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;">
+                <div style="flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px;">
+                    ${iconSvg}
+                </div>
+                <div style="flex: 1; font-size: 13px; font-weight: 500; color: #1e293b; line-height: 1.4;">
+                    ${message}
+                </div>
+                <button class="toast-close-btn" style="background: none; border: none; font-size: 18px; color: #94a3b8; cursor: pointer; padding: 2px; line-height: 1; transition: color 0.2s;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#94a3b8'">&times;</button>
+            </div>
+        `;
+        
+        var container = document.getElementById("toast-container");
+        if (!container) {
+            container = document.createElement("div");
+            container.id = "toast-container";
+            container.style.position = "fixed";
+            container.style.top = "24px";
+            container.style.right = "24px";
+            container.style.zIndex = "9999";
+            container.style.display = "flex";
+            container.style.flexDirection = "column";
+            container.style.gap = "12px";
+            container.style.pointerEvents = "none";
+            document.body.appendChild(container);
+        }
+        
+        container.insertAdjacentHTML("beforeend", toastHtml);
+        var lastToast = container.lastElementChild;
+        
+        var dismissTimeout = setTimeout(function() {
+            dismissToast(lastToast);
+        }, 4500);
+        
+        function dismissToast(el) {
+            if (el.classList.contains("toast-closing")) return;
+            el.classList.add("toast-closing");
+            clearTimeout(dismissTimeout);
+            
+            el.style.animation = "toastSlideOut 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards";
+            setTimeout(function() {
+                el.remove();
+            }, 300);
+        }
+        
+        var closeBtn = lastToast.querySelector(".toast-close-btn");
+        closeBtn.onclick = function() {
+            dismissToast(lastToast);
+        };
+    }
+    window.showToast = showToast;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Elementos DOM Filtros
+        var inputSearch = document.getElementById("filter-search");
+        var selectTipo = document.getElementById("filter-tipo");
+        var selectEstado = document.getElementById("filter-estado");
+        var selectMoneda = document.getElementById("filter-moneda");
+        var inputFechaDesde = document.getElementById("filter-fecha-desde");
+        var inputFechaHasta = document.getElementById("filter-fecha-hasta");
+        
+        var btnFiltrar = document.getElementById("btn-filtrar");
+        var btnLimpiar = document.getElementById("btn-limpiar");
+        var btnExportar = document.getElementById("btn-exportar");
+        
+        // Elementos DOM Tabla y Paginador
+        var tableBody = document.getElementById("tabla-body");
+        var selectPageSize = document.getElementById("select-page-size");
+        var paginadorContainer = document.getElementById("paginacion-container");
+        var paginadorIndicador = document.getElementById("paginacion-indicador");
+        var footerText = document.getElementById("footer-mostrando-text");
+        
+        // Elementos DOM Estadísticas
+        var statTotalEl = document.getElementById("stat-total");
+        var statEmitidasEl = document.getElementById("stat-emitidas");
+        var statAnuladasEl = document.getElementById("stat-anuladas");
+        var statMontoEl = document.getElementById("stat-monto");
+        
+        // Totales generales footer tabla
+        var totalBaseEl = document.getElementById("total-base");
+        var totalIgvEl = document.getElementById("total-igv");
+        var totalTotalEl = document.getElementById("total-total");
+        
+        // Elementos Modal
+        var modal = document.getElementById("detalle-modal");
+        var modalCerrarX = document.getElementById("modal-cerrar-x");
+        var modalCerrarBtn = document.getElementById("modal-cerrar-btn");
+        var modalImprimirBtn = document.getElementById("modal-imprimir-btn");
+        
+        // Datos y estado local de UI
+        var allRows = Array.from(document.querySelectorAll(".factura-row"));
+        var filteredRows = [...allRows]; // Filas que pasan el filtro actual
+        
+        var currentPage = 1;
+        var pageSize = 5;
+        
+        var currentSortCol = null; // Índice de columna de ordenamiento activo
+        var currentSortAsc = true;  // Orden ascendente/descendente
+        var activeCdrTab = "pendientes";
+        
+        // Función de formateo de moneda general
+        function formatNumber(val) {
+            return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        
+        // --- 1. APLICAR FILTROS (AND lógico) ---
+        function aplicarFiltros() {
+            var searchVal = inputSearch.value.trim().toLowerCase();
+            var tipoVal = selectTipo.value;
+            var estadoVal = selectEstado.value;
+            var monedaVal = selectMoneda.value;
+            var desdeVal = inputFechaDesde.value ? new Date(inputFechaDesde.value) : null;
+            var hastaVal = inputFechaHasta.value ? new Date(inputFechaHasta.value) : null;
+            
+            // Establecer horas a 0 en fechas para comparación justa
+            if (desdeVal) desdeVal.setHours(0, 0, 0, 0);
+            if (hastaVal) hastaVal.setHours(23, 59, 59, 999);
+            
+            filteredRows = allRows.filter(function(row) {
+                var numero = row.getAttribute("data-numero").toLowerCase();
+                var cliente = row.getAttribute("data-cliente").toLowerCase();
+                var tipo = row.getAttribute("data-tipo");
+                var estado = row.getAttribute("data-estado");
+                var moneda = row.getAttribute("data-moneda");
+                var fechaStr = row.getAttribute("data-fecha");
+                var cdrProcesado = row.getAttribute("data-cdr-procesado") || "false";
+                var fecha = new Date(fechaStr);
+                fecha.setHours(12, 0, 0, 0); // Estabilizar zona horaria
+                
+                var matchSearch = !searchVal || (numero.indexOf(searchVal) !== -1 || cliente.indexOf(searchVal) !== -1);
+                var matchTipo = !tipoVal || tipo === tipoVal;
+                var matchEstado = !estadoVal || estado === estadoVal;
+                var matchMoneda = !monedaVal || moneda === monedaVal;
+                var matchFechaDesde = !desdeVal || fecha >= desdeVal;
+                var matchFechaHasta = !hastaVal || fecha <= hastaVal;
+                var matchCdr = cdrProcesado === (activeCdrTab === "enviadas" ? "true" : "false");
+                
+                return matchSearch && matchTipo && matchEstado && matchMoneda && matchFechaDesde && matchFechaHasta && matchCdr;
+            });
+            
+            currentPage = 1; // Reiniciar a página 1 al filtrar
+            
+            recalcularEstadisticas();
+            aplicarOrdenamiento(false); // Mantener orden actual pero aplicar sobre los nuevos resultados
+            renderTabla();
+        }
+        
+        // --- 6. RESUMEN ESTADÍSTICO SUPERIOR & TOTALES FOOTER ---
+        function recalcularEstadisticas() {
+            var totalFacturas = filteredRows.length;
+            var emitidas = 0;
+            var anuladas = 0;
+            var totalMontoPen = 0;
+            
+            var totalBase = 0;
+            var totalIgv = 0;
+            var totalTotal = 0;
+            
+            filteredRows.forEach(function(row) {
+                var estado = row.getAttribute("data-estado");
+                var moneda = row.getAttribute("data-moneda");
+                var base = parseFloat(row.getAttribute("data-base")) || 0;
+                var igv = parseFloat(row.getAttribute("data-igv")) || 0;
+                var total = parseFloat(row.getAttribute("data-total")) || 0;
+                
+                // Conteo de Estados
+                if (estado === "Emitida") emitidas++;
+                if (estado === "Anulada") anuladas++;
+                
+                // Monto Total en PEN (se calcula asumiendo un tipo de cambio ficticio de 3.75 para USD)
+                var tc = (moneda === "USD") ? 3.75 : 1.00;
+                totalMontoPen += (total * tc);
+                
+                // Totales de la tabla
+                totalBase += base;
+                totalIgv += igv;
+                totalTotal += total;
+            });
+            
+            // Render de Estadísticas (Valores protegidos contra nulos si la barra no existe)
+            if (statTotalEl) statTotalEl.textContent = totalFacturas;
+            if (statEmitidasEl) statEmitidasEl.textContent = emitidas;
+            if (statAnuladasEl) statAnuladasEl.textContent = anuladas;
+            if (statMontoEl) statMontoEl.textContent = "S/ " + formatNumber(totalMontoPen);
+            
+            // Render de Totales Footer
+            totalBaseEl.textContent = formatNumber(totalBase);
+            totalIgvEl.textContent = formatNumber(totalIgv);
+            totalTotalEl.textContent = formatNumber(totalTotal);
+        }
+        
+        // --- 1. RENDEREAR TABLA CON PAGINACIÓN ---
+        function renderTabla() {
+            // Limpiar tabla completa temporalmente
+            allRows.forEach(function(r) { r.style.display = "none"; });
+            
+            var totalRegistros = filteredRows.length;
+            pageSize = (selectPageSize.value === "all") ? totalRegistros : parseInt(selectPageSize.value);
+            
+            var totalPages = Math.ceil(totalRegistros / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            
+            var startIdx = (currentPage - 1) * pageSize;
+            var endIdx = startIdx + pageSize;
+            
+            // Mostrar solo las filas de la página activa
+            var visibleRowsSlice = filteredRows.slice(startIdx, endIdx);
+            visibleRowsSlice.forEach(function(row) {
+                row.style.display = "";
+            });
+            
+            // Actualizar textos indicativos
+            footerText.textContent = "Mostrando " + visibleRowsSlice.length + " de " + totalRegistros + " registros (Total: " + allRows.length + ")";
+            paginadorIndicador.textContent = "Página " + currentPage + " de " + totalPages;
+            
+            renderPaginador(totalPages);
+        }
+        
+        function renderPaginador(totalPages) {
+            paginadorContainer.innerHTML = "";
+            
+            // Función auxiliar para crear botones
+            function crearBoton(texto, destinoPag, deshabilitado, isActive) {
+                var btn = document.createElement("button");
+                btn.textContent = texto;
+                btn.style.padding = "6px 12px";
+                btn.style.border = "none";
+                btn.style.background = isActive ? "var(--cta-primary)" : "#ffffff";
+                btn.style.color = isActive ? "#ffffff" : "var(--cta-text-secondary)";
+                btn.style.fontSize = "12px";
+                btn.style.fontWeight = isActive ? "600" : "500";
+                btn.style.cursor = deshabilitado ? "not-allowed" : "pointer";
+                btn.style.borderRadius = "4px";
+                btn.style.transition = "background var(--cta-transition)";
+                
+                if (deshabilitado) {
+                    btn.disabled = true;
+                    btn.style.opacity = "0.4";
+                } else {
+                    btn.addEventListener("click", function() {
+                        currentPage = destinoPag;
+                        renderTabla();
+                    });
+                    if (!isActive) {
+                        btn.onmouseover = function() { btn.style.background = "#f1f5f9"; };
+                        btn.onmouseout = function() { btn.style.background = "#ffffff"; };
+                    }
+                }
+                
+                paginadorContainer.appendChild(btn);
+            }
+            
+            // Botón Primera
+            crearBoton("«", 1, currentPage === 1, false);
+            
+            // Botón Anterior
+            crearBoton("‹", currentPage - 1, currentPage === 1, false);
+            
+            // Números de Página (Máximo 5 visibles en bloque alrededor de página activa)
+            var startPage = Math.max(1, currentPage - 2);
+            var endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+            
+            for (var p = startPage; p <= endPage; p++) {
+                crearBoton(p, p, false, p === currentPage);
+            }
+            
+            // Botón Siguiente
+            crearBoton("›", currentPage + 1, currentPage === totalPages, false);
+            
+            // Botón Última
+            crearBoton("»", totalPages, currentPage === totalPages, false);
+        }
+        
+        // --- 4. ORDENAMIENTO DE COLUMNAS (Client-side) ---
+        function aplicarOrdenamiento(cambiarDireccion) {
+            if (currentSortCol === null) return;
+            
+            if (cambiarDireccion) {
+                currentSortAsc = !currentSortAsc;
+            }
+            
+            filteredRows.sort(function(rowA, rowB) {
+                var valA = obtenerValorCelda(rowA, currentSortCol);
+                var valB = obtenerValorCelda(rowB, currentSortCol);
+                
+                if (typeof valA === "number" && typeof valB === "number") {
+                    return currentSortAsc ? valA - valB : valB - valA;
+                }
+                
+                valA = valA.toString().toLowerCase();
+                valB = valB.toString().toLowerCase();
+                
+                if (valA < valB) return currentSortAsc ? -1 : 1;
+                if (valA > valB) return currentSortAsc ? 1 : -1;
+                return 0;
+            });
+            
+            // Reinsertar las filas en el tbody ordenadas para reflejar el DOM
+            filteredRows.forEach(function(row) {
+                tableBody.appendChild(row);
+            });
+            
+            actualizarIndicadoresOrdenamiento();
+        }
+        
+        function obtenerValorCelda(row, colIndex) {
+            switch(colIndex) {
+                case 0: return row.getAttribute("data-numero");
+                case 1: return row.getAttribute("data-fecha");
+                case 2: return row.getAttribute("data-cliente");
+                case 3: return row.getAttribute("data-ruc");
+                case 4: return row.getAttribute("data-tipo");
+                case 5: return row.getAttribute("data-moneda");
+                case 6: return parseFloat(row.getAttribute("data-base")) || 0;
+                case 7: return parseFloat(row.getAttribute("data-igv")) || 0;
+                case 8: return parseFloat(row.getAttribute("data-total")) || 0;
+                case 9: return row.getAttribute("data-estado");
+                default: return "";
+            }
+        }
+        
+        function actualizarIndicadoresOrdenamiento() {
+            var headers = document.querySelectorAll(".sortable-header");
+            headers.forEach(function(th) {
+                var indicator = th.querySelector(".sort-indicator");
+                var colId = parseInt(th.getAttribute("data-column"));
+                if (colId === currentSortCol) {
+                    indicator.textContent = currentSortAsc ? " ▲" : " ▼";
+                    indicator.style.color = "var(--cta-primary)";
+                } else {
+                    indicator.textContent = "";
+                }
+            });
+        }
+        
+        // --- 5. EXPORTAR EXCEL/CSV (Visible Rows) ---
+        function exportarCSV() {
+            if (filteredRows.length === 0) {
+                showToast("No hay registros filtrados para exportar.", "warning");
+                return;
+            }
+            
+            var csvRows = [];
+            // Header
+            csvRows.push("Nº Factura,Fecha,Cliente,RUC,Tipo,Moneda,Monto Base,IGV,Total,Estado");
+            
+            filteredRows.forEach(function(row) {
+                var num = row.getAttribute("data-numero");
+                var fecha = row.getAttribute("data-fecha");
+                var cliente = '"' + row.getAttribute("data-cliente").replace(/"/g, '""') + '"'; // Escapar comillas en csv
+                var ruc = row.getAttribute("data-ruc");
+                var tipo = row.getAttribute("data-tipo");
+                var moneda = row.getAttribute("data-moneda");
+                var base = row.getAttribute("data-base");
+                var igv = row.getAttribute("data-igv");
+                var total = row.getAttribute("data-total");
+                var estado = row.getAttribute("data-estado");
+                
+                csvRows.push([num, fecha, cliente, ruc, tipo, moneda, base, igv, total, estado].join(","));
+            });
+            
+            var csvContent = "\uFEFF" + csvRows.join("\n"); // UTF-8 BOM
+            var blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            var url = URL.createObjectURL(blob);
+            
+            var link = document.createElement("a");
+            link.href = url;
+            
+            // Generar fecha YYYYMMDD
+            var today = new Date();
+            var yyyy = today.getFullYear();
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var dd = String(today.getDate()).padStart(2, '0');
+            
+            link.download = "facturas_" + yyyy + mm + dd + ".csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // --- 2. MODAL DE DETALLE FISCAL (Carga vía AJAX con Asiento Contable) ---
+        function abrirModalDetalle(row) {
+            var id = row.getAttribute("data-id");
+            var cdrProcesado = row.getAttribute("data-cdr-procesado") === "true";
+            
+            // Guardar el ID de la factura para el procesamiento del CDR
+            var cdrBtn = document.getElementById("modal-cdr-btn");
+            if (cdrBtn) {
+                cdrBtn.setAttribute("data-factura-id", id);
+                if (cdrProcesado) {
+                    cdrBtn.style.display = "none";
+                } else {
+                    cdrBtn.style.display = "inline-flex";
+                }
+            }
+            
+            // Poner cargando en la tabla de asiento
+            var asientoBody = document.getElementById("modal-asiento-lineas-body");
+            asientoBody.innerHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--cta-text-secondary);">
+                <div style="display: inline-flex; align-items: center; gap: 8px;">
+                    <svg style="animation: spin 1s linear infinite; width: 20px; height: 20px; color: #4f46e5;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Cargando información contable...
+                </div>
+            </td></tr>`;
+            
+            // Mostrar Modal primero
+            modal.style.display = "flex";
+
+            // Hacer fetch de detalles
+            fetch(`/Facturas/GetDetalle?id=${encodeURIComponent(id)}`)
+                .then(function(res) {
+                    if (!res.ok) throw new Error("No se pudo obtener el detalle.");
+                    return res.json();
+                })
+                .then(function(data) {
+                    var header = data.header || data.Header;
+                    var lines = data.lines || data.Lines;
+                    
+                    var symbol = (header.MonedaSimbolo || header.monedaSimbolo || "$");
+                    var currency = (header.Moneda || header.moneda || "PEN");
+                    var numeroFactura = (header.NumeroFactura || header.numeroFactura || "");
+                    var tipoComprobante = (header.TipoComprobante || header.tipoComprobante || "Factura");
+                    var cliente = (header.Cliente || header.cliente || "Cliente");
+                    var ruc = (header.RUC || header.ruc || "--");
+                    var fecha = (header.Fecha || header.fecha || "");
+                    var fechaVencimiento = (header.FechaVencimiento || header.fechaVencimiento || "");
+                    var referencia = (header.Referencia || header.referencia || "--");
+                    var diario = (header.Diario || header.diario || "Diario de Ventas");
+                    var tipoCambio = (header.TipoCambio || header.tipoCambio || 1.0);
+                    var montoPendiente = (header.MontoPendiente || header.montoPendiente || 0);
+                    var narracion = (header.Narracion || header.narracion || "");
+                    var baseVal = (header.MontoBase || header.montoBase || 0);
+                    var igvVal = (header.IGV || header.igv || 0);
+                    var totalVal = (header.Total || header.total || 0);
+                    var estadoVal = (header.Estado || header.estado || "");
+                    
+                    // Cargar datos en Modal
+                    document.getElementById("modal-comprobante-num").textContent = numeroFactura;
+                    document.getElementById("modal-comprobante-tipo").textContent = tipoComprobante + " Electrónica";
+                    document.getElementById("modal-cliente-nombre").textContent = cliente;
+                    document.getElementById("modal-cliente-ruc").textContent = ruc;
+                    document.getElementById("modal-comprobante-fecha").textContent = fecha ? fecha.split("-").reverse().join("/") : "--";
+                    document.getElementById("modal-moneda-label").textContent = currency;
+                    
+                    // Nuevos campos
+                    document.getElementById("modal-comprobante-vencimiento").textContent = fechaVencimiento ? fechaVencimiento.split("-").reverse().join("/") : "--";
+                    document.getElementById("modal-referencia").textContent = referencia;
+                    document.getElementById("modal-diario-contable").textContent = diario;
+                    document.getElementById("modal-tipo-cambio").textContent = parseFloat(tipoCambio).toFixed(4);
+                    document.getElementById("modal-monto-pendiente").textContent = symbol + " " + formatNumber(montoPendiente);
+
+                    // Notas/Narración
+                    var narracionContainer = document.getElementById("modal-narracion-container");
+                    var narracionText = document.getElementById("modal-narracion");
+                    if (narracion && narracion.trim() !== "") {
+                        narracionText.textContent = narracion;
+                        narracionContainer.style.display = "block";
+                    } else {
+                        narracionContainer.style.display = "none";
+                    }
+
+                    // Montos fiscales en desglose
+                    var base = parseFloat(baseVal) || 0;
+                    var igv = parseFloat(igvVal) || 0;
+                    var total = parseFloat(totalVal) || 0;
+                    document.getElementById("modal-base-val").textContent = currency + " " + formatNumber(base);
+                    document.getElementById("modal-base-subtotal").textContent = currency + " " + formatNumber(base);
+                    document.getElementById("modal-igv-subtotal").textContent = currency + " " + formatNumber(igv);
+                    document.getElementById("modal-total-subtotal").textContent = currency + " " + formatNumber(total);
+                    
+                    // Badge Estado
+                    var badgeContainer = document.getElementById("modal-comprobante-estado");
+                    badgeContainer.innerHTML = "";
+                    var badgeSpan = document.createElement("span");
+                    badgeSpan.textContent = estadoVal;
+                    badgeSpan.style.padding = "4px 12px";
+                    badgeSpan.style.borderRadius = "9999px";
+                    badgeSpan.style.fontSize = "11.5px";
+                    badgeSpan.style.fontWeight = "600";
+                    
+                    if (estadoVal === "Emitida") {
+                        badgeSpan.style.background = "rgba(16, 185, 129, 0.12)";
+                        badgeSpan.style.color = "#10b981";
+                        badgeSpan.style.border = "1px solid rgba(16, 185, 129, 0.2)";
+                    } else if (estadoVal === "Enviada") {
+                        badgeSpan.style.background = "rgba(59, 130, 246, 0.12)";
+                        badgeSpan.style.color = "#2563eb";
+                        badgeSpan.style.border = "1px solid rgba(59, 130, 246, 0.2)";
+                    } else if (estadoVal === "Anulada") {
+                        badgeSpan.style.background = "rgba(239, 68, 68, 0.12)";
+                        badgeSpan.style.color = "#ef4444";
+                        badgeSpan.style.border = "1px solid rgba(239, 68, 68, 0.2)";
+                    } else {
+                        badgeSpan.style.background = "rgba(245, 158, 11, 0.12)";
+                        badgeSpan.style.color = "#f59e0b";
+                        badgeSpan.style.border = "1px solid rgba(245, 158, 11, 0.2)";
+                    }
+                    badgeContainer.appendChild(badgeSpan);
+
+                    // Renderizar líneas de Asiento Contable
+                    asientoBody.innerHTML = "";
+                    var totalDebe = 0;
+                    var totalHaber = 0;
+
+                    if (lines && lines.length > 0) {
+                        lines.forEach(function(line) {
+                            var cuentaCodigo = (line.CuentaCodigo || line.cuentaCodigo || "");
+                            var cuentaNombre = (line.CuentaNombre || line.cuentaNombre || "");
+                            var descripcion = (line.Descripcion || line.descripcion || "--");
+                            var debeVal = parseFloat(line.Debe || line.debe) || 0;
+                            var haberVal = parseFloat(line.Haber || line.haber) || 0;
+                            totalDebe += debeVal;
+                            totalHaber += haberVal;
+
+                            var tr = document.createElement("tr");
+                            tr.style.borderBottom = "1px solid var(--cta-border)";
+                            
+                            tr.innerHTML = `
+                                <td style="padding: 10px 14px; font-family: monospace; font-weight: bold; color: var(--cta-primary);">${cuentaCodigo}</td>
+                                <td style="padding: 10px 14px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${cuentaNombre}">${cuentaNombre}</td>
+                                <td style="padding: 10px 14px; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${descripcion}">${descripcion}</td>
+                                <td style="padding: 10px 14px; text-align: right; font-family: monospace;">${debeVal > 0 ? formatNumber(debeVal) : "-"}</td>
+                                <td style="padding: 10px 14px; text-align: right; font-family: monospace;">${haberVal > 0 ? formatNumber(haberVal) : "-"}</td>
+                            `;
+                            asientoBody.appendChild(tr);
+                        });
+                    } else {
+                        asientoBody.innerHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--cta-text-secondary);">No se encontraron líneas contables asociadas.</td></tr>`;
+                    }
+
+                    document.getElementById("modal-asiento-debe-tot").textContent = formatNumber(totalDebe);
+                    document.getElementById("modal-asiento-haber-tot").textContent = formatNumber(totalHaber);
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    asientoBody.innerHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #ef4444; font-weight: 600;">Error al cargar detalles contables.</td></tr>`;
+                });
+        }
+        
+        function cerrarModal() {
+            modal.style.display = "none";
+        }
+        
+        // --- VINCULACIÓN DE EVENTOS ---
+        
+        // Ejecutar filtrado
+        btnFiltrar.addEventListener("click", aplicarFiltros);
+        
+        // Pestañas CDR
+        var tabPendientes = document.getElementById("tab-pendientes");
+        var tabEnviadas = document.getElementById("tab-enviadas");
+        if (tabPendientes && tabEnviadas) {
+            tabPendientes.addEventListener("click", function() {
+                activeCdrTab = "pendientes";
+                tabPendientes.style.background = "#ffffff";
+                tabPendientes.style.color = "var(--cta-primary)";
+                tabPendientes.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+                
+                tabEnviadas.style.background = "transparent";
+                tabEnviadas.style.color = "var(--cta-text-secondary)";
+                tabEnviadas.style.boxShadow = "none";
+                
+                aplicarFiltros();
+            });
+            
+            tabEnviadas.addEventListener("click", function() {
+                activeCdrTab = "enviadas";
+                tabEnviadas.style.background = "#ffffff";
+                tabEnviadas.style.color = "var(--cta-primary)";
+                tabEnviadas.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+                
+                tabPendientes.style.background = "transparent";
+                tabPendientes.style.color = "var(--cta-text-secondary)";
+                tabPendientes.style.boxShadow = "none";
+                
+                aplicarFiltros();
+            });
+        }
+        
+        // Limpiar filtros
+        btnLimpiar.addEventListener("click", function() {
+            inputSearch.value = "";
+            selectTipo.value = "";
+            selectEstado.value = "";
+            selectMoneda.value = "";
+            inputFechaDesde.value = "";
+            inputFechaHasta.value = "";
+            aplicarFiltros();
+        });
+        
+        // Selector tamaño página
+        selectPageSize.addEventListener("change", function() {
+            currentPage = 1;
+            renderTabla();
+        });
+        
+        // Cabeceras ordenables
+        document.querySelectorAll(".sortable-header").forEach(function(th) {
+            th.addEventListener("click", function() {
+                var colId = parseInt(th.getAttribute("data-column"));
+                if (currentSortCol === colId) {
+                    aplicarOrdenamiento(true); // Toggle orden
+                } else {
+                    currentSortCol = colId;
+                    currentSortAsc = true;
+                    aplicarOrdenamiento(false); // Iniciar ascendente
+                }
+                renderTabla();
+            });
+        });
+        
+        // Botón exportar
+        btnExportar.addEventListener("click", exportarCSV);
+        
+        // Botones "Ver" de la tabla
+        tableBody.addEventListener("click", function(e) {
+            var targetBtn = e.target.closest(".btn-ver-comprobante");
+            if (targetBtn) {
+                var row = targetBtn.closest(".factura-row");
+                if (row) abrirModalDetalle(row);
+            }
+            
+            var printBtn = e.target.closest(".btn-imprimir-comprobante");
+            if (printBtn) {
+                showToast("Preparando impresión del comprobante contable...", "info");
+                window.print();
+            }
+        });
+        
+        // Cerrar Modal
+        modalCerrarX.addEventListener("click", cerrarModal);
+        modalCerrarBtn.addEventListener("click", cerrarModal);
+        modalImprimirBtn.addEventListener("click", function() {
+            showToast("Imprimiendo comprobante fiscal detallado...", "info");
+            window.print();
+        });
+        
+        // Cerrar haciendo clic afuera del modal
+        modal.addEventListener("click", function(e) {
+            if (e.target === modal) cerrarModal();
+        });
+
+        // Procesar CDR vía AJAX
+        var cdrBtn = document.getElementById("modal-cdr-btn");
+        if (cdrBtn) {
+            cdrBtn.addEventListener("click", function() {
+                var facturaId = cdrBtn.getAttribute("data-factura-id");
+                if (!facturaId) return;
+
+                var originalHtml = cdrBtn.innerHTML;
+                cdrBtn.disabled = true;
+                cdrBtn.style.opacity = "0.7";
+                cdrBtn.innerHTML = `
+                    <svg style="animation: spin 1s linear infinite; width: 14px; height: 14px; color: #ffffff; display: inline-block; vertical-align: middle; margin-right: 4px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Procesando...`;
+
+                fetch("/Facturas/ProcederCDR", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "id=" + encodeURIComponent(facturaId)
+                })
+                .then(function(res) {
+                    return res.json();
+                })
+                .then(function(data) {
+                    cdrBtn.disabled = false;
+                    cdrBtn.style.opacity = "1";
+                    cdrBtn.innerHTML = originalHtml;
+
+                    if (data.success) {
+                        cerrarModal();
+                        var row = document.querySelector(`.factura-row[data-id="${facturaId}"]`);
+                        if (row) {
+                            row.setAttribute("data-cdr-procesado", "true");
+                        }
+                        aplicarFiltros();
+                        if (window.showToast) {
+                            window.showToast(data.message, "success");
+                        } else {
+                            alert(data.message);
+                        }
+                    } else {
+                        if (window.showToast) {
+                            window.showToast(data.message || "Error al procesar CDR.", "error");
+                        } else {
+                            alert(data.message || "Error al procesar CDR.");
+                        }
+                    }
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    cdrBtn.disabled = false;
+                    cdrBtn.style.opacity = "1";
+                    cdrBtn.innerHTML = originalHtml;
+
+                    if (window.showToast) {
+                        window.showToast("Error de conexión al procesar el CDR.", "error");
+                    } else {
+                        alert("Error de conexión al procesar el CDR.");
+                    }
+                });
+            });
+        }
+
+        // --- GESTIÓN FORMULARIO CREAR/EDITAR MODAL ---
+        var listSocios = [
+            @if (ViewBag.Socios != null)
+            {
+                foreach (var s in ViewBag.Socios)
+                {
+                    <text>{ ruc: "@s.numero_documento", nombre: "@s.razon_social" },</text>
+                }
+            }
+        ];
+
+        var formRuc = document.getElementById("form-ruc");
+        var formCliente = document.getElementById("form-cliente");
+        if (formRuc && formCliente) {
+            formRuc.addEventListener("input", function() {
+                var r = formRuc.value.trim();
+                var s = listSocios.find(x => x.ruc === r);
+                if (s) {
+                    formCliente.value = s.nombre;
+                }
+            });
+        }
+
+        var formBase = document.getElementById("form-base");
+        var formIgv = document.getElementById("form-igv");
+        var formTotal = document.getElementById("form-total");
+        if (formBase && formIgv && formTotal) {
+            formBase.addEventListener("input", recalculateFormValues);
+            formIgv.addEventListener("input", function() {
+                var base = parseFloat(formBase.value) || 0;
+                var igv = parseFloat(formIgv.value) || 0;
+                formTotal.value = (base + igv).toFixed(2);
+            });
+        }
+        function recalculateFormValues() {
+            var base = parseFloat(formBase.value) || 0;
+            var igv = (base * 0.18).toFixed(2);
+            formIgv.value = igv;
+            formTotal.value = (base + parseFloat(igv)).toFixed(2);
+        }
+
+        var formModal = document.getElementById("formulario-modal");
+        var btnNuevoComp = document.getElementById("btn-nuevo-comprobante");
+        
+        if (btnNuevoComp && formModal) {
+            btnNuevoComp.addEventListener("click", function() {
+                document.getElementById("modal-form-title").innerHTML = "Nuevo Comprobante";
+                document.getElementById("form-original-numero").value = "";
+                document.getElementById("form-ruc").value = "";
+                document.getElementById("form-cliente").value = "";
+                document.getElementById("form-tipo").value = "Factura";
+                document.getElementById("form-numero").value = "";
+                document.getElementById("form-fecha").value = new Date().toISOString().split('T')[0];
+                document.getElementById("form-moneda").value = "PEN";
+                document.getElementById("form-base").value = "0.00";
+                document.getElementById("form-igv").value = "0.00";
+                document.getElementById("form-total").value = "0.00";
+                document.getElementById("form-estado").value = "Emitida";
+                formModal.style.display = "flex";
+            });
+        }
+
+        // Eventos en tabla (Ver y Editar)
+        tableBody.addEventListener("click", function(e) {
+            var targetBtn = e.target.closest(".btn-ver-comprobante");
+            if (targetBtn) {
+                var row = targetBtn.closest(".factura-row");
+                if (row) abrirModalDetalle(row);
+            }
+            
+            var printBtn = e.target.closest(".btn-imprimir-comprobante");
+            if (printBtn) {
+                if (window.showToast) window.showToast("Preparando impresión del comprobante contable...", "info");
+                setTimeout(function() { window.print(); }, 500);
+            }
+
+            var editBtn = e.target.closest(".btn-editar-comprobante");
+            if (editBtn) {
+                var row = editBtn.closest(".factura-row");
+                if (row) {
+                    var numero = row.getAttribute("data-numero");
+                    var fecha = row.getAttribute("data-fecha");
+                    var cliente = row.getAttribute("data-cliente");
+                    var ruc = row.getAttribute("data-ruc");
+                    var tipo = row.getAttribute("data-tipo");
+                    var moneda = row.getAttribute("data-moneda");
+                    var base = parseFloat(row.getAttribute("data-base")) || 0;
+                    var igv = parseFloat(row.getAttribute("data-igv")) || 0;
+                    var total = parseFloat(row.getAttribute("data-total")) || 0;
+                    var estado = row.getAttribute("data-estado");
+
+                    document.getElementById("modal-form-title").innerHTML = "Editar Comprobante: " + numero;
+                    document.getElementById("form-original-numero").value = numero;
+                    document.getElementById("form-ruc").value = ruc;
+                    document.getElementById("form-cliente").value = cliente;
+                    document.getElementById("form-tipo").value = tipo;
+                    document.getElementById("form-numero").value = numero;
+                    document.getElementById("form-fecha").value = fecha;
+                    document.getElementById("form-moneda").value = moneda;
+                    document.getElementById("form-base").value = base.toFixed(2);
+                    document.getElementById("form-igv").value = igv.toFixed(2);
+                    document.getElementById("form-total").value = total.toFixed(2);
+                    document.getElementById("form-estado").value = estado;
+                    formModal.style.display = "flex";
+                }
+            }
+        });
+
+        // Cerrar Form Modal
+        function cerrarFormModal() {
+            formModal.style.display = "none";
+        }
+        document.getElementById("modal-form-cerrar-x").addEventListener("click", cerrarFormModal);
+        document.getElementById("modal-form-cancelar-btn").addEventListener("click", cerrarFormModal);
+        formModal.addEventListener("click", function(e) {
+            if (e.target === formModal) cerrarFormModal();
+        });
+        
+        // Carga Inicial del Sistema
+        aplicarFiltros();
+    });
+</script>
