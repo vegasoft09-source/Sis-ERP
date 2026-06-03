@@ -752,11 +752,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const btn = frmNuevaAsistencia.querySelector('button[type="submit"]');
             btn.disabled = true;
 
+            let horaSalida = null;
+            const valSalida = document.getElementById('asistenciaManualSalida').value;
+            if (valSalida) {
+                horaSalida = document.getElementById('asistenciaManualFecha').value + 'T' + valSalida + ':00';
+            }
+
             const payload = {
                 EmpleadoId: parseInt(document.getElementById('asistenciaSelectEmpleado').value),
                 Fecha: document.getElementById('asistenciaManualFecha').value,
                 HoraEntrada: document.getElementById('asistenciaManualFecha').value + 'T' + document.getElementById('asistenciaManualEntrada').value + ':00',
-                HoraSalida: null,
+                HoraSalida: horaSalida,
                 Observaciones: document.getElementById('asistenciaManualObservaciones').value
             };
 
@@ -767,14 +773,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(payload)
                 });
                 
-                const data = await res.json();
+                let data;
+                const contentType = res.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await res.json();
+                } else {
+                    data = await res.text();
+                }
+                
                 if (res.ok) {
-                    mostrarAlerta(data.mensaje, 'success');
+                    mostrarAlerta((data && data.mensaje) || 'Asistencia manual registrada.', 'success');
                     bootstrap.Modal.getInstance(document.getElementById('modalNuevaAsistencia')).hide();
                     const asisGeneralFecha = document.getElementById('asisGeneralFecha');
                     if (asisGeneralFecha) cargarAsistenciaGeneral(asisGeneralFecha.value);
                 } else {
-                    mostrarAlerta(data || 'Error al registrar asistencia manual', 'danger');
+                    const errorMsg = (data && typeof data === 'object') ? (data.mensaje || data.message) : data;
+                    mostrarAlerta(errorMsg || 'Error al registrar asistencia manual', 'danger');
                 }
             } catch (err) {
                 console.error(err);
@@ -1338,13 +1352,22 @@ window.registrarSalidaRapida = async function(empleadoId) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ EmpleadoId: empleadoId, Observaciones: '' })
         });
-        const data = await res.json();
+        
+        let data;
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            data = await res.json();
+        } else {
+            data = await res.text();
+        }
+        
         if (res.ok) {
-            mostrarAlerta(data.mensaje, 'success');
+            mostrarAlerta((data && data.mensaje) || 'Salida registrada correctamente.', 'success');
             const asisGeneralFecha = document.getElementById('asisGeneralFecha');
             if (asisGeneralFecha) cargarAsistenciaGeneral(asisGeneralFecha.value);
         } else {
-            mostrarAlerta(data || 'Error al registrar salida', 'danger');
+            const errorMsg = (data && typeof data === 'object') ? (data.mensaje || data.message) : data;
+            mostrarAlerta(errorMsg || 'Error al registrar salida', 'danger');
         }
     } catch (err) {
         console.error(err);
@@ -1492,10 +1515,17 @@ async function registrarAsistenciaRapida(tipo) {
             })
         });
 
-        const data = await res.json();
+        let data;
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            data = await res.json();
+        } else {
+            data = await res.text();
+        }
+
         if (res.ok) {
             document.getElementById('asistenciaObservaciones').value = '';
-            mostrarAlerta(data.mensaje, "success");
+            mostrarAlerta((data && data.mensaje) || 'Registro de asistencia exitoso.', "success");
             
             // Recargar vista individual
             cargarAsistenciasPorEmpleado(parseInt(empleadoId));
@@ -1508,7 +1538,8 @@ async function registrarAsistenciaRapida(tipo) {
             
             actualizarKPIs();
         } else {
-            mostrarAlerta(data.message || data.mensaje || "Error al procesar registro de asistencia.", "danger");
+            const errorMsg = (data && typeof data === 'object') ? (data.message || data.mensaje) : data;
+            mostrarAlerta(errorMsg || "Error al procesar registro de asistencia.", "danger");
         }
     } catch (err) {
         console.error("Error registrando asistencia:", err);

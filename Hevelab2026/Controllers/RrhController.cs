@@ -1045,11 +1045,12 @@ namespace Sis_ERP.Controllers
             if (yaEntro > 0)
                 return BadRequest("El empleado ya tiene una entrada registrada para hoy.");
 
+            var horaEntrada = DateTime.Now;
             var id = await db.ExecuteScalarAsync<long>(@"
                 INSERT INTO hr_asistencia (empleado_id, fecha, hora_entrada, observaciones)
-                VALUES (@EmpleadoId, @hoy, NOW(), @Observaciones);
+                VALUES (@EmpleadoId, @hoy, @horaEntrada, @Observaciones);
                 SELECT LAST_INSERT_ID();",
-                new { dto.EmpleadoId, hoy, dto.Observaciones });
+                new { dto.EmpleadoId, hoy, horaEntrada, dto.Observaciones });
 
             return Ok(new
             {
