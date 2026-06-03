@@ -98,7 +98,9 @@
             {
                 var catLabel = categorias.FirstOrDefault(c => c.Id == module.Category).Label ?? module.Category;
                 <div class="col-12 col-md-6 col-lg-4 col-xxl-3 hl-modulo-item" data-category="@module.Category">
-                    <a asp-controller="@module.Controller" asp-action="@module.Action" class="text-decoration-none hl-module-card-link">
+                    <a asp-controller="@module.Controller" asp-action="@module.Action"
+                       class="text-decoration-none hl-module-card-link"
+                       aria-label="Ir a @module.Name">
                         <div class="card border-0 shadow-sm rounded-3 h-100 hl-module-card"
                              style="background: var(--bg-topbar); border: 1px solid var(--border-color); transition: all 0.2s ease;">
                             <div class="card-body p-4 d-flex flex-column justify-content-between">
@@ -124,9 +126,13 @@
                                         @module.Description
                                     </p>
                                 </div>
-                                <div class="d-flex align-items-center gap-1 mt-3 fw-semibold" style="font-size: 13px; color: var(--sys-primary) !important;">
-                                    Abrir módulo
-                                    <svg class="hl-icon" viewBox="0 0 24 24" style="width: 14px; height: 14px; transition: transform 0.2s ease;"><polyline points="9 18 15 12 9 6"/></svg>
+                                <div class="d-flex justify-content-end mt-3">
+                                    <span class="hl-module-arrow" aria-hidden="true">
+                                        <svg class="hl-icon" viewBox="0 0 24 24">
+                                            <line x1="5" y1="12" x2="19" y2="12"/>
+                                            <polyline points="12 5 19 12 12 19"/>
+                                        </svg>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -269,8 +275,39 @@
         border-color: var(--sys-ring) !important;
     }
     
-    .hl-module-card-link:hover .text-primary .hl-icon {
+    .hl-module-arrow {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-full);
+        background: var(--sys-soft-bg);
+        border: 1px solid var(--sys-border);
+        color: var(--sys-primary);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                    background 0.2s ease,
+                    border-color 0.2s ease,
+                    color 0.2s ease,
+                    box-shadow 0.2s ease;
+    }
+    .hl-module-arrow .hl-icon {
+        width: 18px;
+        height: 18px;
+        stroke-width: 2.25;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hl-module-card-link:hover .hl-module-arrow,
+    .hl-module-card:hover .hl-module-arrow {
+        background: var(--sys-primary);
+        border-color: var(--sys-primary);
+        color: var(--sys-on-primary);
+        box-shadow: 0 4px 12px color-mix(in srgb, var(--sys-primary) 35%, transparent);
         transform: translateX(4px);
+    }
+    .hl-module-card-link:hover .hl-module-arrow .hl-icon,
+    .hl-module-card:hover .hl-module-arrow .hl-icon {
+        transform: translateX(2px);
     }
 
     .hl-card-icon-wrap {
