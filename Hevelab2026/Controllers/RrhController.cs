@@ -174,6 +174,30 @@ namespace Sis_ERP.Controllers
         }
 
         // ════════════════════════════════════════════════════════════════
+        //  DASHBOARD KPIs
+        // ════════════════════════════════════════════════════════════════
+
+        [HttpGet("dashboard-kpis")]
+        public async Task<IActionResult> GetDashboardKpis()
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+
+            using var db = new MySqlConnection(_conn);
+            var kpis = await db.QueryFirstOrDefaultAsync<DashboardKpisDto>(@"
+                SELECT 
+                    (SELECT COUNT(*) FROM hr_employee WHERE empresa_id = @empresaId AND activo = 1) AS EmpleadosActivos,
+                    (SELECT COUNT(*) FROM hr_contrato c INNER JOIN hr_employee e ON c.empleado_id = e.id WHERE e.empresa_id = @empresaId AND c.estado = 'ACTIVO') AS ContratosActivos,
+                    (SELECT COUNT(DISTINCT a.empleado_id) FROM hr_asistencia a INNER JOIN hr_employee e ON a.empleado_id = e.id WHERE e.empresa_id = @empresaId AND a.fecha = CURDATE()) AS AsistenciasHoy,
+                    (SELECT COUNT(*) FROM hr_ausencia a INNER JOIN hr_employee e ON a.empleado_id = e.id WHERE e.empresa_id = @empresaId AND a.estado = 'PENDIENTE') AS AusenciasPendientes,
+                    (SELECT COUNT(*) FROM hr_departamento WHERE empresa_id = @empresaId AND activo = 1) AS Departamentos,
+                    (SELECT COUNT(*) FROM hr_cargo WHERE empresa_id = @empresaId AND activo = 1) AS Cargos
+            ", new { empresaId });
+
+            return Ok(kpis ?? new DashboardKpisDto());
+        }
+
+        // ════════════════════════════════════════════════════════════════
         //  DEPARTAMENTOS
         // ════════════════════════════════════════════════════════════════
 
@@ -229,6 +253,64 @@ namespace Sis_ERP.Controllers
             return Ok(dto);
         }
 
+        /// <summary>Actualiza un departamento existente.</summary>
+        [HttpPut("departamentos/{id}")]
+        public async Task<IActionResult> ActualizarDepartamento(int id, [FromBody] HrDepartamento dto)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+            if (string.IsNullOrWhiteSpace(dto.Nombre))
+                return BadRequest("El nombre del departamento es obligatorio.");
+
+            using var db = new MySqlConnection(_conn);
+            
+            var existe = await db.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM hr_departamento WHERE id = @id AND empresa_id = @empresaId",
+                new { id, empresaId });
+            if (existe == 0) return NotFound("Departamento no encontrado.");
+
+            if (dto.ResponsableId > 0)
+            {
+                var respExiste = await db.ExecuteScalarAsync<int>(
+                    "SELECT COUNT(*) FROM usuario WHERE id = @ResponsableId AND empresa_id = @empresaId",
+                    new { dto.ResponsableId, empresaId });
+                if (respExiste == 0)
+                    return BadRequest("El responsable indicado no existe.");
+            }
+
+            await db.ExecuteAsync(@"
+                UPDATE hr_departamento
+                SET nombre = @Nombre, responsable_id = @ResponsableId, padre_id = @PadreId
+                WHERE id = @id AND empresa_id = @empresaId",
+                new { id, empresaId, dto.Nombre, ResponsableId = dto.ResponsableId > 0 ? dto.ResponsableId : (int?)null, dto.PadreId });
+
+            dto.Id = id;
+            return Ok(dto);
+        }
+        /// <summary>Desactiva un departamento (baja lógica).</summary>
+        [HttpDelete("departamentos/{id}")]
+        public async Task<IActionResult> EliminarDepartamento(int id)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+
+            using var db = new MySqlConnection(_conn);
+
+            // Verificar que no tenga empleados activos
+            var tieneEmpleados = await db.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM hr_employee WHERE departamento_id = @id AND activo = 1",
+                new { id });
+            if (tieneEmpleados > 0)
+                return BadRequest("No se puede eliminar: el departamento tiene empleados activos asignados.");
+
+            var afectados = await db.ExecuteAsync(
+                "UPDATE hr_departamento SET activo = 0 WHERE id = @id AND empresa_id = @empresaId",
+                new { id, empresaId });
+
+            if (afectados == 0) return NotFound("Departamento no encontrado.");
+            return Ok(new { mensaje = "Departamento eliminado correctamente." });
+        }
+
         // ════════════════════════════════════════════════════════════════
         //  CARGOS
         // ════════════════════════════════════════════════════════════════
@@ -268,6 +350,53 @@ namespace Sis_ERP.Controllers
             return Ok(dto);
         }
 
+        /// <summary>Actualiza un cargo existente.</summary>
+        [HttpPut("cargos/{id}")]
+        public async Task<IActionResult> ActualizarCargo(int id, [FromBody] HrCargo dto)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+            if (string.IsNullOrWhiteSpace(dto.Nombre))
+                return BadRequest("El nombre del cargo es obligatorio.");
+
+            using var db = new MySqlConnection(_conn);
+            var existe = await db.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM hr_cargo WHERE id = @id AND empresa_id = @empresaId",
+                new { id, empresaId });
+            if (existe == 0) return NotFound("Cargo no encontrado.");
+
+            await db.ExecuteAsync(@"
+                UPDATE hr_cargo
+                SET nombre = @Nombre, descripcion = @Descripcion
+                WHERE id = @id AND empresa_id = @empresaId",
+                new { id, empresaId, dto.Nombre, dto.Descripcion });
+
+            dto.Id = id;
+            return Ok(dto);
+        }
+        /// <summary>Desactiva un cargo (baja lógica).</summary>
+        [HttpDelete("cargos/{id}")]
+        public async Task<IActionResult> EliminarCargo(int id)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+
+            using var db = new MySqlConnection(_conn);
+
+            var tieneEmpleados = await db.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM hr_employee WHERE cargo_id = @id AND activo = 1",
+                new { id });
+            if (tieneEmpleados > 0)
+                return BadRequest("No se puede eliminar: el cargo tiene empleados activos asignados.");
+
+            var afectados = await db.ExecuteAsync(
+                "UPDATE hr_cargo SET activo = 0 WHERE id = @id AND empresa_id = @empresaId",
+                new { id, empresaId });
+
+            if (afectados == 0) return NotFound("Cargo no encontrado.");
+            return Ok(new { mensaje = "Cargo eliminado correctamente." });
+        }
+
         // ════════════════════════════════════════════════════════════════
         //  EMPLEADOS
         // ════════════════════════════════════════════════════════════════
@@ -287,11 +416,21 @@ namespace Sis_ERP.Controllers
                        d.nombre           AS DepartamentoNombre,
                        e.cargo_id         AS CargoId,
                        c.nombre           AS CargoNombre,
+                       e.responsable_id   AS ResponsableId,
                        e.nombres          AS Nombres,
                        e.apellidos        AS Apellidos,
                        e.tipo_documento   AS TipoDocumento,
                        e.numero_documento AS NumeroDocumento,
+                       e.fecha_nacimiento AS FechaNacimiento,
+                       e.genero           AS Genero,
+                       e.estado_civil     AS EstadoCivil,
+                       e.telefono         AS Telefono,
+                       e.celular          AS Celular,
+                       e.correo_personal  AS CorreoPersonal,
+                       e.correo_empresa   AS CorreoEmpresa,
+                       e.direccion        AS Direccion,
                        e.fecha_ingreso    AS FechaIngreso,
+                       e.fecha_cese       AS FechaCese,
                        e.tipo_contrato    AS TipoContrato,
                        e.regimen_laboral  AS RegimenLaboral,
                        e.activo           AS Activo
@@ -318,21 +457,35 @@ namespace Sis_ERP.Controllers
             var emp = await db.QueryFirstOrDefaultAsync<HrEmployee>(@"
                 SELECT e.id               AS Id,
                        e.usuario_id       AS UsuarioId,
+                       u.nombre           AS UsuarioNombre,
                        e.departamento_id  AS DepartamentoId,
                        d.nombre           AS DepartamentoNombre,
                        e.cargo_id         AS CargoId,
                        c.nombre           AS CargoNombre,
+                       e.responsable_id   AS ResponsableId,
+                       CONCAT(r.nombres, ' ', r.apellidos) AS ResponsableNombre,
                        e.nombres          AS Nombres,
                        e.apellidos        AS Apellidos,
                        e.tipo_documento   AS TipoDocumento,
                        e.numero_documento AS NumeroDocumento,
+                       e.fecha_nacimiento AS FechaNacimiento,
+                       e.genero           AS Genero,
+                       e.estado_civil     AS EstadoCivil,
+                       e.telefono         AS Telefono,
+                       e.celular          AS Celular,
+                       e.correo_personal  AS CorreoPersonal,
+                       e.correo_empresa   AS CorreoEmpresa,
+                       e.direccion        AS Direccion,
                        e.fecha_ingreso    AS FechaIngreso,
+                       e.fecha_cese       AS FechaCese,
                        e.tipo_contrato    AS TipoContrato,
                        e.regimen_laboral  AS RegimenLaboral,
                        e.activo           AS Activo
                 FROM hr_employee e
                 LEFT JOIN hr_departamento d ON e.departamento_id = d.id
                 LEFT JOIN hr_cargo        c ON e.cargo_id        = c.id
+                LEFT JOIN usuario         u ON e.usuario_id      = u.id
+                LEFT JOIN hr_employee     r ON e.responsable_id  = r.id
                 WHERE e.id = @id AND e.empresa_id = @empresaId",
                 new { id, empresaId });
 
@@ -388,12 +541,16 @@ namespace Sis_ERP.Controllers
 
             var id = await db.ExecuteScalarAsync<int>(@"
                 INSERT INTO hr_employee
-                    (empresa_id, usuario_id, departamento_id, cargo_id,
+                    (empresa_id, usuario_id, departamento_id, cargo_id, responsable_id,
                      nombres, apellidos, tipo_documento, numero_documento,
+                     fecha_nacimiento, genero, estado_civil, telefono, celular,
+                     correo_personal, correo_empresa, direccion,
                      fecha_ingreso, tipo_contrato, regimen_laboral, activo)
                 VALUES
-                    (@empresaId, @UsuarioId, @DepartamentoId, @CargoId,
+                    (@empresaId, @UsuarioId, @DepartamentoId, @CargoId, @ResponsableId,
                      @Nombres, @Apellidos, @TipoDocumento, @NumeroDocumento,
+                     @FechaNacimiento, @Genero, @EstadoCivil, @Telefono, @Celular,
+                     @CorreoPersonal, @CorreoEmpresa, @Direccion,
                      @FechaIngreso, @TipoContrato, @RegimenLaboral, 1);
                 SELECT LAST_INSERT_ID();",
                 new
@@ -402,10 +559,19 @@ namespace Sis_ERP.Controllers
                     dto.UsuarioId,
                     dto.DepartamentoId,
                     dto.CargoId,
+                    dto.ResponsableId,
                     dto.Nombres,
                     dto.Apellidos,
                     dto.TipoDocumento,
                     dto.NumeroDocumento,
+                    dto.FechaNacimiento,
+                    dto.Genero,
+                    dto.EstadoCivil,
+                    dto.Telefono,
+                    dto.Celular,
+                    dto.CorreoPersonal,
+                    dto.CorreoEmpresa,
+                    dto.Direccion,
                     dto.FechaIngreso,
                     dto.TipoContrato,
                     dto.RegimenLaboral
@@ -413,6 +579,106 @@ namespace Sis_ERP.Controllers
 
             dto.Id = id;
             dto.Activo = true;
+            return Ok(dto);
+        }
+
+        /// <summary>Actualiza un empleado existente.</summary>
+        [HttpPut("empleados/{id}")]
+        public async Task<IActionResult> ActualizarEmpleado(int id, [FromBody] HrEmployee dto)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+
+            if (string.IsNullOrWhiteSpace(dto.Nombres))      return BadRequest("Los nombres son obligatorios.");
+            if (string.IsNullOrWhiteSpace(dto.Apellidos))    return BadRequest("Los apellidos son obligatorios.");
+            if (string.IsNullOrWhiteSpace(dto.NumeroDocumento)) return BadRequest("El número de documento es obligatorio.");
+            if (dto.DepartamentoId <= 0) return BadRequest("Debe indicar un departamento.");
+            if (dto.CargoId <= 0)        return BadRequest("Debe indicar un cargo.");
+
+            using var db = new MySqlConnection(_conn);
+
+            var empExiste = await db.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM hr_employee WHERE id = @id AND empresa_id = @empresaId",
+                new { id, empresaId });
+            if (empExiste == 0) return NotFound("Empleado no encontrado.");
+
+            if (dto.UsuarioId.HasValue)
+            {
+                var usuarioExiste = await db.ExecuteScalarAsync<int>(
+                    "SELECT COUNT(*) FROM usuario WHERE id = @UsuarioId AND empresa_id = @empresaId",
+                    new { dto.UsuarioId, empresaId });
+                if (usuarioExiste == 0)
+                    return BadRequest("El usuario indicado no existe o no pertenece a esta empresa.");
+
+                var yaAsignado = await db.ExecuteScalarAsync<int>(
+                    "SELECT COUNT(*) FROM hr_employee WHERE usuario_id = @UsuarioId AND activo = 1 AND id != @id",
+                    new { dto.UsuarioId, id });
+                if (yaAsignado > 0)
+                    return BadRequest("Este usuario ya está asignado a otro empleado activo.");
+            }
+
+            var deptExiste = await db.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM hr_departamento WHERE id = @DepartamentoId AND empresa_id = @empresaId AND activo = 1",
+                new { dto.DepartamentoId, empresaId });
+            if (deptExiste == 0) return BadRequest("El departamento indicado no existe o no pertenece a esta empresa.");
+
+            var cargoExiste = await db.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM hr_cargo WHERE id = @CargoId AND empresa_id = @empresaId AND activo = 1",
+                new { dto.CargoId, empresaId });
+            if (cargoExiste == 0) return BadRequest("El cargo indicado no existe o no pertenece a esta empresa.");
+
+            await db.ExecuteAsync(@"
+                UPDATE hr_employee
+                SET usuario_id = @UsuarioId,
+                    departamento_id = @DepartamentoId,
+                    cargo_id = @CargoId,
+                    responsable_id = @ResponsableId,
+                    nombres = @Nombres,
+                    apellidos = @Apellidos,
+                    tipo_documento = @TipoDocumento,
+                    numero_documento = @NumeroDocumento,
+                    fecha_nacimiento = @FechaNacimiento,
+                    genero = @Genero,
+                    estado_civil = @EstadoCivil,
+                    telefono = @Telefono,
+                    celular = @Celular,
+                    correo_personal = @CorreoPersonal,
+                    correo_empresa = @CorreoEmpresa,
+                    direccion = @Direccion,
+                    fecha_ingreso = @FechaIngreso,
+                    fecha_cese = @FechaCese,
+                    tipo_contrato = @TipoContrato,
+                    regimen_laboral = @RegimenLaboral,
+                    activo = @Activo
+                WHERE id = @id AND empresa_id = @empresaId",
+                new
+                {
+                    id,
+                    empresaId,
+                    dto.UsuarioId,
+                    dto.DepartamentoId,
+                    dto.CargoId,
+                    dto.ResponsableId,
+                    dto.Nombres,
+                    dto.Apellidos,
+                    dto.TipoDocumento,
+                    dto.NumeroDocumento,
+                    dto.FechaNacimiento,
+                    dto.Genero,
+                    dto.EstadoCivil,
+                    dto.Telefono,
+                    dto.Celular,
+                    dto.CorreoPersonal,
+                    dto.CorreoEmpresa,
+                    dto.Direccion,
+                    dto.FechaIngreso,
+                    dto.FechaCese,
+                    dto.TipoContrato,
+                    dto.RegimenLaboral,
+                    Activo = dto.Activo ? 1 : 0
+                });
+
+            dto.Id = id;
             return Ok(dto);
         }
 
@@ -436,6 +702,35 @@ namespace Sis_ERP.Controllers
         // ════════════════════════════════════════════════════════════════
         //  CONTRATOS
         // ════════════════════════════════════════════════════════════════
+        /// <summary>Obtiene un contrato por ID.</summary>
+        [HttpGet("contratos/{id}")]
+        public async Task<IActionResult> GetContrato(int id)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+
+            using var db = new MySqlConnection(_conn);
+            var contrato = await db.QueryFirstOrDefaultAsync<HrContrato>(@"
+                SELECT c.id             AS Id,
+                    c.empleado_id    AS EmpleadoId,
+                    CONCAT(e.nombres, ' ', e.apellidos) AS EmpleadoNombre,
+                    c.nombre         AS Nombre,
+                    c.fecha_inicio   AS FechaInicio,
+                    c.fecha_fin      AS FechaFin,
+                    c.sueldo         AS Sueldo,
+                    c.moneda_id      AS MonedaId,
+                    CONCAT(m.nombre, ' (', m.simbolo, ')') AS Moneda,
+                    c.tipo_contrato  AS TipoContrato,
+                    c.estado         AS Estado
+                FROM hr_contrato c
+                INNER JOIN hr_employee e ON c.empleado_id = e.id
+                INNER JOIN moneda      m ON c.moneda_id   = m.id
+                WHERE c.id = @id AND e.empresa_id = @empresaId",
+                new { id, empresaId });
+
+            if (contrato is null) return NotFound("Contrato no encontrado.");
+            return Ok(contrato);
+        }
 
         /// <summary>Lista contratos de un empleado.</summary>
         [HttpGet("empleados/{empleadoId}/contratos")]
@@ -549,6 +844,88 @@ namespace Sis_ERP.Controllers
             }
         }
 
+        /// <summary>Actualiza un contrato existente.</summary>
+        [HttpPut("contratos/{id}")]
+        public async Task<IActionResult> ActualizarContrato(int id, [FromBody] HrContrato dto)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+
+            if (dto.EmpleadoId <= 0)               return BadRequest("Debe indicar el empleado.");
+            if (string.IsNullOrWhiteSpace(dto.Nombre)) return BadRequest("El nombre del contrato es obligatorio.");
+            if (dto.Sueldo <= 0)                   return BadRequest("El sueldo debe ser mayor a 0.");
+            if (dto.MonedaId <= 0)                 return BadRequest("Debe indicar la moneda.");
+            if (dto.FechaInicio == default)        return BadRequest("La fecha de inicio es obligatoria.");
+
+            using var db = new MySqlConnection(_conn);
+            
+            var contratoExiste = await db.QueryFirstOrDefaultAsync<HrContrato>(
+                "SELECT c.id FROM hr_contrato c INNER JOIN hr_employee e ON c.empleado_id = e.id WHERE c.id = @id AND e.empresa_id = @empresaId",
+                new { id, empresaId });
+            if (contratoExiste is null) return NotFound("Contrato no encontrado.");
+
+            var empleado = await db.QueryFirstOrDefaultAsync<HrEmployee>(@"
+                SELECT id AS Id, nombres AS Nombres, apellidos AS Apellidos, activo AS Activo
+                FROM hr_employee
+                WHERE id = @EmpleadoId AND empresa_id = @empresaId",
+                new { dto.EmpleadoId, empresaId });
+            if (empleado is null) return NotFound("Empleado no encontrado.");
+
+            var monedaExiste = await db.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM moneda WHERE id = @MonedaId AND activo = 1",
+                new { dto.MonedaId });
+            if (monedaExiste == 0) return BadRequest("La moneda indicada no existe.");
+
+            await db.ExecuteAsync(@"
+                UPDATE hr_contrato
+                SET empleado_id = @EmpleadoId, nombre = @Nombre, fecha_inicio = @FechaInicio, fecha_fin = @FechaFin,
+                    sueldo = @Sueldo, moneda_id = @MonedaId, tipo_contrato = @TipoContrato, estado = @Estado
+                WHERE id = @id",
+                new
+                {
+                    id,
+                    dto.EmpleadoId,
+                    dto.Nombre,
+                    dto.FechaInicio,
+                    dto.FechaFin,
+                    dto.Sueldo,
+                    dto.MonedaId,
+                    dto.TipoContrato,
+                    Estado = dto.Estado ?? "ACTIVO"
+                });
+
+            dto.Id = id;
+            dto.EmpleadoNombre = empleado.NombreCompleto;
+            return Ok(dto);
+        }
+        /// <summary>Elimina (baja lógica) un contrato. Solo si está CERRADO.</summary>
+        [HttpDelete("contratos/{id}")]
+        public async Task<IActionResult> EliminarContrato(int id)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+
+            using var db = new MySqlConnection(_conn);
+
+            var contrato = await db.QueryFirstOrDefaultAsync<HrContrato>(@"
+                SELECT c.id AS Id, c.estado AS Estado
+                FROM hr_contrato c
+                INNER JOIN hr_employee e ON c.empleado_id = e.id
+                WHERE c.id = @id AND e.empresa_id = @empresaId",
+                new { id, empresaId });
+
+            if (contrato is null) return NotFound("Contrato no encontrado.");
+            if (contrato.Estado == "ACTIVO")
+                return BadRequest("No se puede eliminar un contrato ACTIVO. Primero registre un nuevo contrato para cerrarlo.");
+
+            var afectados = await db.ExecuteAsync(
+                "DELETE FROM hr_contrato WHERE id = @id",
+                new { id });
+
+            if (afectados == 0) return NotFound("Contrato no encontrado.");
+            return Ok(new { mensaje = "Contrato eliminado correctamente." });
+        }
+
         // ════════════════════════════════════════════════════════════════
         //  ASISTENCIA
         // ════════════════════════════════════════════════════════════════
@@ -584,6 +961,59 @@ namespace Sis_ERP.Controllers
             return Ok(data);
         }
 
+        /// <summary>Lista la asistencia de TODOS los empleados activos para una fecha específica (Panel General).</summary>
+        [HttpGet("asistencias/general")]
+        public async Task<IActionResult> GetAsistenciasGeneral([FromQuery] DateTime? fecha)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+
+            var fechaConsulta = fecha ?? DateTime.Today;
+
+            using var db = new MySqlConnection(_conn);
+            var sql = @"
+                SELECT e.id                                  AS EmpleadoId,
+                       CONCAT(e.nombres, ' ', e.apellidos)   AS EmpleadoNombre,
+                       d.nombre                              AS DepartamentoNombre,
+                       a.id                                  AS AsistenciaId,
+                       a.fecha                               AS Fecha,
+                       a.hora_entrada                        AS HoraEntrada,
+                       a.hora_salida                         AS HoraSalida,
+                       a.horas_trabajadas                    AS HorasTrabajadas,
+                       a.observaciones                       AS Observaciones,
+                       CASE 
+                           WHEN a.id IS NULL AND @fechaConsulta < CURDATE() THEN 'AUSENTE'
+                           WHEN a.id IS NULL THEN 'SIN_REGISTRO'
+                           WHEN a.hora_salida IS NULL THEN 'EN_CURSO'
+                           ELSE 'COMPLETA'
+                       END                                   AS EstadoMarcacion
+                FROM hr_employee e
+                LEFT JOIN hr_departamento d ON e.departamento_id = d.id
+                LEFT JOIN hr_asistencia a ON e.id = a.empleado_id AND a.fecha = @fechaConsulta
+                WHERE e.empresa_id = @empresaId 
+                  AND e.activo = 1
+                ORDER BY d.nombre, e.apellidos, e.nombres";
+
+            var rawData = await db.QueryAsync(sql, new { empresaId, fechaConsulta });
+            
+            // Proyectar a tipo anónimo para que ASP.NET Core serialice a camelCase correctamente
+            var data = rawData.Select(x => new {
+                EmpleadoId = x.EmpleadoId,
+                EmpleadoNombre = x.EmpleadoNombre,
+                DepartamentoNombre = x.DepartamentoNombre,
+                AsistenciaId = x.AsistenciaId,
+                Fecha = x.Fecha,
+                HoraEntrada = x.HoraEntrada,
+                HoraSalida = x.HoraSalida,
+                HorasTrabajadas = x.HorasTrabajadas,
+                Observaciones = x.Observaciones,
+                EstadoMarcacion = x.EstadoMarcacion
+            });
+
+            return Ok(data);
+        }
+
+
         /// <summary>
         /// Registra la entrada del empleado.
         /// Regla: empleado activo, no puede tener entrada duplicada el mismo día.
@@ -616,10 +1046,10 @@ namespace Sis_ERP.Controllers
                 return BadRequest("El empleado ya tiene una entrada registrada para hoy.");
 
             var id = await db.ExecuteScalarAsync<long>(@"
-                INSERT INTO hr_asistencia (empleado_id, fecha, hora_entrada)
-                VALUES (@EmpleadoId, @hoy, NOW());
+                INSERT INTO hr_asistencia (empleado_id, fecha, hora_entrada, observaciones)
+                VALUES (@EmpleadoId, @hoy, NOW(), @Observaciones);
                 SELECT LAST_INSERT_ID();",
-                new { dto.EmpleadoId, hoy });
+                new { dto.EmpleadoId, hoy, dto.Observaciones });
 
             return Ok(new
             {
@@ -669,9 +1099,10 @@ namespace Sis_ERP.Controllers
 
             await db.ExecuteAsync(@"
                 UPDATE hr_asistencia
-                SET hora_salida = @horaSalida, horas_trabajadas = @horasTrabajadas
+                SET hora_salida = @horaSalida, horas_trabajadas = @horasTrabajadas,
+                    observaciones = CASE WHEN @Observaciones IS NOT NULL AND @Observaciones != '' THEN CONCAT(IFNULL(observaciones, ''), ' | Salida: ', @Observaciones) ELSE observaciones END
                 WHERE id = @Id",
-                new { horaSalida, horasTrabajadas = Math.Round(horasTrabajadas, 2), asistencia.Id });
+                new { horaSalida, horasTrabajadas = Math.Round(horasTrabajadas, 2), asistencia.Id, dto.Observaciones });
 
             return Ok(new
             {
@@ -679,6 +1110,101 @@ namespace Sis_ERP.Controllers
                 horaSalida,
                 horasTrabajadas = Math.Round(horasTrabajadas, 2)
             });
+        }
+
+        /// <summary>
+        /// Actualiza la observación de la asistencia de hoy.
+        /// </summary>
+        [HttpPut("asistencia/observacion")]
+        public async Task<IActionResult> ActualizarObservacion([FromBody] EntradaDto dto)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+            if (dto.EmpleadoId <= 0) return BadRequest("Debe indicar el empleado.");
+
+            using var db = new MySqlConnection(_conn);
+            var hoy = DateTime.Today;
+
+            var asistenciaId = await db.ExecuteScalarAsync<long?>(@"
+                SELECT a.id 
+                FROM hr_asistencia a
+                INNER JOIN hr_employee e ON a.empleado_id = e.id
+                WHERE a.empleado_id = @EmpleadoId 
+                  AND e.empresa_id = @empresaId 
+                  AND a.fecha = @hoy",
+                new { dto.EmpleadoId, empresaId, hoy });
+
+            if (asistenciaId == null)
+                return BadRequest("No hay un registro de asistencia para hoy.");
+
+            await db.ExecuteAsync(
+                "UPDATE hr_asistencia SET observaciones = @Observaciones WHERE id = @Id",
+                new { dto.Observaciones, Id = asistenciaId.Value });
+
+            return Ok(new { mensaje = "Observación actualizada correctamente." });
+        }
+
+        /// <summary>Registra una asistencia completa (ingreso manual).</summary>
+        [HttpPost("asistencia/manual")]
+        public async Task<IActionResult> RegistrarAsistenciaManual([FromBody] HrAsistencia dto)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+            if (dto.EmpleadoId <= 0) return BadRequest("Debe indicar el empleado.");
+
+            using var db = new MySqlConnection(_conn);
+            
+            var empleado = await db.QueryFirstOrDefaultAsync<HrEmployee>("SELECT id FROM hr_employee WHERE id = @EmpleadoId AND empresa_id = @empresaId", new { dto.EmpleadoId, empresaId });
+            if (empleado is null) return NotFound("Empleado no encontrado.");
+
+            double? horasTraba = null;
+            if (dto.HoraSalida.HasValue)
+            {
+                horasTraba = (dto.HoraSalida.Value - dto.HoraEntrada).TotalHours;
+                if (horasTraba < 0) return BadRequest("La hora de salida es anterior a la entrada.");
+                horasTraba = Math.Round(horasTraba.Value, 2);
+            }
+
+            var id = await db.ExecuteScalarAsync<long>(@"
+                INSERT INTO hr_asistencia (empleado_id, fecha, hora_entrada, hora_salida, horas_trabajadas, observaciones)
+                VALUES (@EmpleadoId, @Fecha, @HoraEntrada, @HoraSalida, @HorasTrabajadas, @Observaciones);
+                SELECT LAST_INSERT_ID();",
+                new { dto.EmpleadoId, dto.Fecha, dto.HoraEntrada, dto.HoraSalida, HorasTrabajadas = horasTraba, dto.Observaciones });
+
+            return Ok(new { id, mensaje = "Asistencia manual registrada correctamente." });
+        }
+
+        /// <summary>Actualiza una asistencia completa (edición manual).</summary>
+        [HttpPut("asistencia/{id}")]
+        public async Task<IActionResult> ActualizarAsistencia(long id, [FromBody] HrAsistencia dto)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+
+            using var db = new MySqlConnection(_conn);
+            var asistenciaExiste = await db.QueryFirstOrDefaultAsync<HrAsistencia>(
+                "SELECT a.id FROM hr_asistencia a INNER JOIN hr_employee e ON a.empleado_id = e.id WHERE a.id = @id AND e.empresa_id = @empresaId",
+                new { id, empresaId });
+            if (asistenciaExiste is null) return NotFound("Asistencia no encontrada.");
+
+            double? horasTraba = null;
+            if (dto.HoraSalida.HasValue)
+            {
+                horasTraba = (dto.HoraSalida.Value - dto.HoraEntrada).TotalHours;
+                if (horasTraba < 0) return BadRequest("La hora de salida es anterior a la entrada.");
+                horasTraba = Math.Round(horasTraba.Value, 2);
+            }
+
+            await db.ExecuteAsync(@"
+                UPDATE hr_asistencia
+                SET fecha = @Fecha, hora_entrada = @HoraEntrada, hora_salida = @HoraSalida,
+                    horas_trabajadas = @HorasTrabajadas, observaciones = @Observaciones
+                WHERE id = @id",
+                new { id, dto.Fecha, dto.HoraEntrada, dto.HoraSalida, HorasTrabajadas = horasTraba, dto.Observaciones });
+
+            dto.Id = id;
+            dto.HorasTrabajadas = horasTraba;
+            return Ok(dto);
         }
 
         // ════════════════════════════════════════════════════════════════
@@ -890,6 +1416,124 @@ namespace Sis_ERP.Controllers
 
             return Ok(new { mensaje = $"Ausencia {dto.Decision.ToLower()} correctamente." });
         }
+
+        [HttpDelete("ausencias/{id}")]
+        public async Task<IActionResult> EliminarAusencia(int id)
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+
+            using var db = new MySqlConnection(_conn);
+            
+            // Validate ownership/existence within company
+            var existe = await db.ExecuteScalarAsync<bool>(@"
+                SELECT 1 FROM hr_ausencia a
+                INNER JOIN hr_employee e ON a.empleado_id = e.id
+                WHERE a.id = @id AND e.empresa_id = @empresaId", 
+                new { id, empresaId });
+
+            if (!existe) return NotFound("Ausencia no encontrada.");
+
+            await db.ExecuteAsync("DELETE FROM hr_ausencia WHERE id = @id", new { id });
+            return Ok(new { mensaje = "Ausencia eliminada correctamente." });
+        }
+
+        /// <summary>Lista contratos de todos los empleados activos (Panel General).</summary>
+        [HttpGet("contratos/general")]
+        public async Task<IActionResult> GetContratosGeneral()
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+
+            using var db = new MySqlConnection(_conn);
+            var rawData = await db.QueryAsync(@"
+                SELECT c.id             AS Id,
+                       c.empleado_id    AS EmpleadoId,
+                       CONCAT(e.nombres, ' ', e.apellidos) AS EmpleadoNombre,
+                       d.nombre         AS DepartamentoNombre,
+                       c.nombre         AS Nombre,
+                       c.fecha_inicio   AS FechaInicio,
+                       c.fecha_fin      AS FechaFin,
+                       c.sueldo         AS Sueldo,
+                       c.moneda_id      AS MonedaId,
+                       CONCAT(m.nombre, ' (', m.simbolo, ')') AS Moneda,
+                       c.tipo_contrato  AS TipoContrato,
+                       c.estado         AS Estado
+                FROM hr_contrato c
+                INNER JOIN hr_employee e ON c.empleado_id = e.id
+                LEFT JOIN hr_departamento d ON e.departamento_id = d.id
+                INNER JOIN moneda      m ON c.moneda_id   = m.id
+                WHERE e.empresa_id  = @empresaId
+                  AND e.activo = 1
+                ORDER BY c.fecha_inicio DESC",
+                new { empresaId });
+                
+            var data = rawData.Select(x => new {
+                Id = x.Id,
+                EmpleadoId = x.EmpleadoId,
+                EmpleadoNombre = x.EmpleadoNombre,
+                DepartamentoNombre = x.DepartamentoNombre,
+                Nombre = x.Nombre,
+                FechaInicio = x.FechaInicio,
+                FechaFin = x.FechaFin,
+                Sueldo = x.Sueldo,
+                MonedaId = x.MonedaId,
+                Moneda = x.Moneda,
+                TipoContrato = x.TipoContrato,
+                Estado = x.Estado
+            });
+            return Ok(data);
+        }
+
+        /// <summary>Lista ausencias de todos los empleados activos (Panel General).</summary>
+        [HttpGet("ausencias/general")]
+        public async Task<IActionResult> GetAusenciasGeneral()
+        {
+            var empresaId = GetEmpresaId();
+            if (empresaId == 0) return Unauthorized("Sesión no válida.");
+
+            using var db = new MySqlConnection(_conn);
+            var rawData = await db.QueryAsync(@"
+                SELECT a.id              AS Id,
+                       a.empleado_id     AS EmpleadoId,
+                       CONCAT(e.nombres, ' ', e.apellidos) AS EmpleadoNombre,
+                       d.nombre          AS DepartamentoNombre,
+                       a.tipo_ausencia_id AS TipoAusenciaId,
+                       t.nombre          AS TipoAusenciaNombre,
+                       a.aprobador_id    AS AprobadorId,
+                       CONCAT(u.nombre, ' ', u.apellido) AS AprobadorNombre,
+                       a.fecha_inicio    AS FechaInicio,
+                       a.fecha_fin       AS FechaFin,
+                       a.dias_solicitados AS DiasSolicitados,
+                       a.motivo          AS Motivo,
+                       a.estado          AS Estado
+                FROM hr_ausencia a
+                INNER JOIN hr_employee    e ON a.empleado_id      = e.id
+                LEFT JOIN hr_departamento d ON e.departamento_id = d.id
+                INNER JOIN hr_tipo_ausencia t ON a.tipo_ausencia_id = t.id
+                LEFT  JOIN usuario        u ON a.aprobador_id     = u.id
+                WHERE e.empresa_id  = @empresaId
+                  AND e.activo = 1
+                ORDER BY a.fecha_inicio DESC",
+                new { empresaId });
+
+            var data = rawData.Select(x => new {
+                Id = x.Id,
+                EmpleadoId = x.EmpleadoId,
+                EmpleadoNombre = x.EmpleadoNombre,
+                DepartamentoNombre = x.DepartamentoNombre,
+                TipoAusenciaId = x.TipoAusenciaId,
+                TipoAusenciaNombre = x.TipoAusenciaNombre,
+                AprobadorId = x.AprobadorId,
+                AprobadorNombre = x.AprobadorNombre,
+                FechaInicio = x.FechaInicio,
+                FechaFin = x.FechaFin,
+                DiasSolicitados = x.DiasSolicitados,
+                Motivo = x.Motivo,
+                Estado = x.Estado
+            });
+            return Ok(data);
+        }
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -898,11 +1542,22 @@ namespace Sis_ERP.Controllers
     public class EntradaDto
     {
         public int EmpleadoId { get; set; }
+        public string? Observaciones { get; set; }
     }
 
     public class ResolverAusenciaDto
     {
         public int    AprobadorId { get; set; }
         public string Decision    { get; set; } = ""; // APROBADA / RECHAZADA
+    }
+
+    public class DashboardKpisDto
+    {
+        public int EmpleadosActivos { get; set; }
+        public int ContratosActivos { get; set; }
+        public int AsistenciasHoy { get; set; }
+        public int AusenciasPendientes { get; set; }
+        public int Departamentos { get; set; }
+        public int Cargos { get; set; }
     }
 }

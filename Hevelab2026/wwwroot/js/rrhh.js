@@ -1,3 +1,31 @@
+// Estado global para filtro y búsqueda del directorio de empleados
+let _empleadosCache = [];
+let _empFiltroActual = 'todos'; // 'todos' | 'activos' | 'inactivos'
+let _empBusquedaActual = '';
+
+// Estado global para el panel general de asistencia
+let _asistenciaGeneralCache = [];
+let _asisFiltroActual = 'todos'; // 'todos' | 'completa' | 'en_curso' | 'sin_registro'
+let _asisBusquedaActual = '';
+
+// Estado global para Contratos General
+let _contratosGeneralCache = [];
+let _contratosFiltroActual = 'todos'; // 'todos' | 'activo' | 'finalizado' | 'anulado'
+let _contratosBusquedaActual = '';
+
+// Estado global para Ausencias General
+let _ausenciasGeneralCache = [];
+let _ausenciasFiltroActual = 'todas'; // 'todas' | 'pendiente' | 'aprobada' | 'rechazada'
+let _ausenciasBusquedaActual = '';
+
+// Estado global para Departamentos
+let _departamentosCache = [];
+let _deptBusquedaActual = '';
+
+// Estado global para Cargos
+let _cargosCache = [];
+let _cargoBusquedaActual = '';
+
 document.addEventListener('DOMContentLoaded', () => {
     // === 1. INICIALIZACIÓN Y NAVEGACIÓN DE PESTAÑAS ===
     const tabs = document.querySelectorAll('.frm-tab');
@@ -10,14 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 c.style.display = 'none';
                 c.classList.remove('active');
             });
-            
+
             tab.classList.add('active');
             const target = document.querySelector(tab.dataset.target);
             if (target) {
                 target.style.display = 'block';
                 target.classList.add('active');
             }
-            
+
             // Recargar datos específicos según la pestaña seleccionada
             const targetId = tab.dataset.target;
             if (targetId === '#tab-empleados') {
@@ -38,6 +66,279 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Iniciar pestaña inicial
     cargarEmpleados();
+
+    // === 1.1 BÚSQUEDA Y FILTROS DEL DIRECTORIO DE EMPLEADOS ===
+
+    // Evento: Input de búsqueda con debounce
+    const empSearchInput = document.getElementById('empSearchInput');
+    const empSearchClear = document.getElementById('empSearchClear');
+    let _empSearchTimer = null;
+
+    if (empSearchInput) {
+        empSearchInput.addEventListener('input', () => {
+            clearTimeout(_empSearchTimer);
+            _empSearchTimer = setTimeout(() => {
+                _empBusquedaActual = empSearchInput.value.trim().toLowerCase();
+                empSearchClear.style.display = _empBusquedaActual ? 'flex' : 'none';
+                filtrarYRenderizarEmpleados();
+            }, 250);
+        });
+
+        // Limpiar búsqueda con Escape
+        empSearchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                empSearchInput.value = '';
+                _empBusquedaActual = '';
+                empSearchClear.style.display = 'none';
+                filtrarYRenderizarEmpleados();
+            }
+        });
+    }
+
+    if (empSearchClear) {
+        empSearchClear.addEventListener('click', () => {
+            empSearchInput.value = '';
+            _empBusquedaActual = '';
+            empSearchClear.style.display = 'none';
+            empSearchInput.focus();
+            filtrarYRenderizarEmpleados();
+        });
+    }
+
+    // Evento: Click en filtro tag (Empleados)
+    const empFilterTags = document.getElementById('empFilterTags');
+    if (empFilterTags) {
+        empFilterTags.addEventListener('click', (e) => {
+            const tagBtn = e.target.closest('.emp-filter-tag');
+            if (!tagBtn) return;
+
+            empFilterTags.querySelectorAll('.emp-filter-tag').forEach(t => t.classList.remove('active'));
+            tagBtn.classList.add('active');
+
+            _empFiltroActual = tagBtn.dataset.filter;
+            filtrarYRenderizarEmpleados();
+        });
+    }
+
+    // === 1.2 NAVEGACIÓN Y FILTROS - PANELES GENERALES (ASISTENCIA, CONTRATOS, AUSENCIAS) ===
+    
+    // Navegación entre sub-vistas (Pills) con scope por contenedor
+    const asisNavContainers = document.querySelectorAll('.asis-nav-pills');
+    asisNavContainers.forEach(container => {
+        const pills = container.querySelectorAll('.asis-pill');
+        pills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                // Quitar active solo a las pills de este contenedor
+                pills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                
+                const viewId = pill.dataset.view; // ej: 'general', 'individual', 'general-contratos'
+                
+                // Buscar el tab-content padre (ej: tab-asistencia, tab-contratos)
+                const parentTab = container.closest('.tab-content');
+                if (parentTab) {
+                    const sections = parentTab.querySelectorAll('.asis-view-section');
+                    sections.forEach(sec => {
+                        if (sec.id.includes(viewId) || viewId.includes(sec.id.replace('-view-', ''))) {
+                             // Lógica simple: el ID de la sección suele ser [prefijo]-view-[viewId] o viceversa
+                             // En el HTML pusimos id="contratos-view-general" y data-view="general-contratos"
+                             // Para Asistencia: id="asis-view-general" y data-view="general"
+                             const isActive = sec.id.endsWith(viewId) || viewId.endsWith(sec.id.split('-').pop());
+                             sec.classList.toggle('active', isActive);
+                             sec.style.display = isActive ? 'block' : 'none';
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+    // DatePicker Panel General Asistencia
+    const asisGeneralFecha = document.getElementById('asisGeneralFecha');
+    if (asisGeneralFecha) {
+        const hoy = new Date().toLocaleDateString('en-CA');
+        asisGeneralFecha.value = hoy;
+        asisGeneralFecha.max = hoy;
+        
+        asisGeneralFecha.addEventListener('change', () => {
+            cargarAsistenciaGeneral(asisGeneralFecha.value);
+        });
+    }
+
+    // Búsqueda Panel General
+    const asisSearchInput = document.getElementById('asisSearchInput');
+    const asisSearchClear = document.getElementById('asisSearchClear');
+    let _asisSearchTimer = null;
+
+    if (asisSearchInput) {
+        asisSearchInput.addEventListener('input', () => {
+            clearTimeout(_asisSearchTimer);
+            _asisSearchTimer = setTimeout(() => {
+                _asisBusquedaActual = asisSearchInput.value.trim().toLowerCase();
+                if (asisSearchClear) asisSearchClear.style.display = _asisBusquedaActual ? 'flex' : 'none';
+                filtrarYRenderizarAsistenciaGeneral();
+            }, 250);
+        });
+
+        asisSearchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                asisSearchInput.value = '';
+                _asisBusquedaActual = '';
+                if (asisSearchClear) asisSearchClear.style.display = 'none';
+                filtrarYRenderizarAsistenciaGeneral();
+            }
+        });
+    }
+
+    if (asisSearchClear) {
+        asisSearchClear.addEventListener('click', () => {
+            asisSearchInput.value = '';
+            _asisBusquedaActual = '';
+            asisSearchClear.style.display = 'none';
+            asisSearchInput.focus();
+            filtrarYRenderizarAsistenciaGeneral();
+        });
+    }
+
+    // Filtros por Estado Panel General (Asistencia)
+    const asisFilterTags = document.getElementById('asisFilterTags');
+    if (asisFilterTags) {
+        asisFilterTags.addEventListener('click', (e) => {
+            const tagBtn = e.target.closest('.emp-filter-tag');
+            if (!tagBtn) return;
+
+            asisFilterTags.querySelectorAll('.emp-filter-tag').forEach(t => t.classList.remove('active'));
+            tagBtn.classList.add('active');
+
+            _asisFiltroActual = tagBtn.dataset.filter;
+            filtrarYRenderizarAsistenciaGeneral();
+        });
+    }
+
+    // === Búsqueda y Filtros: Panel General de Contratos ===
+    const contratosSearchInput = document.getElementById('contratosSearchInput');
+    const contratosSearchClear = document.getElementById('contratosSearchClear');
+    let _contratosSearchTimer = null;
+
+    if (contratosSearchInput) {
+        contratosSearchInput.addEventListener('input', () => {
+            clearTimeout(_contratosSearchTimer);
+            _contratosSearchTimer = setTimeout(() => {
+                _contratosBusquedaActual = contratosSearchInput.value.trim().toLowerCase();
+                if (contratosSearchClear) contratosSearchClear.style.display = _contratosBusquedaActual ? 'flex' : 'none';
+                filtrarYRenderizarContratosGeneral();
+            }, 250);
+        });
+
+        contratosSearchClear.addEventListener('click', () => {
+            contratosSearchInput.value = '';
+            _contratosBusquedaActual = '';
+            contratosSearchClear.style.display = 'none';
+            contratosSearchInput.focus();
+            filtrarYRenderizarContratosGeneral();
+        });
+    }
+
+    const contratosFilterTags = document.getElementById('contratosFilterTags');
+    if (contratosFilterTags) {
+        contratosFilterTags.addEventListener('click', (e) => {
+            const tagBtn = e.target.closest('.emp-filter-tag');
+            if (!tagBtn) return;
+            contratosFilterTags.querySelectorAll('.emp-filter-tag').forEach(t => t.classList.remove('active'));
+            tagBtn.classList.add('active');
+            _contratosFiltroActual = tagBtn.dataset.filter;
+            filtrarYRenderizarContratosGeneral();
+        });
+    }
+
+    // === Búsqueda y Filtros: Panel General de Ausencias ===
+    const ausenciasSearchInput = document.getElementById('ausenciasSearchInput');
+    const ausenciasSearchClear = document.getElementById('ausenciasSearchClear');
+    let _ausenciasSearchTimer = null;
+
+    if (ausenciasSearchInput) {
+        ausenciasSearchInput.addEventListener('input', () => {
+            clearTimeout(_ausenciasSearchTimer);
+            _ausenciasSearchTimer = setTimeout(() => {
+                _ausenciasBusquedaActual = ausenciasSearchInput.value.trim().toLowerCase();
+                if (ausenciasSearchClear) ausenciasSearchClear.style.display = _ausenciasBusquedaActual ? 'flex' : 'none';
+                filtrarYRenderizarAusenciasGeneral();
+            }, 250);
+        });
+
+        ausenciasSearchClear.addEventListener('click', () => {
+            ausenciasSearchInput.value = '';
+            _ausenciasBusquedaActual = '';
+            ausenciasSearchClear.style.display = 'none';
+            ausenciasSearchInput.focus();
+            filtrarYRenderizarAusenciasGeneral();
+        });
+    }
+
+    const ausenciasFilterTags = document.getElementById('ausenciasFilterTags');
+    if (ausenciasFilterTags) {
+        ausenciasFilterTags.addEventListener('click', (e) => {
+            const tagBtn = e.target.closest('.emp-filter-tag');
+            if (!tagBtn) return;
+            ausenciasFilterTags.querySelectorAll('.emp-filter-tag').forEach(t => t.classList.remove('active'));
+            tagBtn.classList.add('active');
+            _ausenciasFiltroActual = tagBtn.dataset.filter;
+            filtrarYRenderizarAusenciasGeneral();
+        });
+    }
+
+    // === Búsqueda: Departamentos ===
+    const deptSearchInput = document.getElementById('deptSearchInput');
+    const deptSearchClear = document.getElementById('deptSearchClear');
+    let _deptSearchTimer = null;
+
+    if (deptSearchInput) {
+        deptSearchInput.addEventListener('input', () => {
+            clearTimeout(_deptSearchTimer);
+            _deptSearchTimer = setTimeout(() => {
+                _deptBusquedaActual = deptSearchInput.value.trim().toLowerCase();
+                if (deptSearchClear) deptSearchClear.style.display = _deptBusquedaActual ? 'flex' : 'none';
+                filtrarYRenderizarDepartamentos();
+            }, 250);
+        });
+
+        if (deptSearchClear) {
+            deptSearchClear.addEventListener('click', () => {
+                deptSearchInput.value = '';
+                _deptBusquedaActual = '';
+                deptSearchClear.style.display = 'none';
+                deptSearchInput.focus();
+                filtrarYRenderizarDepartamentos();
+            });
+        }
+    }
+
+    // === Búsqueda: Cargos ===
+    const cargoSearchInput = document.getElementById('cargoSearchInput');
+    const cargoSearchClear = document.getElementById('cargoSearchClear');
+    let _cargoSearchTimer = null;
+
+    if (cargoSearchInput) {
+        cargoSearchInput.addEventListener('input', () => {
+            clearTimeout(_cargoSearchTimer);
+            _cargoSearchTimer = setTimeout(() => {
+                _cargoBusquedaActual = cargoSearchInput.value.trim().toLowerCase();
+                if (cargoSearchClear) cargoSearchClear.style.display = _cargoBusquedaActual ? 'flex' : 'none';
+                filtrarYRenderizarCargos();
+            }, 250);
+        });
+
+        if (cargoSearchClear) {
+            cargoSearchClear.addEventListener('click', () => {
+                cargoSearchInput.value = '';
+                _cargoBusquedaActual = '';
+                cargoSearchClear.style.display = 'none';
+                cargoSearchInput.focus();
+                filtrarYRenderizarCargos();
+            });
+        }
+    }
+
     iniciarReloj();
 
     // === 2. EVENTOS DE FORMULARIOS Y MODALES ===
@@ -48,50 +349,77 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('empFechaIngreso').valueAsDate = new Date();
         frmNuevoEmpleado.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const idVal = document.getElementById('empId').value;
             const usuarioVal = document.getElementById('empUsuario').value;
-            const nuevoEmpleado = {
+            const responsableVal = document.getElementById('empResponsable').value;
+            const datosEmpleado = {
                 nombres: document.getElementById('empNombres').value.trim(),
                 apellidos: document.getElementById('empApellidos').value.trim(),
                 tipoDocumento: document.getElementById('empTipoDoc').value,
                 numeroDocumento: document.getElementById('empNumDoc').value.trim(),
+                fechaNacimiento: document.getElementById('empFechaNacimiento').value || null,
+                genero: document.getElementById('empGenero').value || null,
+                estadoCivil: document.getElementById('empEstadoCivil').value || null,
+                telefono: document.getElementById('empTelefono').value.trim() || null,
+                celular: document.getElementById('empCelular').value.trim() || null,
+                correoPersonal: document.getElementById('empCorreoPersonal').value.trim() || null,
+                correoEmpresa: document.getElementById('empCorreoEmpresa').value.trim() || null,
+                direccion: document.getElementById('empDireccion').value.trim() || null,
                 departamentoId: parseInt(document.getElementById('empDepto').value),
                 cargoId: parseInt(document.getElementById('empCargo').value),
+                responsableId: responsableVal ? parseInt(responsableVal) : null,
                 usuarioId: usuarioVal ? parseInt(usuarioVal) : null,
-                fechaIngreso: document.getElementById('empFechaIngreso').value,
+                fechaIngreso: document.getElementById('empFechaIngreso').value || null,
+                fechaCese: document.getElementById('empFechaCese').value || null,
                 tipoContrato: document.getElementById('empTipoContrato').value,
-                regimenLaboral: document.getElementById('empRegimenLaboral').value.trim()
+                regimenLaboral: document.getElementById('empRegimenLaboral').value.trim(),
+                activo: document.getElementById('empActivo').checked
             };
 
+            const isEdit = !!idVal;
+            const method = isEdit ? 'PUT' : 'POST';
+            const endpoint = isEdit ? `/api/rrhh/empleados/${idVal}` : '/api/rrhh/empleados';
+
             try {
-                const response = await fetch('/api/rrhh/empleados', {
-                    method: 'POST',
+                const response = await fetch(endpoint, {
+                    method: method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(nuevoEmpleado)
+                    body: JSON.stringify(datosEmpleado)
                 });
 
                 if (response.ok) {
                     frmNuevoEmpleado.reset();
+                    document.getElementById('empId').value = '';
                     document.getElementById('empFechaIngreso').valueAsDate = new Date();
                     cerrarModal('modalNuevoEmpleado');
                     cargarEmpleados();
-                    mostrarAlerta('Empleado registrado exitosamente.', 'success');
+                    mostrarAlerta(isEdit ? 'Empleado actualizado exitosamente.' : 'Empleado registrado exitosamente.', 'success');
                 } else {
                     const errorText = await response.text();
-                    mostrarAlerta(`Error al registrar empleado: ${errorText}`, 'danger');
+                    mostrarAlerta(`Error al guardar empleado: ${errorText}`, 'danger');
                 }
             } catch (err) {
-                console.error("Error en POST Empleado:", err);
+                console.error("Error al guardar Empleado:", err);
                 mostrarAlerta("Error de conexión al guardar el empleado.", 'danger');
             }
         });
 
-        // Al abrir modal de empleado, cargar selectores auxiliares
+        // Limpiar el modal al cerrarlo para evitar datos cruzados
         const modalEmpEl = document.getElementById('modalNuevoEmpleado');
         if (modalEmpEl) {
+            modalEmpEl.addEventListener('hidden.bs.modal', () => {
+                frmNuevoEmpleado.reset();
+                document.getElementById('empId').value = '';
+                document.getElementById('modalNuevoEmpleadoLabel').innerText = 'Nuevo Empleado';
+            });
+            // Cargar selectores si están vacíos
             modalEmpEl.addEventListener('show.bs.modal', () => {
-                poblarDropdown('/api/rrhh/select/departamentos', 'empDepto', 'id', 'nombre', 'Seleccione departamento...');
-                poblarDropdown('/api/rrhh/select/cargos', 'empCargo', 'id', 'nombre', 'Seleccione cargo...');
-                poblarDropdown('/api/rrhh/select/usuarios', 'empUsuario', 'id', 'nombreCompleto', 'Ninguno');
+                if (document.getElementById('empDepto').options.length <= 1) {
+                    poblarDropdown('/api/rrhh/select/departamentos', 'empDepto', 'id', 'nombre', 'Seleccione departamento...');
+                    poblarDropdown('/api/rrhh/select/cargos', 'empCargo', 'id', 'nombre', 'Seleccione cargo...');
+                    poblarDropdown('/api/rrhh/select/usuarios', 'empUsuario', 'id', 'nombreCompleto', 'Ninguno');
+                    poblarDropdown('/api/rrhh/select/empleados', 'empResponsable', 'id', 'nombreCompleto', 'Ninguno');
+                }
             });
         }
     }
@@ -101,136 +429,197 @@ document.addEventListener('DOMContentLoaded', () => {
     if (frmNuevoDepartamento) {
         frmNuevoDepartamento.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const idVal = document.getElementById('deptId').value;
             const respVal = document.getElementById('deptResponsable').value;
             const respInt = respVal ? parseInt(respVal, 10) : null;
-            const nuevoDepto = {
+            const datos = {
                 nombre: document.getElementById('deptNombre').value.trim(),
                 responsableId: (respInt && !isNaN(respInt)) ? respInt : null
             };
 
+            const isEdit = !!idVal;
+            const method = isEdit ? 'PUT' : 'POST';
+            const endpoint = isEdit ? `/api/rrhh/departamentos/${idVal}` : '/api/rrhh/departamentos';
+
             try {
-                const response = await fetch('/api/rrhh/departamentos', {
-                    method: 'POST',
+                const response = await fetch(endpoint, {
+                    method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(nuevoDepto)
+                    body: JSON.stringify(datos)
                 });
 
                 if (response.ok) {
                     frmNuevoDepartamento.reset();
+                    document.getElementById('deptId').value = '';
                     cerrarModal('modalNuevoDepartamento');
                     cargarDepartamentos();
-                    mostrarAlerta('Departamento creado exitosamente.', 'success');
+                    actualizarKPIs();
+                    mostrarAlerta(isEdit ? 'Departamento actualizado exitosamente.' : 'Departamento creado exitosamente.', 'success');
                 } else {
                     const errorText = await response.text();
-                    mostrarAlerta(`Error al crear departamento: ${errorText}`, 'danger');
+                    mostrarAlerta(`Error al guardar departamento: ${errorText}`, 'danger');
                 }
             } catch (err) {
-                console.error("Error en POST Departamento:", err);
+                console.error("Error en Departamento:", err);
                 mostrarAlerta("Error de conexión al guardar departamento.", 'danger');
             }
         });
 
         const modalDeptoEl = document.getElementById('modalNuevoDepartamento');
         if (modalDeptoEl) {
-            modalDeptoEl.addEventListener('show.bs.modal', () => {
-                poblarDropdown('/api/rrhh/select/usuarios-todos', 'deptResponsable', 'id', 'nombreCompleto', 'Sin responsable');
+            modalDeptoEl.addEventListener('hidden.bs.modal', () => {
+                frmNuevoDepartamento.reset();
+                document.getElementById('deptId').value = '';
+                document.getElementById('modalNuevoDepartamentoLabel').innerText = 'Nuevo Departamento';
+            });
+        }
+        // Botón Nuevo: poblar dropdown y abrir limpio
+        const btnNuevoDepto = document.getElementById('btnNuevoDepartamento');
+        if (btnNuevoDepto) {
+            btnNuevoDepto.addEventListener('click', async () => {
+                await poblarDropdown('/api/rrhh/select/usuarios-todos', 'deptResponsable', 'id', 'nombreCompleto', 'Sin responsable');
+                document.getElementById('deptId').value = '';
+                document.getElementById('deptNombre').value = '';
+                document.getElementById('modalNuevoDepartamentoLabel').innerText = 'Nuevo Departamento';
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('modalNuevoDepartamento')).show();
             });
         }
     }
 
-    // Formulario: Nuevo Cargo
+    // Formulario: Nuevo/Editar Cargo
     const frmNuevoCargo = document.getElementById('frmNuevoCargo');
     if (frmNuevoCargo) {
         frmNuevoCargo.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const nuevoCargo = {
+            const idVal = document.getElementById('cargoId').value;
+            const datos = {
                 nombre: document.getElementById('cargoNombre').value.trim(),
                 descripcion: document.getElementById('cargoDescripcion').value.trim()
             };
 
+            const isEdit = !!idVal;
+            const method = isEdit ? 'PUT' : 'POST';
+            const endpoint = isEdit ? `/api/rrhh/cargos/${idVal}` : '/api/rrhh/cargos';
+
             try {
-                const response = await fetch('/api/rrhh/cargos', {
-                    method: 'POST',
+                const response = await fetch(endpoint, {
+                    method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(nuevoCargo)
+                    body: JSON.stringify(datos)
                 });
 
                 if (response.ok) {
                     frmNuevoCargo.reset();
+                    document.getElementById('cargoId').value = '';
                     cerrarModal('modalNuevoCargo');
                     cargarCargos();
-                    mostrarAlerta('Cargo creado exitosamente.', 'success');
+                    actualizarKPIs();
+                    mostrarAlerta(isEdit ? 'Cargo actualizado exitosamente.' : 'Cargo creado exitosamente.', 'success');
                 } else {
                     const errorText = await response.text();
-                    mostrarAlerta(`Error al crear cargo: ${errorText}`, 'danger');
+                    mostrarAlerta(`Error al guardar cargo: ${errorText}`, 'danger');
                 }
             } catch (err) {
-                console.error("Error en POST Cargo:", err);
+                console.error("Error en Cargo:", err);
                 mostrarAlerta("Error de conexión al guardar cargo.", 'danger');
             }
         });
+
+        const modalCargoEl = document.getElementById('modalNuevoCargo');
+        if (modalCargoEl) {
+            modalCargoEl.addEventListener('hidden.bs.modal', () => {
+                frmNuevoCargo.reset();
+                document.getElementById('cargoId').value = '';
+                document.getElementById('modalNuevoCargoLabel').innerText = 'Nuevo Cargo';
+            });
+        }
+
+        // Botón Nuevo: abrir limpio
+        const btnNuevoCargo = document.getElementById('btnNuevoCargo');
+        if (btnNuevoCargo) {
+            btnNuevoCargo.addEventListener('click', () => {
+                document.getElementById('cargoId').value = '';
+                document.getElementById('cargoNombre').value = '';
+                document.getElementById('cargoDescripcion').value = '';
+                document.getElementById('modalNuevoCargoLabel').innerText = 'Nuevo Cargo';
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('modalNuevoCargo')).show();
+            });
+        }
     }
 
-    // Formulario: Nuevo Contrato
+    // Formulario: Nuevo/Editar Contrato
     const frmNuevoContrato = document.getElementById('frmNuevoContrato');
     if (frmNuevoContrato) {
         document.getElementById('contratoFechaInicio').valueAsDate = new Date();
+
         frmNuevoContrato.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const idVal = document.getElementById('contratoId').value;
             const fechaFinVal = document.getElementById('contratoFechaFin').value;
-            const nuevoContrato = {
+            const datos = {
                 empleadoId: parseInt(document.getElementById('contratoEmpleado').value),
                 nombre: document.getElementById('contratoNombre').value.trim(),
                 fechaInicio: document.getElementById('contratoFechaInicio').value,
                 fechaFin: fechaFinVal ? fechaFinVal : null,
                 sueldo: parseFloat(document.getElementById('contratoSueldo').value),
                 monedaId: parseInt(document.getElementById('contratoMoneda').value),
-                tipoContrato: document.getElementById('contratoTipo').value
+                tipoContrato: document.getElementById('contratoTipo').value,
+                estado: document.getElementById('contratoEstado').value
             };
 
+            const isEdit = !!idVal;
+            const method = isEdit ? 'PUT' : 'POST';
+            const endpoint = isEdit ? `/api/rrhh/contratos/${idVal}` : '/api/rrhh/contratos';
+
             try {
-                const response = await fetch('/api/rrhh/contratos', {
-                    method: 'POST',
+                const response = await fetch(endpoint, {
+                    method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(nuevoContrato)
+                    body: JSON.stringify(datos)
                 });
 
                 if (response.ok) {
                     frmNuevoContrato.reset();
+                    document.getElementById('contratoId').value = '';
                     document.getElementById('contratoFechaInicio').valueAsDate = new Date();
+                    document.getElementById('contratoEstadoWrap').style.display = 'none';
                     cerrarModal('modalNuevoContrato');
-                    
-                    // Si el empleado registrado coincide con el del filtro, recargar la tabla
-                    const empFiltro = document.getElementById('selectEmpleadoContratos').value;
-                    if (empFiltro && parseInt(empFiltro) === nuevoContrato.empleadoId) {
-                        cargarContratosPorEmpleado(nuevoContrato.empleadoId);
-                    }
+
+                    cargarContratosGeneral();
                     actualizarKPIs();
-                    mostrarAlerta('Contrato registrado exitosamente. Contratos activos anteriores cerrados.', 'success');
+                    mostrarAlerta(isEdit ? 'Contrato actualizado exitosamente.' : 'Contrato registrado exitosamente. Contratos activos anteriores cerrados.', 'success');
                 } else {
                     const errorText = await response.text();
-                    mostrarAlerta(`Error al registrar contrato: ${errorText}`, 'danger');
+                    mostrarAlerta(`Error al guardar contrato: ${errorText}`, 'danger');
                 }
             } catch (err) {
-                console.error("Error en POST Contrato:", err);
+                console.error("Error en Contrato:", err);
                 mostrarAlerta("Error de conexión al guardar contrato.", 'danger');
             }
         });
 
         const modalContratoEl = document.getElementById('modalNuevoContrato');
         if (modalContratoEl) {
-            modalContratoEl.addEventListener('show.bs.modal', () => {
-                poblarDropdown('/api/rrhh/select/empleados', 'contratoEmpleado', 'id', 'nombreCompleto', 'Seleccione empleado...');
-                poblarDropdown('/api/rrhh/select/monedas', 'contratoMoneda', 'id', 'nombre', 'Seleccione moneda...');
-                
-                // Pre-seleccionar el empleado del filtro si existe
-                const empFiltro = document.getElementById('selectEmpleadoContratos').value;
-                if (empFiltro) {
-                    setTimeout(() => {
-                        const selectElement = document.getElementById('contratoEmpleado');
-                        if (selectElement) selectElement.value = empFiltro;
-                    }, 500); // Pequeña espera para asegurar que el dropdown cargó
-                }
+            modalContratoEl.addEventListener('hidden.bs.modal', () => {
+                frmNuevoContrato.reset();
+                document.getElementById('contratoId').value = '';
+                document.getElementById('contratoEstadoWrap').style.display = 'none';
+                document.getElementById('modalNuevoContratoLabel').innerText = 'Nuevo Contrato';
+            });
+        }
+
+        // Botón Nuevo: abrir limpio
+        const btnNuevoContrato = document.getElementById('btnNuevoContrato');
+        if (btnNuevoContrato) {
+            btnNuevoContrato.addEventListener('click', async () => {
+                document.getElementById('contratoId').value = '';
+                document.getElementById('modalNuevoContratoLabel').innerText = 'Nuevo Contrato';
+                document.getElementById('contratoEstadoWrap').style.display = 'none';
+                await poblarDropdown('/api/rrhh/select/empleados', 'contratoEmpleado', 'id', 'nombreCompleto', 'Seleccione empleado...');
+                await poblarDropdown('/api/rrhh/select/monedas', 'contratoMoneda', 'id', 'nombre', 'Seleccione moneda...');
+
+                document.getElementById('contratoFechaInicio').valueAsDate = new Date();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('modalNuevoContrato')).show();
             });
         }
     }
@@ -240,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (frmSolicitarAusencia) {
         document.getElementById('ausenciaFechaInicio').valueAsDate = new Date();
         document.getElementById('ausenciaFechaFin').valueAsDate = new Date();
-        
+
         frmSolicitarAusencia.addEventListener('submit', async (e) => {
             e.preventDefault();
             const nuevaAusencia = {
@@ -264,11 +653,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('ausenciaFechaInicio').valueAsDate = new Date();
                     document.getElementById('ausenciaFechaFin').valueAsDate = new Date();
                     cerrarModal('modalSolicitarAusencia');
-                    
-                    const empFiltro = document.getElementById('selectEmpleadoAusencias').value;
-                    if (empFiltro && parseInt(empFiltro) === nuevaAusencia.empleadoId) {
-                        cargarAusenciasPorEmpleado(nuevaAusencia.empleadoId);
-                    }
+
+                    cargarAusenciasGeneral();
+                    actualizarKPIs();
                     mostrarAlerta('Solicitud de ausencia enviada exitosamente.', 'success');
                 } else {
                     const errorText = await response.text();
@@ -286,15 +673,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 poblarDropdown('/api/rrhh/select/empleados', 'ausenciaEmpleado', 'id', 'nombreCompleto', 'Seleccione empleado...');
                 poblarDropdown('/api/rrhh/tipos-ausencia', 'ausenciaTipo', 'id', 'nombre', 'Seleccione tipo...');
                 poblarDropdown('/api/rrhh/select/usuarios-todos', 'ausenciaAprobador', 'id', 'nombreCompleto', 'Seleccione aprobador...');
-                
-                // Pre-seleccionar el empleado del filtro si existe
-                const empFiltro = document.getElementById('selectEmpleadoAusencias').value;
-                if (empFiltro) {
-                    setTimeout(() => {
-                        const selectElement = document.getElementById('ausenciaEmpleado');
-                        if (selectElement) selectElement.value = empFiltro;
-                    }, 500);
-                }
             });
         }
     }
@@ -353,11 +731,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     frmResolverAusencia.reset();
                     cerrarModal('modalResolverAusencia');
-                    
-                    const empFiltro = document.getElementById('selectEmpleadoAusencias').value;
-                    if (empFiltro) {
-                        cargarAusenciasPorEmpleado(parseInt(empFiltro));
-                    }
+                    cargarAusenciasGeneral();
+                    actualizarKPIs();
                     mostrarAlerta(`Solicitud de ausencia resuelta con éxito.`, 'success');
                 } else {
                     const errorText = await response.text();
@@ -366,6 +741,46 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 console.error("Error en PUT Resolver Ausencia:", err);
                 mostrarAlerta("Error de conexión al procesar la solicitud.", 'danger');
+            }
+        });
+    }
+
+    const frmNuevaAsistencia = document.getElementById('frmNuevaAsistencia');
+    if (frmNuevaAsistencia) {
+        frmNuevaAsistencia.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = frmNuevaAsistencia.querySelector('button[type="submit"]');
+            btn.disabled = true;
+
+            const payload = {
+                EmpleadoId: parseInt(document.getElementById('asistenciaSelectEmpleado').value),
+                Fecha: document.getElementById('asistenciaManualFecha').value,
+                HoraEntrada: document.getElementById('asistenciaManualFecha').value + 'T' + document.getElementById('asistenciaManualEntrada').value + ':00',
+                HoraSalida: null,
+                Observaciones: document.getElementById('asistenciaManualObservaciones').value
+            };
+
+            try {
+                const res = await fetch('/api/rrhh/asistencia/manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    mostrarAlerta(data.mensaje, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('modalNuevaAsistencia')).hide();
+                    const asisGeneralFecha = document.getElementById('asisGeneralFecha');
+                    if (asisGeneralFecha) cargarAsistenciaGeneral(asisGeneralFecha.value);
+                } else {
+                    mostrarAlerta(data || 'Error al registrar asistencia manual', 'danger');
+                }
+            } catch (err) {
+                console.error(err);
+                mostrarAlerta('Error de red al enviar formulario', 'danger');
+            } finally {
+                btn.disabled = false;
             }
         });
     }
@@ -389,30 +804,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectEmpAsistencias = document.getElementById('selectEmpleadoAsistencias');
     if (selectEmpAsistencias) {
         selectEmpAsistencias.addEventListener('change', () => {
-            const empleadoId = selectEmpAsistencias.value;
+            const id = selectEmpAsistencias.value;
             const pnlMarcacion = document.getElementById('pnlMarcacion');
             const placeholder = document.getElementById('pnlMarcacionPlaceholder');
-            
-            if (empleadoId) {
-                pnlMarcacion.style.display = 'flex';
-                placeholder.style.display = 'none';
-                cargarAsistenciasPorEmpleado(parseInt(empleadoId));
+        
+            if (id) {
+                if (pnlMarcacion) pnlMarcacion.style.display = 'flex';
+                if (placeholder) placeholder.style.display = 'none';
+                cargarAsistenciasPorEmpleado(parseInt(id));
             } else {
-                pnlMarcacion.style.display = 'none';
-                placeholder.style.display = 'block';
-            }
-        });
-    }
-
-    // Selector: Empleado para ver Ausencias
-    const selectEmpAusencias = document.getElementById('selectEmpleadoAusencias');
-    if (selectEmpAusencias) {
-        selectEmpAusencias.addEventListener('change', () => {
-            const empleadoId = selectEmpAusencias.value;
-            if (empleadoId) {
-                cargarAusenciasPorEmpleado(parseInt(empleadoId));
-            } else {
-                document.getElementById('tbAusencias').innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">Seleccione un empleado para ver sus ausencias.</td></tr>`;
+                if (pnlMarcacion) pnlMarcacion.style.display = 'none';
+                if (placeholder) placeholder.style.display = 'block';
             }
         });
     }
@@ -425,6 +827,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSalida = document.getElementById('btnMarcarSalida');
     if (btnSalida) {
         btnSalida.addEventListener('click', () => registrarAsistenciaRapida('salida'));
+    }
+    const btnGuardarObs = document.getElementById('btnGuardarObservacion');
+    if (btnGuardarObs) {
+        btnGuardarObs.addEventListener('click', () => actualizarObservacionAsistencia());
     }
 });
 
@@ -440,58 +846,16 @@ async function cargarEmpleados() {
             return;
         }
         const empleados = await res.json();
-        
-        // Renderizar tabla
-        const tbody = document.getElementById('tbEmpleados');
-        if (tbody) {
-            tbody.innerHTML = '';
-            if (empleados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4">No hay empleados registrados.</td></tr>`;
-                return;
-            }
 
-            empleados.forEach(emp => {
-                const tr = document.createElement('tr');
-                const iniciales = (emp.nombres.charAt(0) + emp.apellidos.charAt(0)).toUpperCase();
-                const fechaIngreso = formatFecha(emp.fechaIngreso);
-                const badge = emp.activo 
-                    ? `<span class="frm-badge frm-badge-activo">Activo</span>`
-                    : `<span class="frm-badge frm-badge-inactivo">Inactivo</span>`;
+        // Almacenar en caché global para filtros client-side
+        _empleadosCache = empleados;
 
-                let btnBaja = '';
-                if (emp.activo) {
-                    btnBaja = `
-                        <button class="action-btn text-danger mx-1" onclick="desactivarEmpleado(${emp.id})" title="Dar de Baja">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
-                    `;
-                }
+        // Actualizar contadores de los filter tags
+        actualizarContadoresFiltro(empleados);
 
-                tr.innerHTML = `
-                    <td>
-                        <div class="empleado-info">
-                            <div class="empleado-avatar">${iniciales}</div>
-                            <div class="empleado-details">
-                                <span class="empleado-name">${emp.nombreCompleto}</span>
-                                <span class="empleado-date">Ingreso: ${fechaIngreso}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td>${emp.departamentoNombre || 'Sin asignar'}</td>
-                    <td>${emp.cargoNombre || 'Sin asignar'}</td>
-                    <td>${emp.tipoDocumento} - ${emp.numeroDocumento}</td>
-                    <td>${badge}</td>
-                    <td>
-                        <button class="action-btn text-primary mx-1" onclick="verDetallesEmpleado(${emp.id})" title="Ver Detalles">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                        </button>
-                        ${btnBaja}
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        
+        // Renderizar con filtro actual
+        filtrarYRenderizarEmpleados();
+
         actualizarKPIs(empleados);
 
     } catch (err) {
@@ -499,36 +863,185 @@ async function cargarEmpleados() {
     }
 }
 
+// Actualizar contadores en los filter tags
+function actualizarContadoresFiltro(empleados) {
+    const total = empleados.length;
+    const activos = empleados.filter(e => e.activo).length;
+    const inactivos = total - activos;
+
+    const elTodos = document.getElementById('countTodos');
+    const elActivos = document.getElementById('countActivos');
+    const elInactivos = document.getElementById('countInactivos');
+
+    if (elTodos) elTodos.textContent = total;
+    if (elActivos) elActivos.textContent = activos;
+    if (elInactivos) elInactivos.textContent = inactivos;
+}
+
+// Filtrar y renderizar empleados según estado y búsqueda
+function filtrarYRenderizarEmpleados() {
+    let filtrados = [..._empleadosCache];
+
+    // 1. Filtrar por estado
+    if (_empFiltroActual === 'activos') {
+        filtrados = filtrados.filter(e => e.activo);
+    } else if (_empFiltroActual === 'inactivos') {
+        filtrados = filtrados.filter(e => !e.activo);
+    }
+
+    // 2. Filtrar por texto de búsqueda
+    if (_empBusquedaActual) {
+        const termino = _empBusquedaActual;
+        filtrados = filtrados.filter(e => {
+            const campos = [
+                e.nombreCompleto,
+                e.departamentoNombre,
+                e.cargoNombre,
+                e.numeroDocumento,
+                e.tipoDocumento
+            ].filter(Boolean).map(c => c.toLowerCase());
+            return campos.some(c => c.includes(termino));
+        });
+    }
+
+    // Renderizar
+    renderizarTablaEmpleados(filtrados);
+
+    // Actualizar barra de resultados
+    const resultsBar = document.getElementById('empResultsBar');
+    const resultsText = document.getElementById('empResultsText');
+    const isFiltered = _empFiltroActual !== 'todos' || _empBusquedaActual;
+
+    if (isFiltered && resultsBar && resultsText) {
+        resultsBar.classList.add('visible');
+        const total = _empleadosCache.length;
+        const mostrados = filtrados.length;
+        let texto = `Mostrando ${mostrados} de ${total} empleados`;
+
+        if (_empFiltroActual !== 'todos') {
+            texto += ` · Filtro: <strong>${_empFiltroActual === 'activos' ? 'Activos' : 'Inactivos'}</strong>`;
+        }
+        if (_empBusquedaActual) {
+            texto += ` · Búsqueda: "<strong>${_empBusquedaActual}</strong>"`;
+        }
+        resultsText.innerHTML = texto;
+    } else if (resultsBar) {
+        resultsBar.classList.remove('visible');
+    }
+}
+
+// Renderizar tabla de empleados (acepta lista ya filtrada)
+function renderizarTablaEmpleados(empleados) {
+    const tbody = document.getElementById('tbEmpleados');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    if (empleados.length === 0) {
+        const msg = _empBusquedaActual
+            ? `No se encontraron empleados que coincidan con "<strong>${_empBusquedaActual}</strong>".`
+            : (_empFiltroActual === 'activos'
+                ? 'No hay empleados activos registrados.'
+                : (_empFiltroActual === 'inactivos'
+                    ? 'No hay empleados inactivos.'
+                    : 'No hay empleados registrados.'));
+
+        tbody.innerHTML = `<tr class="emp-no-results"><td colspan="6">${msg}</td></tr>`;
+        return;
+    }
+
+    empleados.forEach(emp => {
+        const tr = document.createElement('tr');
+        const iniciales = (emp.nombres.charAt(0) + emp.apellidos.charAt(0)).toUpperCase();
+        const fechaIngreso = formatFecha(emp.fechaIngreso);
+        const badge = emp.activo
+            ? `<span class="frm-badge frm-badge-activo">Activo</span>`
+            : `<span class="frm-badge frm-badge-inactivo">Inactivo</span>`;
+
+        let btnBaja = '';
+        if (emp.activo) {
+            btnBaja = `
+                <button class="action-btn text-danger mx-1" onclick="desactivarEmpleado(${emp.id})" title="Dar de Baja">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+            `;
+        }
+
+        tr.innerHTML = `
+            <td>
+                <div class="empleado-info">
+                    <div class="empleado-avatar">${iniciales}</div>
+                    <div class="empleado-details">
+                        <span class="empleado-name">${emp.nombreCompleto}</span>
+                        <span class="empleado-date">Ingreso: ${fechaIngreso}</span>
+                    </div>
+                </div>
+            </td>
+            <td>${emp.departamentoNombre || 'Sin asignar'}</td>
+            <td>${emp.cargoNombre || 'Sin asignar'}</td>
+            <td>${emp.tipoDocumento} - ${emp.numeroDocumento}</td>
+            <td>${badge}</td>
+            <td>
+                <button class="action-btn text-primary mx-1" onclick="verDetallesEmpleado(${emp.id})" title="Ver Detalles">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+                <button class="action-btn text-warning mx-1" onclick="editarEmpleado(${emp.id})" title="Editar">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M12 11l5-5 2 2-5 5-2-2z"/></svg>
+                </button>
+                ${btnBaja}
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
 // Cargar Departamentos
 async function cargarDepartamentos() {
     try {
         const res = await fetch('/api/rrhh/departamentos');
         if (!res.ok) return;
-        const deptos = await res.json();
-
-        const tbody = document.getElementById('tbDepartamentos');
-        if (tbody) {
-            tbody.innerHTML = '';
-            if (deptos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">No hay departamentos configurados.</td></tr>`;
-                return;
-            }
-            deptos.forEach(d => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${d.id}</td>
-                    <td class="fw-bold">${d.nombre}</td>
-                    <td>${d.responsableNombre || '<span class="text-muted small">Sin asignar</span>'}</td>
-                    <td>
-                        <span class="text-muted small">Mantenimiento vía backend</span>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+        _departamentosCache = await res.json();
+        filtrarYRenderizarDepartamentos();
     } catch (err) {
         console.error("Error al cargar departamentos:", err);
     }
+}
+
+function filtrarYRenderizarDepartamentos() {
+    let filtrados = [..._departamentosCache];
+
+    if (_deptBusquedaActual) {
+        filtrados = filtrados.filter(d => 
+            (d.nombre && d.nombre.toLowerCase().includes(_deptBusquedaActual)) ||
+            (d.responsableNombre && d.responsableNombre.toLowerCase().includes(_deptBusquedaActual))
+        );
+    }
+
+    const tbody = document.getElementById('tbDepartamentos');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    if (filtrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">No hay departamentos configurados o no coinciden con la búsqueda.</td></tr>`;
+        return;
+    }
+    
+    filtrados.forEach(d => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${d.id}</td>
+            <td class="fw-bold">${d.nombre}</td>
+            <td>${d.responsableNombre || '<span class="text-muted small">Sin asignar</span>'}</td>
+            <td>
+                <button class="action-btn text-warning mx-1" onclick="editarDepartamento(${d.id}, '${d.nombre.replace(/'/g, "\\'")}', ${d.responsableId || 0})" title="Editar">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 20h9"/><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M12 11l5-5 2 2-5 5-2-2z"/></svg>
+                </button>
+                <button class="action-btn text-danger mx-1" onclick="eliminarDepartamento(${d.id}, '${d.nombre.replace(/'/g, "\\'")}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
 // Cargar Cargos
@@ -536,86 +1049,343 @@ async function cargarCargos() {
     try {
         const res = await fetch('/api/rrhh/cargos');
         if (!res.ok) return;
-        const cargos = await res.json();
-
-        const tbody = document.getElementById('tbCargos');
-        if (tbody) {
-            tbody.innerHTML = '';
-            if (cargos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">No hay cargos configurados.</td></tr>`;
-                return;
-            }
-            cargos.forEach(c => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${c.id}</td>
-                    <td class="fw-bold">${c.nombre}</td>
-                    <td>${c.descripcion || '<span class="text-muted small">Sin descripción</span>'}</td>
-                    <td>
-                        <span class="text-muted small">Mantenimiento vía backend</span>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+        _cargosCache = await res.json();
+        filtrarYRenderizarCargos();
     } catch (err) {
         console.error("Error al cargar cargos:", err);
     }
 }
 
-// Pestaña Contratos: Poblar selectores de empleados
-function cargarContratosTab() {
-    poblarDropdown('/api/rrhh/select/empleados', 'selectEmpleadoContratos', 'id', 'nombreCompleto', 'Seleccione un empleado...');
+function filtrarYRenderizarCargos() {
+    let filtrados = [..._cargosCache];
+
+    if (_cargoBusquedaActual) {
+        filtrados = filtrados.filter(c => 
+            (c.nombre && c.nombre.toLowerCase().includes(_cargoBusquedaActual)) ||
+            (c.descripcion && c.descripcion.toLowerCase().includes(_cargoBusquedaActual))
+        );
+    }
+
+    const tbody = document.getElementById('tbCargos');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    if (filtrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">No hay cargos configurados o no coinciden con la búsqueda.</td></tr>`;
+        return;
+    }
+    
+    filtrados.forEach(c => {
+        const tr = document.createElement('tr');
+        const nombreEscapado = c.nombre.replace(/'/g, "\\'");
+        const descEscapada = (c.descripcion || '').replace(/'/g, "\\'");
+        tr.innerHTML = `
+            <td>${c.id}</td>
+            <td class="fw-bold">${c.nombre}</td>
+            <td>${c.descripcion || '<span class="text-muted small">Sin descripción</span>'}</td>
+            <td>
+                <button class="action-btn text-warning mx-1" onclick="editarCargo(${c.id}, '${nombreEscapado}', '${descEscapada}')" title="Editar">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 20h9"/><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M12 11l5-5 2 2-5 5-2-2z"/></svg>
+                </button>
+                <button class="action-btn text-danger mx-1" onclick="eliminarCargo(${c.id}, '${nombreEscapado}')" title="Eliminar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
-// Cargar Contratos de un Empleado
-async function cargarContratosPorEmpleado(empleadoId) {
+// Pestaña Contratos
+function cargarContratosTab() {
+    poblarDropdown('/api/rrhh/select/empleados', 'selectEmpleadoContratos', 'id', 'nombreCompleto', 'Seleccione un empleado...');
+    cargarContratosGeneral();
+}
+
+async function cargarContratosGeneral() {
     try {
-        const res = await fetch(`/api/rrhh/empleados/${empleadoId}/contratos`);
-        const tbody = document.getElementById('tbContratos');
-        if (!tbody) return;
+        const tbody = document.getElementById('tbContratosGeneral');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Cargando datos de contratos...</td></tr>`;
 
-        tbody.innerHTML = '';
-        if (!res.ok) {
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Error al obtener contratos.</td></tr>`;
-            return;
-        }
-
-        const contratos = await res.json();
-        if (contratos.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No hay contratos registrados para este empleado.</td></tr>`;
-            return;
-        }
-
-        contratos.forEach(c => {
-            const tr = document.createElement('tr');
-            const fInicio = formatFecha(c.fechaInicio);
-            const fFin = c.fechaFin ? formatFecha(c.fechaFin) : '<span class="text-muted">Indefinido</span>';
-            const badgeClass = c.estado === 'ACTIVO' ? 'frm-badge-activo' : 'frm-badge-cerrado';
-            
-            tr.innerHTML = `
-                <td>${c.id}</td>
-                <td class="fw-bold">${c.nombre}</td>
-                <td>${fInicio}</td>
-                <td>${fFin}</td>
-                <td class="font-monospace">${c.sueldo.toFixed(2)}</td>
-                <td>${c.moneda}</td>
-                <td>${c.tipoContrato}</td>
-                <td><span class="frm-badge ${badgeClass}">${c.estado}</span></td>
-            `;
-            tbody.appendChild(tr);
-        });
+        const res = await fetch('/api/rrhh/contratos/general');
+        if (!res.ok) throw new Error("Error al cargar contratos generales");
+        
+        _contratosGeneralCache = await res.json();
+        filtrarYRenderizarContratosGeneral();
     } catch (err) {
-        console.error("Error al cargar contratos:", err);
+        console.error("Error al cargar contratos generales:", err);
+        const tbody = document.getElementById('tbContratosGeneral');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Error al cargar datos. Intente nuevamente.</td></tr>`;
     }
 }
 
-// Pestaña Asistencia: Poblar selector
-function cargarAsistenciaTab() {
-    poblarDropdown('/api/rrhh/select/empleados', 'selectEmpleadoAsistencias', 'id', 'nombreCompleto', 'Seleccione un empleado...');
+function filtrarYRenderizarContratosGeneral() {
+    let filtrados = [..._contratosGeneralCache];
+
+    if (_contratosFiltroActual !== 'todos') {
+        filtrados = filtrados.filter(c => c.estado && c.estado.toLowerCase() === _contratosFiltroActual);
+    }
+
+    if (_contratosBusquedaActual) {
+        const termino = _contratosBusquedaActual;
+        filtrados = filtrados.filter(c => {
+            const campos = [c.empleadoNombre, c.departamentoNombre, c.nombre].filter(Boolean).map(x => x.toLowerCase());
+            return campos.some(x => x.includes(termino));
+        });
+    }
+
+    const tbody = document.getElementById('tbContratosGeneral');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    if (filtrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No se encontraron contratos con estos filtros.</td></tr>`;
+        return;
+    }
+
+    filtrados.forEach(c => {
+        const tr = document.createElement('tr');
+        const iniciales = c.empleadoNombre ? (c.empleadoNombre.split(' ').map(n => n.charAt(0)).join('')).substring(0, 2).toUpperCase() : 'EMP';
+        const fInicio = formatFecha(c.fechaInicio);
+        const fFin = c.fechaFin ? formatFecha(c.fechaFin) : '-';
+        
+        let badgeHtml = '';
+        if (c.estado === 'ACTIVO') badgeHtml = `<span class="badge-marcacion badge-completa">Activo</span>`;
+        else if (c.estado === 'FINALIZADO') badgeHtml = `<span class="badge-marcacion badge-sinregistro">Finalizado</span>`;
+        else badgeHtml = `<span class="badge-marcacion badge-encurso" style="color:#ef4444; border-color:rgba(239,68,68,0.2); background:rgba(239,68,68,0.1)">${c.estado}</span>`;
+
+        tr.innerHTML = `
+            <td>
+                <div class="empleado-info">
+                    <div class="empleado-avatar" style="width: 32px; height: 32px; font-size: 11px;">${iniciales}</div>
+                    <div class="d-flex flex-column ms-2">
+                        <span class="empleado-name fw-bold">${c.empleadoNombre || '-'}</span>
+                        <span class="text-muted" style="font-size: 11px;">${c.departamentoNombre || '-'}</span>
+                    </div>
+                </div>
+            </td>
+            <td class="fw-bold text-secondary">${c.nombre}</td>
+            <td class="font-monospace">${fInicio}</td>
+            <td class="font-monospace">${fFin}</td>
+            <td class="font-monospace fw-bold">${c.moneda} ${c.sueldo.toFixed(2)}</td>
+            <td>${badgeHtml}</td>
+            <td>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary border-0" onclick="editarContrato(${c.id})" title="Editar Contrato">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger border-0" onclick="eliminarContrato(${c.id})" title="Eliminar Contrato">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
-// Cargar Asistencias de un Empleado
+
+// Pestaña Asistencia: Poblar selector y cargar panel general
+function cargarAsistenciaTab() {
+    poblarDropdown('/api/rrhh/select/empleados', 'selectEmpleadoAsistencias', 'id', 'nombreCompleto', 'Seleccione un empleado para marcar...');
+    
+    // Cargar el panel general con la fecha seleccionada (por defecto hoy)
+    const fechaInput = document.getElementById('asisGeneralFecha');
+    if (fechaInput && fechaInput.value) {
+        cargarAsistenciaGeneral(fechaInput.value);
+    }
+}
+
+// Cargar Asistencia General (Todos los empleados)
+async function cargarAsistenciaGeneral(fecha) {
+    try {
+        const tbody = document.getElementById('tbAsistenciaGeneral');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">Cargando datos de asistencia...</td></tr>`;
+
+        const res = await fetch(`/api/rrhh/asistencias/general?fecha=${fecha}`);
+        if (!res.ok) throw new Error("Error al cargar asistencia general");
+        
+        _asistenciaGeneralCache = await res.json();
+        filtrarYRenderizarAsistenciaGeneral();
+        
+    } catch (err) {
+        console.error("Error al cargar asistencia general:", err);
+        const tbody = document.getElementById('tbAsistenciaGeneral');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Error al cargar datos. Intente nuevamente.</td></tr>`;
+    }
+}
+
+// Filtrar y renderizar la tabla del Panel General y sus KPIs
+function filtrarYRenderizarAsistenciaGeneral() {
+    let filtrados = [..._asistenciaGeneralCache];
+
+    // 1. Filtrar por estado de marcación
+    if (_asisFiltroActual !== 'todos') {
+        filtrados = filtrados.filter(a => {
+            const estado = a.estadoMarcacion || a.EstadoMarcacion;
+            return estado && estado.toLowerCase() === _asisFiltroActual;
+        });
+    }
+
+    // 2. Filtrar por texto de búsqueda
+    if (_asisBusquedaActual) {
+        const termino = _asisBusquedaActual;
+        filtrados = filtrados.filter(a => {
+            const campos = [a.empleadoNombre, a.departamentoNombre].filter(Boolean).map(c => c.toLowerCase());
+            return campos.some(c => c.includes(termino));
+        });
+    }
+
+    // Renderizar tabla
+    const tbody = document.getElementById('tbAsistenciaGeneral');
+    if (tbody) {
+        tbody.innerHTML = '';
+        if (filtrados.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No se encontraron registros que coincidan con los filtros.</td></tr>`;
+        } else {
+            filtrados.forEach(a => {
+                const tr = document.createElement('tr');
+                const iniciales = (a.empleadoNombre.split(' ').map(n => n.charAt(0)).join('')).substring(0, 2).toUpperCase();
+                
+                // Formatear horas
+                const hEntrada = a.horaEntrada ? new Date(a.horaEntrada).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '-';
+                const hSalida = a.horaSalida ? new Date(a.horaSalida).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '-';
+                const hrsTrabajadas = a.horasTrabajadas !== null ? a.horasTrabajadas.toFixed(2) : '-';
+
+                // Badge Estado
+                let badgeClass = '';
+                let badgeIcon = '';
+                let badgeText = '';
+
+                const estado = a.estadoMarcacion || a.EstadoMarcacion;
+
+                if (estado === 'COMPLETA') {
+                    badgeClass = 'badge-completa';
+                    badgeIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    badgeText = 'Completa';
+                } else if (estado === 'EN_CURSO') {
+                    badgeClass = 'badge-encurso';
+                    badgeIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+                    badgeText = 'En Curso';
+                } else if (estado === 'AUSENTE') {
+                    badgeClass = 'badge-ausente bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25';
+                    badgeIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+                    badgeText = 'Falta';
+                } else {
+                    badgeClass = 'badge-sinregistro';
+                    badgeIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+                    badgeText = 'Sin Registro';
+                }
+
+                const badgeHtml = `<span class="badge-marcacion ${badgeClass}" style="${estado === 'AUSENTE' ? 'padding: 4px 8px; border-radius: 12px;' : ''}">${badgeIcon} ${badgeText}</span>`;
+
+                tr.innerHTML = `
+                    <td>
+                        <div class="empleado-info">
+                            <div class="empleado-avatar" style="width: 32px; height: 32px; font-size: 11px;">${iniciales}</div>
+                            <span class="empleado-name fw-bold ms-2">${a.empleadoNombre}</span>
+                        </div>
+                    </td>
+                    <td>${a.departamentoNombre || 'Sin asignar'}</td>
+                    <td class="font-monospace">${hEntrada}</td>
+                    <td class="font-monospace">${hSalida}</td>
+                    <td class="font-monospace fw-bold">${hrsTrabajadas}</td>
+                    <td>${badgeHtml}</td>
+                    <td><small class="text-muted" style="max-width: 200px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${a.observaciones || ''}">${a.observaciones || '-'}</small></td>
+                    <td>
+                        ${estado === 'EN_CURSO' 
+                            ? `<button class="frm-btn-cancel text-danger frm-btn-sm" style="border-color: rgba(220,38,38,0.2);" onclick="registrarSalidaRapida(${a.empleadoId || a.EmpleadoId})">Registrar Salida</button>` 
+                            : (estado === 'SIN_REGISTRO' 
+                                ? `<button class="frm-btn-save frm-btn-sm" onclick="abrirModalNuevaAsistencia(${a.empleadoId || a.EmpleadoId})">Registrar Entrada</button>`
+                                : `-`)}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    }
+
+    // Actualizar Mini KPIs
+    const total = _asistenciaGeneralCache.length;
+    const completas = _asistenciaGeneralCache.filter(a => a.estadoMarcacion === 'COMPLETA').length;
+    const enCurso = _asistenciaGeneralCache.filter(a => a.estadoMarcacion === 'EN_CURSO').length;
+    const presentes = completas + enCurso;
+    const sinRegistro = total - presentes;
+
+    // Calcular promedio horas solo de los que tienen salida
+    const conSalida = _asistenciaGeneralCache.filter(a => a.horasTrabajadas !== null);
+    const sumHoras = conSalida.reduce((acc, a) => acc + a.horasTrabajadas, 0);
+    const promedio = conSalida.length > 0 ? (sumHoras / conSalida.length).toFixed(1) : 0;
+
+    const elTotal = document.getElementById('kpiAsisTotal');
+    const elPresentes = document.getElementById('kpiAsisPresentes');
+    const elAusentes = document.getElementById('kpiAsisAusentes');
+    const elPromedio = document.getElementById('kpiAsisPromedio');
+
+    if (elTotal) elTotal.textContent = total;
+    if (elPresentes) elPresentes.textContent = presentes;
+    if (elAusentes) elAusentes.textContent = sinRegistro;
+    if (elPromedio) elPromedio.textContent = `${promedio}h`;
+}
+
+// Función para registrar rápida la salida
+window.registrarSalidaRapida = async function(empleadoId) {
+    if (!confirm('¿Desea registrar la hora de salida actual para este empleado?')) return;
+    
+    try {
+        const res = await fetch('/api/rrhh/asistencia/salida', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ EmpleadoId: empleadoId, Observaciones: '' })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            mostrarAlerta(data.mensaje, 'success');
+            const asisGeneralFecha = document.getElementById('asisGeneralFecha');
+            if (asisGeneralFecha) cargarAsistenciaGeneral(asisGeneralFecha.value);
+        } else {
+            mostrarAlerta(data || 'Error al registrar salida', 'danger');
+        }
+    } catch (err) {
+        console.error(err);
+        mostrarAlerta('Error de conexión al registrar salida', 'danger');
+    }
+};
+
+// Función para abrir el modal de Nueva Asistencia
+window.abrirModalNuevaAsistencia = async function(empleadoId = null) {
+    document.getElementById('frmNuevaAsistencia').reset();
+    
+    // Asignar fecha y hora actual por defecto
+    const now = new Date();
+    document.getElementById('asistenciaManualFecha').value = now.toISOString().split('T')[0];
+    document.getElementById('asistenciaManualEntrada').value = now.toTimeString().substring(0, 5);
+    
+    // Cargar empleados en el select
+    try {
+        const res = await fetch('/api/rrhh/select/empleados');
+        if (res.ok) {
+            const empleados = await res.json();
+            const select = document.getElementById('asistenciaSelectEmpleado');
+            select.innerHTML = '<option value="">Seleccione un empleado...</option>';
+            empleados.forEach(e => {
+                const empId = e.id || e.Id;
+                const empName = e.nombreCompleto || e.NombreCompleto || e.nombre || e.Nombre || "Desconocido";
+                select.innerHTML += `<option value="${empId}">${empName}</option>`;
+            });
+            if (empleadoId) {
+                select.value = empleadoId;
+            }
+        }
+    } catch (e) {
+        console.error("Error cargando empleados", e);
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('modalNuevaAsistencia'));
+    modal.show();
+};
+
+// Cargar Asistencias Individuales de un Empleado
 async function cargarAsistenciasPorEmpleado(empleadoId) {
     try {
         const res = await fetch(`/api/rrhh/empleados/${empleadoId}/asistencias`);
@@ -624,15 +1394,14 @@ async function cargarAsistenciasPorEmpleado(empleadoId) {
 
         tbody.innerHTML = '';
         if (!res.ok) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">Error al cargar asistencias.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">Error al cargar historial.</td></tr>`;
             return;
         }
 
         const asistencias = await res.json();
-        
-        // Determinar estado de asistencia de hoy para los botones
+
         const hoy = new Date();
-        const strHoy = hoy.toLocaleDateString('en-CA'); // YYYY-MM-DD local
+        const strHoy = hoy.toLocaleDateString('en-CA');
         let tieneEntradaHoy = false;
         let tieneSalidaHoy = false;
 
@@ -642,15 +1411,14 @@ async function cargarAsistenciasPorEmpleado(empleadoId) {
             asistencias.forEach(a => {
                 const tr = document.createElement('tr');
                 const fecha = formatFecha(a.fecha);
-                
-                // Extraer fecha para comparar con hoy
                 const fechaIso = a.fecha ? a.fecha.split('T')[0] : '';
+                
                 if (fechaIso === strHoy) {
                     tieneEntradaHoy = true;
                     if (a.horaSalida) tieneSalidaHoy = true;
+                    document.getElementById('asistenciaObservaciones').value = a.observaciones || '';
                 }
-                
-                // Las horas pueden venir completas en ISO, extraemos solo la hora
+
                 const hEntrada = a.horaEntrada ? new Date(a.horaEntrada).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '-';
                 const hSalida = a.horaSalida ? new Date(a.horaSalida).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '<span class="text-warning fw-bold">Pendiente</span>';
                 const hrsTrabajadas = a.horasTrabajadas !== null ? a.horasTrabajadas.toFixed(2) : '-';
@@ -665,12 +1433,13 @@ async function cargarAsistenciasPorEmpleado(empleadoId) {
                 tbody.appendChild(tr);
             });
         }
-        
-        // Actualizar estado de los botones
+
+        // Actualizar estado de los botones de marcación
         const btnEntrada = document.getElementById('btnMarcarEntrada');
         const btnSalida = document.getElementById('btnMarcarSalida');
+        const btnGuardarObs = document.getElementById('btnGuardarObservacion');
         const msgAsis = document.getElementById('asistenciaMsg');
-        
+
         if (btnEntrada && btnSalida && msgAsis) {
             if (!tieneEntradaHoy) {
                 btnEntrada.disabled = false;
@@ -678,28 +1447,33 @@ async function cargarAsistenciasPorEmpleado(empleadoId) {
                 msgAsis.innerText = "No se ha registrado entrada hoy.";
                 btnEntrada.style.opacity = '1';
                 btnSalida.style.opacity = '0.5';
+                if (btnGuardarObs) btnGuardarObs.style.display = 'none';
+                document.getElementById('asistenciaObservaciones').value = '';
             } else if (tieneEntradaHoy && !tieneSalidaHoy) {
                 btnEntrada.disabled = true;
                 btnSalida.disabled = false;
-                msgAsis.innerText = "Entrada registrada. No olvide marcar salida.";
+                msgAsis.innerText = "Entrada registrada. Puede marcar salida o actualizar la observación.";
                 btnEntrada.style.opacity = '0.5';
                 btnSalida.style.opacity = '1';
+                if (btnGuardarObs) btnGuardarObs.style.display = 'inline-block';
             } else {
                 btnEntrada.disabled = true;
                 btnSalida.disabled = true;
-                msgAsis.innerText = "Asistencia de hoy completada.";
+                msgAsis.innerText = "Asistencia completada. Puede actualizar la observación si lo requiere.";
                 btnEntrada.style.opacity = '0.5';
                 btnSalida.style.opacity = '0.5';
+                if (btnGuardarObs) btnGuardarObs.style.display = 'inline-block';
             }
         }
     } catch (err) {
-        console.error("Error al cargar asistencias:", err);
+        console.error("Error al cargar asistencias individuales:", err);
     }
 }
 
 // Registrar Entrada/Salida rápida
 async function registrarAsistenciaRapida(tipo) {
     const empleadoId = document.getElementById('selectEmpleadoAsistencias').value;
+    const observaciones = document.getElementById('asistenciaObservaciones').value.trim();
     if (!empleadoId) {
         mostrarAlerta("Debe seleccionar un empleado.", "warning");
         return;
@@ -712,13 +1486,26 @@ async function registrarAsistenciaRapida(tipo) {
         const res = await fetch(endpoint, {
             method: method,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ empleadoId: parseInt(empleadoId) })
+            body: JSON.stringify({
+                empleadoId: parseInt(empleadoId),
+                observaciones: observaciones || null
+            })
         });
 
         const data = await res.json();
         if (res.ok) {
+            document.getElementById('asistenciaObservaciones').value = '';
             mostrarAlerta(data.mensaje, "success");
+            
+            // Recargar vista individual
             cargarAsistenciasPorEmpleado(parseInt(empleadoId));
+            
+            // Recargar también panel general si la fecha seleccionada es hoy
+            const asisGeneralFecha = document.getElementById('asisGeneralFecha');
+            if (asisGeneralFecha && asisGeneralFecha.value === new Date().toLocaleDateString('en-CA')) {
+                cargarAsistenciaGeneral(asisGeneralFecha.value);
+            }
+            
             actualizarKPIs();
         } else {
             mostrarAlerta(data.message || data.mensaje || "Error al procesar registro de asistencia.", "danger");
@@ -729,92 +1516,143 @@ async function registrarAsistenciaRapida(tipo) {
     }
 }
 
-// Pestaña Ausencias: Poblar selector
-function cargarAusenciasTab() {
-    poblarDropdown('/api/rrhh/select/empleados', 'selectEmpleadoAusencias', 'id', 'nombreCompleto', 'Seleccione un empleado...');
-}
+// Actualizar observación de forma independiente
+async function actualizarObservacionAsistencia() {
+    const empleadoId = document.getElementById('selectEmpleadoAsistencias').value;
+    const observaciones = document.getElementById('asistenciaObservaciones').value.trim();
+    if (!empleadoId) {
+        mostrarAlerta("Debe seleccionar un empleado.", "warning");
+        return;
+    }
 
-// Cargar Ausencias de un Empleado
-async function cargarAusenciasPorEmpleado(empleadoId) {
     try {
-        const res = await fetch(`/api/rrhh/empleados/${empleadoId}/ausencias`);
-        const tbody = document.getElementById('tbAusencias');
-        if (!tbody) return;
-
-        tbody.innerHTML = '';
-        if (!res.ok) {
-            tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-danger">Error al cargar ausencias.</td></tr>`;
-            return;
-        }
-
-        const ausencias = await res.json();
-        if (ausencias.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">No se registran solicitudes de ausencia.</td></tr>`;
-            return;
-        }
-
-        ausencias.forEach(a => {
-            const tr = document.createElement('tr');
-            const fInicio = formatFecha(a.fechaInicio);
-            const fFin = formatFecha(a.fechaFin);
-            
-            let badgeClass = '';
-            if (a.estado === 'PENDIENTE') badgeClass = 'frm-badge-pendiente';
-            else if (a.estado === 'APROBADA') badgeClass = 'frm-badge-aprobada';
-            else if (a.estado === 'RECHAZADA') badgeClass = 'frm-badge-rechazada';
-
-            let actionBtn = '';
-            if (a.estado === 'PENDIENTE') {
-                actionBtn = `
-                    <div class="d-flex gap-1">
-                        <button class="frm-btn-save frm-btn-sm" onclick="abrirModalResolucion(${a.id}, 'APROBADA')" style="padding: 4px 8px !important; font-size: 11px !important;">
-                            Aprobar
-                        </button>
-                        <button class="frm-btn-cancel frm-btn-sm text-danger" onclick="abrirModalResolucion(${a.id}, 'RECHAZADA')" style="padding: 4px 8px !important; font-size: 11px !important; border-color: rgba(220,38,38,0.2);">
-                            Rechazar
-                        </button>
-                    </div>
-                `;
-            } else {
-                actionBtn = `<span class="text-muted small">Resuelta</span>`;
-            }
-
-            tr.innerHTML = `
-                <td>${a.id}</td>
-                <td class="fw-bold">${a.tipoAusenciaNombre}</td>
-                <td>${fInicio}</td>
-                <td>${fFin}</td>
-                <td class="font-monospace text-center fw-bold">${a.diasSolicitados}</td>
-                <td><small>${a.motivo}</small></td>
-                <td><small>${a.aprobadorNombre || 'No asignado'}</small></td>
-                <td><span class="frm-badge ${badgeClass}">${a.estado}</span></td>
-                <td>${actionBtn}</td>
-            `;
-            tbody.appendChild(tr);
+        const res = await fetch('/api/rrhh/asistencia/observacion', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                empleadoId: parseInt(empleadoId),
+                observaciones: observaciones || null
+            })
         });
+
+        const data = await res.json();
+        if (res.ok) {
+            mostrarAlerta(data.mensaje, "success");
+            cargarAsistenciasPorEmpleado(parseInt(empleadoId));
+        } else {
+            mostrarAlerta(data.message || data.mensaje || "Error al actualizar la observación.", "danger");
+        }
     } catch (err) {
-        console.error("Error al cargar ausencias:", err);
+        console.error("Error actualizando observación:", err);
+        mostrarAlerta("Error de conexión al guardar observación.", "danger");
     }
 }
+
+// Pestaña Ausencias
+function cargarAusenciasTab() {
+    cargarAusenciasGeneral();
+}
+
+async function cargarAusenciasGeneral() {
+    try {
+        const tbody = document.getElementById('tbAusenciasGeneral');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">Cargando datos de ausencias...</td></tr>`;
+
+        const res = await fetch('/api/rrhh/ausencias/general');
+        if (!res.ok) throw new Error("Error al cargar ausencias generales");
+        
+        _ausenciasGeneralCache = await res.json();
+        filtrarYRenderizarAusenciasGeneral();
+    } catch (err) {
+        console.error("Error al cargar ausencias generales:", err);
+        const tbody = document.getElementById('tbAusenciasGeneral');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Error al cargar datos. Intente nuevamente.</td></tr>`;
+    }
+}
+
+function filtrarYRenderizarAusenciasGeneral() {
+    let filtrados = [..._ausenciasGeneralCache];
+
+    if (_ausenciasFiltroActual !== 'todas') {
+        filtrados = filtrados.filter(a => a.estado && a.estado.toLowerCase() === _ausenciasFiltroActual);
+    }
+
+    if (_ausenciasBusquedaActual) {
+        const termino = _ausenciasBusquedaActual;
+        filtrados = filtrados.filter(a => {
+            const campos = [a.empleadoNombre, a.departamentoNombre, a.tipoAusenciaNombre].filter(Boolean).map(x => x.toLowerCase());
+            return campos.some(x => x.includes(termino));
+        });
+    }
+
+    const tbody = document.getElementById('tbAusenciasGeneral');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    if (filtrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron ausencias con estos filtros.</td></tr>`;
+        return;
+    }
+
+    filtrados.forEach(a => {
+        const tr = document.createElement('tr');
+        const iniciales = a.empleadoNombre ? (a.empleadoNombre.split(' ').map(n => n.charAt(0)).join('')).substring(0, 2).toUpperCase() : 'EMP';
+        const fInicio = formatFecha(a.fechaInicio);
+        const fFin = formatFecha(a.fechaFin);
+        
+        let badgeHtml = '';
+        if (a.estado === 'APROBADA') badgeHtml = `<span class="badge-marcacion badge-completa">Aprobada</span>`;
+        else if (a.estado === 'PENDIENTE') badgeHtml = `<span class="badge-marcacion badge-encurso">Pendiente</span>`;
+        else badgeHtml = `<span class="badge-marcacion" style="color:#ef4444; border: 1px solid rgba(239,68,68,0.2); background:rgba(239,68,68,0.1)">Rechazada</span>`;
+
+        tr.innerHTML = `
+            <td>
+                <div class="empleado-info">
+                    <div class="empleado-avatar" style="width: 32px; height: 32px; font-size: 11px;">${iniciales}</div>
+                    <div class="d-flex flex-column ms-2">
+                        <span class="empleado-name fw-bold">${a.empleadoNombre}</span>
+                        <span class="text-muted" style="font-size: 11px;">${a.departamentoNombre || 'Sin departamento'}</span>
+                    </div>
+                </div>
+            </td>
+            <td class="fw-bold text-secondary">${a.tipoAusenciaNombre}</td>
+            <td class="font-monospace">${fInicio}</td>
+            <td class="font-monospace">${fFin}</td>
+            <td class="font-monospace fw-bold">${a.diasSolicitados}</td>
+            <td>${badgeHtml}</td>
+            <td><small class="text-muted" style="max-width: 150px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${a.motivo || ''}">${a.motivo || '-'}</small></td>
+            <td>
+                <div class="d-flex gap-2">
+                    ${a.estado === 'PENDIENTE' ? `
+                    <button class="btn btn-sm btn-outline-primary border-0" onclick="abrirModalResolverAusencia(${a.id})" title="Resolver/Editar Ausencia">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    </button>
+                    ` : ''}
+                    <button class="btn btn-sm btn-outline-danger border-0" onclick="eliminarAusencia(${a.id})" title="Eliminar Ausencia">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// (Removido: cargarAusenciasPorEmpleado ya no es necesario)
+
 
 // Abrir modal para resolver solicitud
-function abrirModalResolucion(ausenciaId, decision) {
+function abrirModalResolverAusencia(ausenciaId) {
     document.getElementById('resolverAusenciaId').value = ausenciaId;
-    document.getElementById('resolverDecision').value = decision;
-    
-    // Cambiar texto del botón confirmador de acuerdo a la decisión
+    document.getElementById('resolverDecision').value = '';
+
     const btn = document.getElementById('btnConfirmarResolucion');
-    if (decision === 'APROBADA') {
-        btn.className = 'frm-btn-save';
-        btn.innerText = 'Confirmar Aprobación';
-    } else {
-        btn.className = 'frm-btn-save bg-danger';
-        btn.innerText = 'Confirmar Rechazo';
-    }
+    btn.className = 'frm-btn-save';
+    btn.innerText = 'Confirmar Resolución';
 
     // Poblar aprobadores
     poblarDropdown('/api/rrhh/select/usuarios-todos', 'resolverAprobador', 'id', 'nombreCompleto', 'Seleccione un aprobador...');
-    
+
     // Mostrar modal
     const modalEl = document.getElementById('modalResolverAusencia');
     const modal = new bootstrap.Modal(modalEl);
@@ -831,17 +1669,32 @@ async function verDetallesEmpleado(id) {
         }
 
         const emp = await res.json();
-        
+
         // Asignar datos al modal
-        document.getElementById('detNombreCompleto').innerText = emp.nombreCompleto;
+        document.getElementById('detNombreCompleto').innerText = emp.nombreCompleto || '-';
         document.getElementById('detCargo').innerText = emp.cargoNombre || 'Sin asignar';
-        document.getElementById('detDocumento').innerText = `${emp.tipoDocumento} - ${emp.numeroDocumento}`;
+        document.getElementById('detDocumento').innerText = `${emp.tipoDocumento || '-'} - ${emp.numeroDocumento || '-'}`;
+
+        document.getElementById('detFechaNacimiento').innerText = emp.fechaNacimiento ? formatFecha(emp.fechaNacimiento) : '-';
+        document.getElementById('detGenero').innerText = emp.genero || '-';
+        document.getElementById('detEstadoCivil').innerText = emp.estadoCivil || '-';
+        document.getElementById('detTelefono').innerText = emp.telefono || '-';
+        document.getElementById('detCelular').innerText = emp.celular || '-';
+        document.getElementById('detCorreoPersonal').innerText = emp.correoPersonal || '-';
+        document.getElementById('detCorreoEmpresa').innerText = emp.correoEmpresa || '-';
+        document.getElementById('detDireccion').innerText = emp.direccion || '-';
+
         document.getElementById('detDepartamento').innerText = emp.departamentoNombre || 'Sin asignar';
-        document.getElementById('detFechaIngreso').innerText = formatFecha(emp.fechaIngreso);
+        document.getElementById('detCargoDetalle').innerText = emp.cargoNombre || 'Sin asignar';
+        document.getElementById('detResponsable').innerText = emp.responsableNombre || 'Ninguno';
+        document.getElementById('detUsuarioId').innerText = emp.usuarioNombre || (emp.usuarioId ? `ID: ${emp.usuarioId}` : 'Ninguno');
+
+        document.getElementById('detFechaIngreso').innerText = emp.fechaIngreso ? formatFecha(emp.fechaIngreso) : '-';
+        document.getElementById('detFechaCese').innerText = emp.fechaCese ? formatFecha(emp.fechaCese) : '-';
+        document.getElementById('detTipoContrato').innerText = emp.tipoContrato || '-';
         document.getElementById('detRegimenLaboral').innerText = emp.regimenLaboral || 'No asignado';
-        document.getElementById('detUsuarioId').innerText = emp.usuarioId || 'Ninguno';
-        
-        const badge = emp.activo 
+
+        const badge = emp.activo
             ? `<span class="frm-badge frm-badge-activo">Activo</span>`
             : `<span class="frm-badge frm-badge-inactivo">Inactivo</span>`;
         document.getElementById('detEstado').innerHTML = badge;
@@ -856,6 +1709,64 @@ async function verDetallesEmpleado(id) {
 
     } catch (err) {
         console.error("Error al ver detalles del empleado:", err);
+    }
+}
+
+// Editar empleado: Cargar datos en el modal
+async function editarEmpleado(id) {
+    try {
+        const res = await fetch(`/api/rrhh/empleados/${id}`);
+        if (!res.ok) {
+            mostrarAlerta("No se pudo obtener la información del empleado.", "danger");
+            return;
+        }
+
+        const emp = await res.json();
+
+        // Asegurarse de que los combos están poblados
+        if (document.getElementById('empDepto').options.length <= 1) {
+            await poblarDropdown('/api/rrhh/select/departamentos', 'empDepto', 'id', 'nombre', 'Seleccione departamento...');
+            await poblarDropdown('/api/rrhh/select/cargos', 'empCargo', 'id', 'nombre', 'Seleccione cargo...');
+            await poblarDropdown('/api/rrhh/select/usuarios', 'empUsuario', 'id', 'nombreCompleto', 'Ninguno');
+            await poblarDropdown('/api/rrhh/select/empleados', 'empResponsable', 'id', 'nombreCompleto', 'Ninguno');
+        }
+
+        // Poblar formulario
+        document.getElementById('empId').value = emp.id;
+        document.getElementById('empNombres').value = emp.nombres || '';
+        document.getElementById('empApellidos').value = emp.apellidos || '';
+        document.getElementById('empTipoDoc').value = emp.tipoDocumento || 'DNI';
+        document.getElementById('empNumDoc').value = emp.numeroDocumento || '';
+
+        document.getElementById('empFechaNacimiento').value = emp.fechaNacimiento ? emp.fechaNacimiento.split('T')[0] : '';
+        document.getElementById('empGenero').value = emp.genero || '';
+        document.getElementById('empEstadoCivil').value = emp.estadoCivil || '';
+        document.getElementById('empTelefono').value = emp.telefono || '';
+        document.getElementById('empCelular').value = emp.celular || '';
+        document.getElementById('empCorreoPersonal').value = emp.correoPersonal || '';
+        document.getElementById('empCorreoEmpresa').value = emp.correoEmpresa || '';
+        document.getElementById('empDireccion').value = emp.direccion || '';
+
+        document.getElementById('empDepto').value = emp.departamentoId || '';
+        document.getElementById('empCargo').value = emp.cargoId || '';
+        document.getElementById('empResponsable').value = emp.responsableId || '';
+        document.getElementById('empUsuario').value = emp.usuarioId || '';
+
+        document.getElementById('empFechaIngreso').value = emp.fechaIngreso ? emp.fechaIngreso.split('T')[0] : '';
+        document.getElementById('empFechaCese').value = emp.fechaCese ? emp.fechaCese.split('T')[0] : '';
+        document.getElementById('empTipoContrato').value = emp.tipoContrato || 'FIJO';
+        document.getElementById('empRegimenLaboral').value = emp.regimenLaboral || 'General';
+
+        document.getElementById('empActivo').checked = emp.activo;
+
+        document.getElementById('modalNuevoEmpleadoLabel').innerText = 'Editar Empleado';
+
+        const modalEl = document.getElementById('modalNuevoEmpleado');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+
+    } catch (err) {
+        console.error("Error al cargar empleado para editar:", err);
     }
 }
 
@@ -935,7 +1846,7 @@ function iniciarReloj() {
     const reloj = document.getElementById('asistenciaReloj');
     const fecha = document.getElementById('asistenciaFecha');
     if (!reloj || !fecha) return;
-    
+
     const actualizar = () => {
         const ahora = new Date();
         reloj.innerText = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -993,7 +1904,7 @@ function mostrarAlerta(mensaje, tipo = 'success') {
     alertDiv.style.alignItems = 'center';
     alertDiv.style.justifyContent = 'space-between';
     alertDiv.style.animation = 'slideInToast 0.3s ease-out forwards';
-    
+
     // Icono representativo
     let icon = '';
     if (tipo === 'success') {
@@ -1024,50 +1935,165 @@ function mostrarAlerta(mensaje, tipo = 'success') {
 // Actualizar KPIs de la parte superior del Dashboard de forma centralizada
 async function actualizarKPIs(empleadosList = null) {
     try {
-        let empleados = empleadosList;
-        if (!empleados) {
-            const res = await fetch('/api/rrhh/empleados?soloActivos=false');
-            if (res.ok) empleados = await res.json();
-            else return;
-        }
+        const res = await fetch('/api/rrhh/dashboard-kpis');
+        if (!res.ok) return;
+        const kpis = await res.json();
 
-        const activos = empleados.filter(e => e.activo);
-        document.getElementById('kpiEmpleados').innerText = activos.length;
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = val || 0;
+        };
 
-        // Contratos Activos: Iterar sobre los empleados activos y comprobar cuántos tienen contrato con estado 'ACTIVO'
-        let contratosActivos = 0;
-        const contratoPromises = activos.map(emp => 
-            fetch(`/api/rrhh/empleados/${emp.id}/contratos`)
-                .then(r => r.ok ? r.json() : [])
-                .then(contracts => {
-                    if (contracts.some(c => c.estado === 'ACTIVO')) {
-                        contratosActivos++;
-                    }
-                })
-                .catch(() => {})
-        );
-        await Promise.all(contratoPromises);
-        const kpiContratos = document.getElementById('kpiContratos');
-        if (kpiContratos) kpiContratos.innerText = contratosActivos;
-
-        // Asistencias Hoy: Cantidad de empleados activos que registraron entrada/salida hoy
-        const hoy = new Date().toISOString().split('T')[0];
-        let asistenciasHoy = 0;
-        const asistenciaPromises = activos.map(emp => 
-            fetch(`/api/rrhh/empleados/${emp.id}/asistencias?desde=${hoy}&hasta=${hoy}`)
-                .then(r => r.ok ? r.json() : [])
-                .then(asistencias => {
-                    if (asistencias.length > 0) {
-                        asistenciasHoy++;
-                    }
-                })
-                .catch(() => {})
-        );
-        await Promise.all(asistenciaPromises);
-        const kpiAsistencias = document.getElementById('kpiAsistencias');
-        if (kpiAsistencias) kpiAsistencias.innerText = asistenciasHoy;
+        setVal('kpiEmpleados', kpis.empleadosActivos);
+        setVal('kpiContratos', kpis.contratosActivos);
+        setVal('kpiAsistencias', kpis.asistenciasHoy);
+        setVal('kpiAusencias', kpis.ausenciasPendientes);
+        setVal('kpiDepartamentos', kpis.departamentos);
+        setVal('kpiCargos', kpis.cargos);
 
     } catch (err) {
         console.error("Error al actualizar KPIs generales:", err);
+    }
+}
+
+// Abrir modal de departamento en modo edición
+async function editarDepartamento(id, nombre, responsableId) {
+    // Primero poblar el dropdown, luego asignar valores
+    await poblarDropdown('/api/rrhh/select/usuarios-todos', 'deptResponsable', 'id', 'nombreCompleto', 'Sin responsable');
+
+    document.getElementById('deptId').value = id;
+    document.getElementById('deptNombre').value = nombre;
+    document.getElementById('modalNuevoDepartamentoLabel').innerText = 'Editar Departamento';
+
+    if (responsableId) {
+        document.getElementById('deptResponsable').value = responsableId;
+    }
+
+    // Usar getOrCreateInstance para no disparar show.bs.modal dos veces
+    const modalEl = document.getElementById('modalNuevoDepartamento');
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+}
+
+// Eliminar departamento (baja lógica)
+async function eliminarDepartamento(id, nombre) {
+    if (!confirm(`¿Está seguro de eliminar el departamento "${nombre}"?\nNo podrá eliminarlo si tiene empleados activos.`)) return;
+
+    try {
+        const res = await fetch(`/api/rrhh/departamentos/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            mostrarAlerta('Departamento eliminado correctamente.', 'success');
+            cargarDepartamentos();
+            actualizarKPIs();
+        } else {
+            const err = await res.text();
+            mostrarAlerta(`Error: ${err}`, 'danger');
+        }
+    } catch (err) {
+        console.error('Error al eliminar departamento:', err);
+        mostrarAlerta('Error de conexión al eliminar.', 'danger');
+    }
+}
+
+
+// Abrir modal de cargo en modo edición
+function editarCargo(id, nombre, descripcion) {
+    document.getElementById('cargoId').value = id;
+    document.getElementById('cargoNombre').value = nombre;
+    document.getElementById('cargoDescripcion').value = descripcion;
+    document.getElementById('modalNuevoCargoLabel').innerText = 'Editar Cargo';
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalNuevoCargo')).show();
+}
+
+// Eliminar cargo (baja lógica)
+async function eliminarCargo(id, nombre) {
+    if (!confirm(`¿Está seguro de eliminar el cargo "${nombre}"?\nNo podrá eliminarlo si tiene empleados activos asignados.`)) return;
+
+    try {
+        const res = await fetch(`/api/rrhh/cargos/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            mostrarAlerta('Cargo eliminado correctamente.', 'success');
+            cargarCargos();
+            actualizarKPIs();
+        } else {
+            const err = await res.text();
+            mostrarAlerta(`Error: ${err}`, 'danger');
+        }
+    } catch (err) {
+        console.error('Error al eliminar cargo:', err);
+        mostrarAlerta('Error de conexión al eliminar.', 'danger');
+    }
+}
+
+
+// Abrir modal de contrato en modo edición
+async function editarContrato(id) {
+    try {
+        // Fetch directo por ID, sin depender del select
+        const res = await fetch(`/api/rrhh/contratos/${id}`);
+        if (!res.ok) {
+            mostrarAlerta('No se encontró el contrato.', 'danger');
+            return;
+        }
+        const c = await res.json();
+
+        await poblarDropdown('/api/rrhh/select/empleados', 'contratoEmpleado', 'id', 'nombreCompleto', 'Seleccione empleado...');
+        await poblarDropdown('/api/rrhh/select/monedas', 'contratoMoneda', 'id', 'nombre', 'Seleccione moneda...');
+
+        document.getElementById('contratoId').value = c.id;
+        document.getElementById('contratoEmpleado').value = c.empleadoId;
+        document.getElementById('contratoNombre').value = c.nombre;
+        document.getElementById('contratoFechaInicio').value = c.fechaInicio.split('T')[0];
+        document.getElementById('contratoFechaFin').value = c.fechaFin ? c.fechaFin.split('T')[0] : '';
+        document.getElementById('contratoSueldo').value = c.sueldo;
+        document.getElementById('contratoMoneda').value = c.monedaId;
+        document.getElementById('contratoTipo').value = c.tipoContrato;
+        document.getElementById('contratoEstado').value = c.estado;
+
+        document.getElementById('contratoEstadoWrap').style.display = 'block';
+        document.getElementById('modalNuevoContratoLabel').innerText = 'Editar Contrato';
+
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalNuevoContrato')).show();
+    } catch (err) {
+        console.error('Error al cargar contrato para editar:', err);
+        mostrarAlerta('Error al cargar el contrato.', 'danger');
+    }
+}
+
+// Eliminar contrato (solo CERRADOS)
+async function eliminarContrato(id) {
+    if (!confirm('¿Está seguro de eliminar este contrato? Esta acción es permanente.')) return;
+
+    try {
+        const res = await fetch(`/api/rrhh/contratos/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            mostrarAlerta('Contrato eliminado correctamente.', 'success');
+            cargarContratosGeneral(); // Reload the general view
+            actualizarKPIs();
+        } else {
+            const err = await res.text();
+            mostrarAlerta(`Error: ${err}`, 'danger');
+        }
+    } catch (err) {
+        console.error('Error al eliminar contrato:', err);
+        mostrarAlerta('Error de conexión al eliminar.', 'danger');
+    }
+}
+
+async function eliminarAusencia(id) {
+    if (!confirm('¿Está seguro de eliminar esta ausencia? Esta acción es permanente.')) return;
+
+    try {
+        const res = await fetch(`/api/rrhh/ausencias/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            mostrarAlerta('Ausencia eliminada correctamente.', 'success');
+            cargarAusenciasGeneral(); // Reload the general view
+            actualizarKPIs();
+        } else {
+            const err = await res.text();
+            mostrarAlerta(`Error: ${err}`, 'danger');
+        }
+    } catch (err) {
+        console.error('Error al eliminar ausencia:', err);
+        mostrarAlerta('Error de conexión al eliminar.', 'danger');
     }
 }

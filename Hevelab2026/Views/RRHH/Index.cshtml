@@ -67,6 +67,35 @@
             </span>
             <span class="frm-analytic-value" id="kpiAsistencias">0</span>
         </div>
+        <div class="frm-analytic-item">
+            <span class="frm-analytic-label">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                Ausencias Ptes.
+            </span>
+            <span class="frm-analytic-value" id="kpiAusencias">0</span>
+        </div>
+        <div class="frm-analytic-item">
+            <span class="frm-analytic-label">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Departamentos
+            </span>
+            <span class="frm-analytic-value" id="kpiDepartamentos">0</span>
+        </div>
+        <div class="frm-analytic-item">
+            <span class="frm-analytic-label">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+                Cargos
+            </span>
+            <span class="frm-analytic-value" id="kpiCargos">0</span>
+        </div>
     </div>
 
     <!-- Contenedor Principal (Tabs y Tablas) -->
@@ -83,8 +112,43 @@
 
         <!-- Tab: Empleados -->
         <div id="tab-empleados" class="tab-content active">
-            <div class="tab-section-header">
+            <div class="tab-section-header emp-header-wrap">
                 <span class="tab-section-title">Directorio de Empleados</span>
+                <div class="emp-toolbar">
+                    <!-- Filtro rápido por estado -->
+                    <div class="emp-filter-tags" id="empFilterTags">
+                        <button class="emp-filter-tag active" data-filter="todos">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" width="14" height="14"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            Todos
+                            <span class="emp-filter-count" id="countTodos">0</span>
+                        </button>
+                        <button class="emp-filter-tag" data-filter="activos">
+                            <span class="emp-filter-dot dot-activo"></span>
+                            Activos
+                            <span class="emp-filter-count" id="countActivos">0</span>
+                        </button>
+                        <button class="emp-filter-tag" data-filter="inactivos">
+                            <span class="emp-filter-dot dot-inactivo"></span>
+                            Inactivos
+                            <span class="emp-filter-count" id="countInactivos">0</span>
+                        </button>
+                    </div>
+                    <!-- Campo de búsqueda -->
+                    <div class="emp-search-box" id="empSearchBox">
+                        <svg class="emp-search-icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" class="emp-search-input" id="empSearchInput" placeholder="Buscar por nombre, departamento, cargo o documento..." autocomplete="off">
+                        <button class="emp-search-clear" id="empSearchClear" title="Limpiar búsqueda" style="display:none;">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Contador de resultados -->
+            <div class="emp-results-bar" id="empResultsBar">
+                <span id="empResultsText"></span>
             </div>
             <div class="table-responsive">
                 <table class="frm-table-clean">
@@ -99,23 +163,49 @@
                         </tr>
                     </thead>
                     <tbody id="tbEmpleados">
-                        <!-- Llenado dinámicamente vía JS -->
-                    </tbody>
+    <!-- Llenado dinámicamente vía JS -->
+    <!-- Template row for employee entries -->
+    <tr class="employee-row-template d-none" data-id="">
+        <td class="emp-name"></td>
+        <td class="emp-dept"></td>
+        <td class="emp-cargo"></td>
+        <td class="emp-doc"></td>
+        <td class="emp-estado"></td>
+        <td>
+            <button class="frm-btn-sm edit-emp" title="Editar">
+    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 20h9"/><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M12 11l5-5 2 2-5 5-2-2z"/></svg>
+</button>
+        </td>
+    </tr>
+</tbody>
                 </table>
             </div>
         </div>
         
         <!-- Tab: Departamentos -->
         <div id="tab-departamentos" class="tab-content" style="display: none;">
-            <div class="tab-section-header">
-                <span class="tab-section-title">Lista de Departamentos</span>
-                <button class="frm-btn-save frm-btn-sm" id="btnNuevoDepartamento" data-bs-toggle="modal" data-bs-target="#modalNuevoDepartamento">
-                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    Nuevo Departamento
-                </button>
+            <div class="asis-toolbar card-premium mb-4 p-3">
+                <div class="row g-3 align-items-center justify-content-between">
+                    <div class="col-md-5 col-sm-6">
+                        <label class="frm-label mb-1 text-muted small">Buscar Departamento</label>
+                        <div class="emp-search-box w-100" style="max-width: 100%;">
+                            <svg class="emp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="text" id="deptSearchInput" class="emp-search-input" placeholder="Nombre del departamento...">
+                            <button class="emp-search-clear" id="deptSearchClear" style="display: none;" title="Limpiar búsqueda">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-12 d-flex align-items-end justify-content-end">
+                        <button class="frm-btn-save w-100" id="btnNuevoDepartamento">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" class="me-1">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Nuevo Departamento
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="frm-table-clean">
@@ -136,15 +226,28 @@
 
         <!-- Tab: Cargos -->
         <div id="tab-cargos" class="tab-content" style="display: none;">
-            <div class="tab-section-header">
-                <span class="tab-section-title">Lista de Cargos</span>
-                <button class="frm-btn-save frm-btn-sm" id="btnNuevoCargo" data-bs-toggle="modal" data-bs-target="#modalNuevoCargo">
-                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    Nuevo Cargo
-                </button>
+            <div class="asis-toolbar card-premium mb-4 p-3">
+                <div class="row g-3 align-items-center justify-content-between">
+                    <div class="col-md-5 col-sm-6">
+                        <label class="frm-label mb-1 text-muted small">Buscar Cargo</label>
+                        <div class="emp-search-box w-100" style="max-width: 100%;">
+                            <svg class="emp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="text" id="cargoSearchInput" class="emp-search-input" placeholder="Nombre del cargo...">
+                            <button class="emp-search-clear" id="cargoSearchClear" style="display: none;" title="Limpiar búsqueda">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-12 d-flex align-items-end justify-content-end">
+                        <button class="frm-btn-save w-100" id="btnNuevoCargo" data-bs-toggle="modal" data-bs-target="#modalNuevoCargo">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" class="me-1">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Nuevo Cargo
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="frm-table-clean">
@@ -165,141 +268,249 @@
 
         <!-- Tab: Contratos -->
         <div id="tab-contratos" class="tab-content" style="display: none;">
-            <div class="tab-section-header align-items-end">
-                <div class="flex-grow-1 me-3">
-                    <label class="frm-label mb-1">Filtrar por Empleado <span class="frm-req">*</span></label>
-                    <select class="frm-input frm-select" id="selectEmpleadoContratos" style="max-width: 350px;">
-                        <option value="">Seleccione un empleado...</option>
-                    </select>
+            
+            <!-- VISTA: Contratos -->
+            <div id="contratos-view-general" class="asis-view-section active">
+                <!-- Toolbar y Filtros -->
+                <div class="asis-toolbar card-premium mb-4 p-3">
+                    <div class="row g-3 align-items-center justify-content-between">
+                        <div class="col-md-5 col-sm-6">
+                            <label class="frm-label mb-1 text-muted small">Buscar Contrato o Empleado</label>
+                            <div class="emp-search-box w-100" style="max-width: 100%;">
+                                <svg class="emp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <input type="text" id="contratosSearchInput" class="emp-search-input" placeholder="Nombre, empleado, departamento...">
+                                <button class="emp-search-clear" id="contratosSearchClear" style="display: none;" title="Limpiar búsqueda">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-5 col-sm-12">
+                            <label class="frm-label mb-1 text-muted small">Estado del Contrato</label>
+                            <div class="emp-filter-tags mt-1" id="contratosFilterTags">
+                                <button class="emp-filter-tag active" data-filter="todos">Todos</button>
+                                <button class="emp-filter-tag" data-filter="activo">
+                                    <div class="emp-filter-dot dot-activo"></div> Activos
+                                </button>
+                                <button class="emp-filter-tag" data-filter="finalizado">
+                                    <div class="emp-filter-dot dot-inactivo"></div> Finalizados
+                                </button>
+                                <button class="emp-filter-tag" data-filter="anulado">
+                                    <div class="emp-filter-dot" style="background: #ef4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);"></div> Anulados
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-12 d-flex align-items-end justify-content-end">
+                            <button class="frm-btn-save w-100" id="btnNuevoContrato">
+                                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" class="me-1">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                Nuevo Contrato
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <button class="frm-btn-save frm-btn-sm" id="btnNuevoContrato" data-bs-toggle="modal" data-bs-target="#modalNuevoContrato">
-                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    Nuevo Contrato
-                </button>
-            </div>
-            <div class="table-responsive mt-3">
-                <table class="frm-table-clean">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre del Contrato</th>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Fin</th>
-                            <th>Sueldo</th>
-                            <th>Moneda</th>
-                            <th>Tipo Contrato</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbContratos">
-                        <tr><td colspan="8" class="text-center py-4 text-muted">Seleccione un empleado para ver sus contratos.</td></tr>
-                    </tbody>
-                </table>
+
+                <!-- Tabla de Contratos General -->
+                <div class="table-responsive">
+                    <table class="frm-table-clean">
+                        <thead>
+                            <tr>
+                                <th>Empleado</th>
+                                <th>Contrato</th>
+                                <th>F. Inicio</th>
+                                <th>F. Fin</th>
+                                <th>Sueldo</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbContratosGeneral">
+                            <tr><td colspan="7" class="text-center py-4 text-muted">Cargando contratos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <!-- Tab: Asistencia -->
         <div id="tab-asistencia" class="tab-content" style="display: none;">
-            <div class="tab-section-header">
-                <div class="flex-grow-1 me-3">
-                    <label class="frm-label mb-1">Empleado <span class="frm-req">*</span></label>
-                    <select class="frm-input frm-select" id="selectEmpleadoAsistencias" style="max-width: 350px;">
-                        <option value="">Seleccione un empleado...</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Panel de Marcación de Entrada/Salida -->
-            <div class="row mt-4" id="pnlMarcacion" style="display: none;">
-                <div class="col-md-5 mb-4">
-                    <div class="asistencia-clock-card">
-                        <div class="clock-label">Heredando hora del servidor</div>
-                        <div class="clock-time" id="asistenciaReloj">00:00:00</div>
-                        <div class="clock-date" id="asistenciaFecha">Cargando fecha...</div>
-                        <div class="d-flex gap-2 justify-content-center mt-4">
-                            <button class="frm-btn-save" id="btnMarcarEntrada">
-                                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" width="16" height="16"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
-                                Marcar Entrada
-                            </button>
-                            <button class="frm-btn-cancel text-danger" id="btnMarcarSalida" style="border-color: rgba(220,38,38,0.2);">
-                                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                                Marcar Salida
+            
+            <!-- VISTA ÚNICA: Panel General -->
+            <div id="asis-view-general" class="asis-view-section active">
+                
+                <!-- Toolbar y Filtros -->
+                <div class="asis-toolbar card-premium mb-4 p-3">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-2 col-sm-6">
+                            <label class="frm-label mb-1 text-muted small">Fecha de Consulta</label>
+                            <input type="date" class="frm-input asis-date-picker" id="asisGeneralFecha">
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <label class="frm-label mb-1 text-muted small">Buscar Empleado</label>
+                            <div class="emp-search-box w-100" style="max-width: 100%;">
+                                <svg class="emp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <input type="text" id="asisSearchInput" class="emp-search-input" placeholder="Nombre o departamento...">
+                                <button class="emp-search-clear" id="asisSearchClear" style="display: none;" title="Limpiar búsqueda">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-5 col-sm-12">
+                            <label class="frm-label mb-1 text-muted small">Estado de Marcación</label>
+                            <div class="emp-filter-tags mt-1" id="asisFilterTags">
+                                <button class="emp-filter-tag active" data-filter="todos">Todos</button>
+                                <button class="emp-filter-tag" data-filter="completa">
+                                    <div class="emp-filter-dot dot-activo"></div> Completa
+                                </button>
+                                <button class="emp-filter-tag" data-filter="en_curso">
+                                    <div class="emp-filter-dot" style="background: #eab308; box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.15);"></div> En Curso
+                                </button>
+                                <button class="emp-filter-tag" data-filter="sin_registro">
+                                    <div class="emp-filter-dot dot-inactivo"></div> Sin Registro
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-12">
+                            <label class="frm-label mb-1 text-muted small d-block">&nbsp;</label>
+                            <button class="frm-btn-save w-100" onclick="abrirModalNuevaAsistencia()">
+                                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" width="16" height="16" class="me-1"><path d="M12 5v14M5 12h14"/></svg>
+                                Nueva Asistencia
                             </button>
                         </div>
-                        <div id="asistenciaMsg" class="mt-3 text-center text-muted small">Seleccione una opción para registrar asistencia de hoy.</div>
                     </div>
                 </div>
-                <div class="col-md-7 mb-4">
-                    <div class="table-responsive">
-                        <table class="frm-table-clean">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Entrada</th>
-                                    <th>Salida</th>
-                                    <th>Hrs Trabajadas</th>
-                                    <th>Observaciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbAsistencias">
-                                <!-- Llenado dinámicamente vía JS -->
-                            </tbody>
-                        </table>
+
+                <!-- Mini KPIs Asistencia -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3 col-sm-6">
+                        <div class="asis-kpi-card">
+                            <div class="kpi-icon text-primary bg-primary bg-opacity-10">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </div>
+                            <div class="kpi-data">
+                                <div class="kpi-value" id="kpiAsisTotal">0</div>
+                                <div class="kpi-label">Total Empleados</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="asis-kpi-card">
+                            <div class="kpi-icon text-success bg-success bg-opacity-10">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            </div>
+                            <div class="kpi-data">
+                                <div class="kpi-value" id="kpiAsisPresentes">0</div>
+                                <div class="kpi-label">Presentes (En curso + Completa)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="asis-kpi-card">
+                            <div class="kpi-icon text-danger bg-danger bg-opacity-10">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                            </div>
+                            <div class="kpi-data">
+                                <div class="kpi-value" id="kpiAsisAusentes">0</div>
+                                <div class="kpi-label">Sin Registro</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="asis-kpi-card">
+                            <div class="kpi-icon text-warning bg-warning bg-opacity-10">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            </div>
+                            <div class="kpi-data">
+                                <div class="kpi-value" id="kpiAsisPromedio">0.0h</div>
+                                <div class="kpi-label">Promedio Horas</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div id="pnlMarcacionPlaceholder" class="text-center py-5 text-muted">
-                Seleccione un empleado para habilitar la marcación de asistencia y visualizar su historial.
+
+                <!-- Tabla de Asistencia General -->
+                <div class="table-responsive">
+                    <table class="frm-table-clean">
+                        <thead>
+                            <tr>
+                                <th>Empleado</th>
+                                <th>Departamento</th>
+                                <th>Entrada</th>
+                                <th>Salida</th>
+                                <th>Hrs Trabajadas</th>
+                                <th>Estado</th>
+                                <th>Observaciones</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbAsistenciaGeneral">
+                            <tr><td colspan="8" class="text-center py-4 text-muted">Cargando datos de asistencia...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
+
         <!-- Tab: Ausencias -->
         <div id="tab-ausencias" class="tab-content" style="display: none;">
-            <div class="tab-section-header align-items-end flex-wrap gap-2">
-                <div class="flex-grow-1 me-3" style="min-width: 250px;">
-                    <label class="frm-label mb-1">Filtrar por Empleado <span class="frm-req">*</span></label>
-                    <select class="frm-input frm-select" id="selectEmpleadoAusencias" style="max-width: 350px;">
-                        <option value="">Seleccione un empleado...</option>
-                    </select>
+            
+            <!-- VISTA: Ausencias -->
+            <div id="ausencias-view-general" class="asis-view-section active">
+                <!-- Toolbar y Filtros -->
+                <div class="asis-toolbar card-premium mb-4 p-3">
+                    <div class="row g-3 align-items-center justify-content-between">
+                        <div class="col-md-5 col-sm-6">
+                            <label class="frm-label mb-1 text-muted small">Buscar Empleado o Tipo</label>
+                            <div class="emp-search-box w-100" style="max-width: 100%;">
+                                <svg class="emp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <input type="text" id="ausenciasSearchInput" class="emp-search-input" placeholder="Nombre, departamento, tipo...">
+                                <button class="emp-search-clear" id="ausenciasSearchClear" style="display: none;" title="Limpiar búsqueda">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-sm-12">
+                            <label class="frm-label mb-1 text-muted small">Estado de Ausencia</label>
+                            <div class="emp-filter-tags mt-1" id="ausenciasFilterTags">
+                                <button class="emp-filter-tag active" data-filter="todas">Todas</button>
+                                <button class="emp-filter-tag" data-filter="pendiente">
+                                    <div class="emp-filter-dot" style="background: #eab308; box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.15);"></div> Pendientes
+                                </button>
+                                <button class="emp-filter-tag" data-filter="aprobada">
+                                    <div class="emp-filter-dot dot-activo"></div> Aprobadas
+                                </button>
+                                <button class="emp-filter-tag" data-filter="rechazada">
+                                    <div class="emp-filter-dot" style="background: #ef4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);"></div> Rechazadas
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="d-flex gap-2">
-                    <button class="frm-btn-cancel" id="btnNuevoTipoAusencia" data-bs-toggle="modal" data-bs-target="#modalNuevoTipoAusencia">
-                        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                        Tipos Ausencia
-                    </button>
-                    <button class="frm-btn-save frm-btn-sm" id="btnSolicitarAusencia" data-bs-toggle="modal" data-bs-target="#modalSolicitarAusencia">
-                        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        Solicitar Ausencia
-                    </button>
+
+                <!-- Tabla de Ausencias General -->
+                <div class="table-responsive">
+                    <table class="frm-table-clean">
+                        <thead>
+                            <tr>
+                                <th>Empleado</th>
+                                <th>Tipo Ausencia</th>
+                                <th>Desde</th>
+                                <th>Hasta</th>
+                                <th>Días</th>
+                                <th>Estado</th>
+                                <th>Motivo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbAusenciasGeneral">
+                            <tr><td colspan="8" class="text-center py-4 text-muted">Cargando ausencias...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="table-responsive mt-3">
-                <table class="frm-table-clean">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tipo Ausencia</th>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Fin</th>
-                            <th>Días</th>
-                            <th>Motivo</th>
-                            <th>Aprobador</th>
-                            <th>Estado</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbAusencias">
-                        <tr><td colspan="9" class="text-center py-4 text-muted">Seleccione un empleado para ver sus ausencias.</td></tr>
-                    </tbody>
-                </table>
-            </div>
+
         </div>
     </div>
 </div>
@@ -317,6 +528,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <form id="frmNuevoEmpleado">
+                <input type="hidden" id="empId" value="">
                 <div class="modal-body p-4">
                     <div class="frm-grid">
                         <div class="frm-field frm-field--half">
@@ -342,6 +554,53 @@
                         </div>
 
                         <div class="frm-field frm-field--half">
+                            <label class="frm-label">Fecha de Nacimiento</label>
+                            <input type="date" class="frm-input" id="empFechaNacimiento">
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Género</label>
+                            <select class="frm-input frm-select" id="empGenero">
+                                <option value="">Seleccione...</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Estado Civil</label>
+                            <select class="frm-input frm-select" id="empEstadoCivil">
+                                <option value="">Seleccione...</option>
+                                <option value="Soltero">Soltero(a)</option>
+                                <option value="Casado">Casado(a)</option>
+                                <option value="Divorciado">Divorciado(a)</option>
+                                <option value="Viudo">Viudo(a)</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Teléfono</label>
+                            <input type="text" class="frm-input" id="empTelefono" placeholder="Teléfono fijo">
+                        </div>
+
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Celular <span class="frm-req">*</span></label>
+                            <input type="text" class="frm-input" id="empCelular" placeholder="Número de celular" required>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Correo Personal</label>
+                            <input type="email" class="frm-input" id="empCorreoPersonal" placeholder="correo@ejemplo.com">
+                        </div>
+
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Correo Empresa</label>
+                            <input type="email" class="frm-input" id="empCorreoEmpresa" placeholder="correo@empresa.com">
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Dirección</label>
+                            <input type="text" class="frm-input" id="empDireccion" placeholder="Dirección completa">
+                        </div>
+
+                        <div class="frm-field frm-field--half">
                             <label class="frm-label">Departamento <span class="frm-req">*</span></label>
                             <select class="frm-input frm-select" id="empDepto" required>
                                 <option value="">Cargando...</option>
@@ -355,18 +614,29 @@
                         </div>
 
                         <div class="frm-field frm-field--half">
+                            <label class="frm-label">Responsable (Opcional)</label>
+                            <select class="frm-input frm-select" id="empResponsable">
+                                <option value="">Ninguno</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--half">
                             <label class="frm-label">Usuario Asociado (Opcional)</label>
                             <select class="frm-input frm-select" id="empUsuario">
                                 <option value="">Ninguno</option>
                             </select>
                         </div>
+
                         <div class="frm-field frm-field--half">
                             <label class="frm-label">Fecha de Ingreso <span class="frm-req">*</span></label>
                             <input type="date" class="frm-input" id="empFechaIngreso" required>
                         </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Fecha de Cese (Opcional)</label>
+                            <input type="date" class="frm-input" id="empFechaCese">
+                        </div>
 
                         <div class="frm-field frm-field--half">
-                            <label class="frm-label">Tipo de Contrato Inicial <span class="frm-req">*</span></label>
+                            <label class="frm-label">Tipo de Contrato <span class="frm-req">*</span></label>
                             <select class="frm-input frm-select" id="empTipoContrato" required>
                                 <option value="FIJO">FIJO</option>
                                 <option value="TEMPORAL">TEMPORAL</option>
@@ -376,6 +646,16 @@
                         <div class="frm-field frm-field--half">
                             <label class="frm-label">Régimen Laboral <span class="frm-req">*</span></label>
                             <input type="text" class="frm-input" id="empRegimenLaboral" value="General" required>
+                        </div>
+
+                        <div class="frm-field frm-field--full mt-2">
+                            <label class="frm-switch-label">
+                                <span>Empleado Activo</span>
+                                <div class="frm-switch">
+                                    <input type="checkbox" class="frm-switch__chk" id="empActivo" checked>
+                                    <span class="frm-switch__track"></span>
+                                </div>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -397,6 +677,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <form id="frmNuevoDepartamento">
+                <input type="hidden" id="deptId" value="">
                 <div class="modal-body p-4">
                     <div class="frm-grid">
                         <div class="frm-field frm-field--full">
@@ -429,6 +710,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <form id="frmNuevoCargo">
+                <input type="hidden" id="cargoId" value="">
                 <div class="modal-body p-4">
                     <div class="frm-grid">
                         <div class="frm-field frm-field--full">
@@ -459,6 +741,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <form id="frmNuevoContrato">
+                <input type="hidden" id="contratoId" value="">
                 <div class="modal-body p-4">
                     <div class="frm-grid">
                         <div class="frm-field frm-field--full">
@@ -495,6 +778,13 @@
                                 <option value="FIJO">FIJO</option>
                                 <option value="TEMPORAL">TEMPORAL</option>
                                 <option value="PRACTICAS">PRACTICAS</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--full" id="contratoEstadoWrap" style="display: none;">
+                            <label class="frm-label">Estado del Contrato</label>
+                            <select class="frm-input frm-select" id="contratoEstado">
+                                <option value="ACTIVO">ACTIVO</option>
+                                <option value="CERRADO">CERRADO</option>
                             </select>
                         </div>
                     </div>
@@ -609,10 +899,17 @@
             </div>
             <form id="frmResolverAusencia">
                 <input type="hidden" id="resolverAusenciaId">
-                <input type="hidden" id="resolverDecision">
                 <div class="modal-body p-4">
                     <div class="frm-grid">
                         <div class="frm-field frm-field--full">
+                            <label class="frm-label">Decisión <span class="frm-req">*</span></label>
+                            <select class="frm-input frm-select" id="resolverDecision" required>
+                                <option value="">Seleccione una decisión...</option>
+                                <option value="APROBADA">Aprobar</option>
+                                <option value="RECHAZADA">Rechazar</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--full mt-3">
                             <label class="frm-label">Aprobador <span class="frm-req">*</span></label>
                             <select class="frm-input frm-select" id="resolverAprobador" required>
                                 <option value="">Seleccione un usuario...</option>
@@ -632,7 +929,7 @@
 
 <!-- Modal: Ficha Detalle Empleado -->
 <div class="modal fade" id="modalDetalleEmpleado" tabindex="-1" aria-labelledby="modalDetalleEmpleadoLabel" aria-hidden="true" data-bs-theme="light">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
             <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
                 <h5 class="modal-title" id="modalDetalleEmpleadoLabel" style="font-weight: 700; font-size: 1.1rem;">Ficha del Empleado</h5>
@@ -646,28 +943,76 @@
                         <span id="detCargo" class="text-muted" style="font-size: 0.9rem;">Cargo</span>
                     </div>
                 </div>
-                <div class="frm-grid">
-                    <div class="frm-field frm-field--half">
+                <div class="row g-3">
+                    <div class="col-md-3">
                         <span class="frm-label">Tipo y Nro. Documento</span>
                         <div class="det-val" id="detDocumento">-</div>
                     </div>
-                    <div class="frm-field frm-field--half">
+                    <div class="col-md-3">
+                        <span class="frm-label">Fecha de Nacimiento</span>
+                        <div class="det-val" id="detFechaNacimiento">-</div>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="frm-label">Género</span>
+                        <div class="det-val" id="detGenero">-</div>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="frm-label">Estado Civil</span>
+                        <div class="det-val" id="detEstadoCivil">-</div>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="frm-label">Teléfono</span>
+                        <div class="det-val" id="detTelefono">-</div>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="frm-label">Celular</span>
+                        <div class="det-val" id="detCelular">-</div>
+                    </div>
+                    <div class="col-md-6">
+                        <span class="frm-label">Correo Personal</span>
+                        <div class="det-val" id="detCorreoPersonal">-</div>
+                    </div>
+                    <div class="col-md-6">
+                        <span class="frm-label">Correo Empresa</span>
+                        <div class="det-val" id="detCorreoEmpresa">-</div>
+                    </div>
+                    <div class="col-md-12">
+                        <span class="frm-label">Dirección</span>
+                        <div class="det-val" id="detDireccion">-</div>
+                    </div>
+                    <div class="col-md-3">
                         <span class="frm-label">Departamento</span>
                         <div class="det-val" id="detDepartamento">-</div>
                     </div>
-                    <div class="frm-field frm-field--half">
+                    <div class="col-md-3">
+                        <span class="frm-label">Cargo</span>
+                        <div class="det-val" id="detCargoDetalle">-</div>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="frm-label">Responsable</span>
+                        <div class="det-val" id="detResponsable">-</div>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="frm-label">Usuario Asociado</span>
+                        <div class="det-val" id="detUsuarioId">-</div>
+                    </div>
+                    <div class="col-md-3">
                         <span class="frm-label">Fecha de Ingreso</span>
                         <div class="det-val" id="detFechaIngreso">-</div>
                     </div>
-                    <div class="frm-field frm-field--half">
+                    <div class="col-md-3">
+                        <span class="frm-label">Fecha de Cese</span>
+                        <div class="det-val" id="detFechaCese">-</div>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="frm-label">Tipo de Contrato</span>
+                        <div class="det-val" id="detTipoContrato">-</div>
+                    </div>
+                    <div class="col-md-3">
                         <span class="frm-label">Régimen Laboral</span>
                         <div class="det-val" id="detRegimenLaboral">-</div>
                     </div>
-                    <div class="frm-field frm-field--half">
-                        <span class="frm-label">Usuario Asociado ID</span>
-                        <div class="det-val" id="detUsuarioId">-</div>
-                    </div>
-                    <div class="frm-field frm-field--half">
+                    <div class="col-md-12 mt-2">
                         <span class="frm-label">Estado actual</span>
                         <div class="det-val" id="detEstado">-</div>
                     </div>
@@ -676,6 +1021,89 @@
             <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
                 <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cerrar Ficha</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Editar Asistencia -->
+<div class="modal fade" id="modalEditarAsistencia" tabindex="-1" aria-labelledby="modalEditarAsistenciaLabel" aria-hidden="true" data-bs-theme="light">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title" id="modalEditarAsistenciaLabel" style="font-weight: 700;">Editar Asistencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="frmEditarAsistencia">
+                <input type="hidden" id="asistenciaId" value="">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="frm-label">Fecha</label>
+                            <input type="date" class="frm-input" id="asistenciaEditFecha" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="frm-label">Hora de Entrada</label>
+                            <input type="time" class="frm-input" id="asistenciaEditEntrada" step="1" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="frm-label">Hora de Salida</label>
+                            <input type="time" class="frm-input" id="asistenciaEditSalida" step="1">
+                        </div>
+                        <div class="col-12">
+                            <label class="frm-label">Observaciones</label>
+                            <textarea class="frm-input" id="asistenciaEditObservaciones" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="frm-btn-save">
+                        <i class="ph ph-floppy-disk me-2"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Nueva Asistencia (Manual) -->
+<div class="modal fade" id="modalNuevaAsistencia" tabindex="-1" aria-labelledby="modalNuevaAsistenciaLabel" aria-hidden="true" data-bs-theme="light">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color); background: #f8fafc;">
+            <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title m-0" id="modalNuevaAsistenciaLabel" style="font-weight: 700;">Registrar Asistencia Manual</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="frmNuevaAsistencia">
+                <div class="modal-body p-4">
+                    <div class="frm-field frm-field--full mb-3">
+                        <label class="frm-label">Empleado <span class="text-danger">*</span></label>
+                        <select class="frm-input" id="asistenciaSelectEmpleado" required>
+                            <option value="">Cargando empleados...</option>
+                        </select>
+                    </div>
+                    <div class="frm-field frm-field--full mb-3">
+                        <label class="frm-label">Fecha <span class="text-danger">*</span></label>
+                        <input type="date" class="frm-input" id="asistenciaManualFecha" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="frm-label">Hora Entrada <span class="text-danger">*</span></label>
+                            <input type="time" class="frm-input" id="asistenciaManualEntrada" required>
+                        </div>
+                    </div>
+                    <div class="frm-field frm-field--full mb-0">
+                        <label class="frm-label">Observaciones</label>
+                        <textarea class="frm-input" id="asistenciaManualObservaciones" rows="2" placeholder="Detalles sobre el registro..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="frm-btn-save">
+                        <i class="ph ph-floppy-disk me-2"></i> Guardar Asistencia
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

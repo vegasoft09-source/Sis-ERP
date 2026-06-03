@@ -312,3 +312,378 @@
         transform: translateY(-20px);
     }
 }
+
+/* ======================================================
+   Directorio de Empleados: Búsqueda y Filtros Rápidos
+   ====================================================== */
+
+/* Header wrap para el directorio de empleados */
+.emp-header-wrap {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px;
+    padding-bottom: 14px !important;
+}
+
+.emp-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+/* ── Filter Tags (Todos / Activos / Inactivos) ── */
+.emp-filter-tags {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.emp-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: #ffffff;
+    color: var(--text-secondary, #64748b);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    user-select: none;
+    line-height: 1.4;
+}
+
+.emp-filter-tag:hover {
+    border-color: var(--sys-primary, #4338ca);
+    color: var(--sys-primary, #4338ca);
+    background: #f5f3ff;
+    box-shadow: 0 2px 8px rgba(67, 56, 202, 0.08);
+}
+
+.emp-filter-tag.active {
+    background: var(--sys-primary, #4338ca);
+    color: #ffffff;
+    border-color: var(--sys-primary, #4338ca);
+    box-shadow: 0 4px 12px rgba(67, 56, 202, 0.25);
+}
+
+.emp-filter-tag.active .emp-filter-dot {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+}
+
+.emp-filter-tag.active .emp-filter-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
+.emp-filter-tag svg {
+    flex-shrink: 0;
+}
+
+/* Dot indicators */
+.emp-filter-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: box-shadow 0.2s ease;
+}
+
+.dot-activo {
+    background-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+}
+
+.dot-inactivo {
+    background-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* Counters */
+.emp-filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: var(--text-secondary, #64748b);
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1;
+    transition: all 0.25s ease;
+}
+
+/* ── Search Box ── */
+.emp-search-box {
+    display: flex;
+    align-items: center;
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+    max-width: 480px;
+}
+
+.emp-search-icon {
+    position: absolute;
+    left: 12px;
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted, #94a3b8);
+    pointer-events: none;
+    transition: color 0.2s ease;
+    z-index: 1;
+}
+
+.emp-search-input {
+    width: 100%;
+    padding: 8px 36px 8px 36px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 10px;
+    background: #ffffff;
+    font-size: 13px;
+    color: var(--text-primary, #0f172a);
+    outline: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+}
+
+.emp-search-input::placeholder {
+    color: var(--text-muted, #94a3b8);
+    font-weight: 400;
+}
+
+.emp-search-input:focus {
+    border-color: var(--sys-primary, #4338ca);
+    box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.emp-search-input:focus ~ .emp-search-icon,
+.emp-search-box:focus-within .emp-search-icon {
+    color: var(--sys-primary, #4338ca);
+}
+
+.emp-search-clear {
+    position: absolute;
+    right: 6px;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted, #94a3b8);
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.emp-search-clear:hover {
+    background: #f1f5f9;
+    color: var(--text-primary, #0f172a);
+}
+
+/* ── Results Bar ── */
+.emp-results-bar {
+    padding: 6px 18px;
+    font-size: 12px;
+    color: var(--text-muted, #94a3b8);
+    font-weight: 500;
+    display: none;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    background: linear-gradient(135deg, #fafbff 0%, #f8fafc 100%);
+}
+
+.emp-results-bar.visible {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out forwards;
+}
+
+/* No-results state row */
+.emp-no-results td {
+    padding: 40px 20px !important;
+    text-align: center;
+    color: var(--text-muted, #94a3b8);
+    font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .emp-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .emp-filter-tags {
+        justify-content: center;
+    }
+
+    .emp-search-box {
+        max-width: 100%;
+    }
+}
+
+/* ======================================================
+   Rediseño: Módulo de Asistencia (Panel General y Marcación)
+   ====================================================== */
+
+/* Sub-navegación tipo Pills */
+.asis-nav-pills {
+    display: inline-flex;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 12px;
+    gap: 4px;
+}
+
+.asis-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    color: var(--text-secondary, #64748b);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.asis-pill:hover {
+    color: var(--text-primary, #0f172a);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.asis-pill.active {
+    background: #ffffff;
+    color: var(--sys-primary, #4338ca);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Transiciones entre vistas */
+.asis-view-section {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+.asis-view-section.active {
+    display: block;
+}
+
+/* Toolbars y Cards Premium */
+.card-premium {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+/* Date Picker Personalizado */
+.asis-date-picker {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2364748b" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+}
+.asis-date-picker::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    width: 40px;
+    height: 100%;
+}
+
+/* Mini KPI Cards de Asistencia */
+.asis-kpi-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.asis-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.kpi-data {
+    display: flex;
+    flex-direction: column;
+}
+
+.kpi-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary, #0f172a);
+    line-height: 1.2;
+}
+
+.kpi-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary, #64748b);
+    margin-top: 2px;
+}
+
+/* Badges de Estado Específicos para Marcación */
+.badge-marcacion {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.badge-completa {
+    background: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.badge-encurso {
+    background: rgba(234, 179, 8, 0.1);
+    color: #ca8a04;
+    border: 1px solid rgba(234, 179, 8, 0.2);
+}
+
+.badge-sinregistro {
+    background: rgba(100, 116, 139, 0.08);
+    color: #64748b;
+    border: 1px solid rgba(100, 116, 139, 0.15);
+}
+
+/* Modificadores extra para emp-filter-tags existentes para Asistencia */
+#asisFilterTags {
+    justify-content: flex-start;
+}
+

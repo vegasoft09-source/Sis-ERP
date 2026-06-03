@@ -5,6 +5,8 @@ namespace Sis_ERP.Models
     public class HrDepartamento
     {
         public int Id { get; set; }
+        public int? PadreId { get; set; }
+        public string PadreNombre { get; set; } = "";
         public string Nombre { get; set; } = "";
         public int? ResponsableId { get; set; }
         public string ResponsableNombre { get; set; } = "";
@@ -23,16 +25,28 @@ namespace Sis_ERP.Models
     {
         public int Id { get; set; }
         public int? UsuarioId { get; set; }
+        public string UsuarioNombre { get; set; } = "";
         public int DepartamentoId { get; set; }
         public string DepartamentoNombre { get; set; } = "";
         public int CargoId { get; set; }
         public string CargoNombre { get; set; } = "";
+        public int? ResponsableId { get; set; }
+        public string ResponsableNombre { get; set; } = "";
         public string Nombres { get; set; } = "";
         public string Apellidos { get; set; } = "";
         public string NombreCompleto => $"{Nombres} {Apellidos}";
         public string TipoDocumento { get; set; } = "DNI";
         public string NumeroDocumento { get; set; } = "";
-        public DateTime FechaIngreso { get; set; }
+        public DateTime? FechaNacimiento { get; set; }
+        public string Genero { get; set; } = "";
+        public string EstadoCivil { get; set; } = "";
+        public string Telefono { get; set; } = "";
+        public string Celular { get; set; } = "";
+        public string CorreoPersonal { get; set; } = "";
+        public string CorreoEmpresa { get; set; } = "";
+        public string Direccion { get; set; } = "";
+        public DateTime? FechaIngreso { get; set; }
+        public DateTime? FechaCese { get; set; }
         public string TipoContrato { get; set; } = "";  // FIJO / TEMPORAL / PRACTICAS
         public string RegimenLaboral { get; set; } = "";
         public bool Activo { get; set; } = true;
