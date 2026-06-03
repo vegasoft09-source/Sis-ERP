@@ -1,0 +1,146 @@
+@model Hevelab2026.Models.Configuracion.ConfiguracionIndexViewModel
+
+@using Hevelab2026.Models.Configuracion
+
+@{
+
+    ViewData["Title"] = "Configuración del sistema";
+
+}
+
+
+
+@section Styles {
+
+    <link rel="stylesheet" href="~/css/configuracion.css" asp-append-version="true" />
+
+}
+
+
+
+<div class="cfg-shell animate-fade-in">
+
+    <header class="cfg-hero">
+
+        <div class="cfg-hero-text">
+
+            <span class="cfg-hero-kicker">Sistema</span>
+
+            <h1 class="cfg-hero-title">Configuración del sistema</h1>
+
+            <p class="cfg-hero-desc">Parámetros de empresa, regionalización y preferencias. Los cambios aplican a tu organización actual.</p>
+
+        </div>
+
+        @if (Model.TabActiva == ConfiguracionTabs.Empresa)
+
+        {
+
+            <button type="submit" form="form-empresa" class="cfg-btn-primary">
+
+                <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+
+                Guardar
+
+            </button>
+
+        }
+
+        else if (Model.TabActiva == ConfiguracionTabs.Regional)
+
+        {
+
+            <button type="submit" form="form-regional" class="cfg-btn-primary">
+
+                <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+
+                Guardar
+
+            </button>
+
+        }
+
+    </header>
+
+
+
+    @if (TempData["ConfigSuccess"] != null)
+
+    {
+
+        <div class="cfg-toast cfg-toast--ok">@TempData["ConfigSuccess"]</div>
+
+    }
+
+    @if (TempData["ConfigError"] != null)
+
+    {
+
+        <div class="cfg-toast cfg-toast--err">@TempData["ConfigError"]</div>
+
+    }
+
+    @if (TempData["ConfigWarning"] != null)
+
+    {
+
+        <div class="cfg-toast cfg-toast--warn">@TempData["ConfigWarning"]</div>
+
+    }
+
+
+
+    <partial name="_PanelEstadoSistema" model="Model.Estado" />
+
+
+
+    <section class="cfg-panel" aria-label="Ajustes del sistema">
+
+        <partial name="_Tabs" model="Model.TabActiva" />
+
+        <div class="cfg-tab-content">
+
+            @switch (Model.TabActiva)
+
+            {
+
+                case ConfiguracionTabs.Regional:
+
+                    <partial name="_TabRegional" model="Model" />
+
+                    break;
+
+                case ConfiguracionTabs.Correos:
+
+                    <partial name="_TabCorreos" model="Model.Correos" />
+
+                    break;
+
+                case ConfiguracionTabs.Seguridad:
+
+                    <partial name="_TabSeguridad" model="Model.Seguridad" />
+
+                    break;
+
+                default:
+
+                    <partial name="_TabEmpresa" model="Model.Empresa" />
+
+                    break;
+
+            }
+
+        </div>
+
+    </section>
+
+</div>
+
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}
+

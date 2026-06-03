@@ -159,7 +159,7 @@ namespace Hevelab2026.Models.Modulos
             new()
             {
                 Id = "configuracion", Name = "Configuración", Category = ModuloCategoria.Sistema, SortOrder = 180,
-                Controller = "Home", Action = "Privacy",
+                Controller = "Configuracion", Action = "Index",
                 Description = "Ajustes de empresa, usuarios y preferencias del sistema.",
                 BadgeText = "Ajustes", BadgeType = "secondary",
                 IconSvg = IconPaths.Settings,

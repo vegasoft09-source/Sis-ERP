@@ -1,4 +1,5 @@
 using Hevelab2026.Services;
+using Hevelab2026.Services.Configuracion;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 // ── Servicio de usuarios (Dapper + MySQL) ──
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IEmpresaConfigService, EmpresaConfigService>();
+builder.Services.AddScoped<IConfiguracionCatalogoService, ConfiguracionCatalogoService>();
+builder.Services.AddScoped<ISistemaEstadoService, SistemaEstadoService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 // ═══════════════════════════════════════════════════════════════
 // PIPELINE

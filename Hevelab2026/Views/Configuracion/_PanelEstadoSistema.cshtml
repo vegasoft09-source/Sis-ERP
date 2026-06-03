@@ -1,0 +1,54 @@
+@model Hevelab2026.Models.Configuracion.SistemaEstadoViewModel
+
+
+
+<div class="cfg-status" aria-label="Resumen del entorno">
+
+    <div class="cfg-status-item">
+
+        <span class="cfg-status-label">Versión</span>
+
+        <span class="cfg-status-value">v@(Model.Version)</span>
+
+    </div>
+
+    <span class="cfg-status-sep" aria-hidden="true"></span>
+
+    <div class="cfg-status-item">
+
+        <span class="cfg-status-label">Base de datos</span>
+
+        @if (Model.BaseDatosConectada)
+
+        {
+
+            <span class="cfg-status-dot cfg-status-dot--ok" aria-hidden="true"></span>
+
+            <span class="cfg-status-value cfg-status-value--muted">Operativa</span>
+
+        }
+
+        else
+
+        {
+
+            <span class="cfg-status-dot cfg-status-dot--err" aria-hidden="true"></span>
+
+            <span class="cfg-status-value cfg-status-value--muted">Sin conexión</span>
+
+        }
+
+    </div>
+
+    <span class="cfg-status-sep" aria-hidden="true"></span>
+
+    <div class="cfg-status-item">
+
+        <span class="cfg-status-label">Usuarios activos</span>
+
+        <span class="cfg-status-value">@Model.UsuariosActivos</span>
+
+    </div>
+
+</div>
+

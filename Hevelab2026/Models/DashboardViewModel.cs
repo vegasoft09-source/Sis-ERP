@@ -18,7 +18,16 @@ namespace Hevelab2026.Models
         public string TrendText { get; set; } = string.Empty;
         public string TrendType { get; set; } = "up"; // "up", "down", "warning"
         public string IconSvg { get; set; } = string.Empty;
-        public string ThemeColor { get; set; } = "primary"; // primary, success, danger, warning
+        public string ThemeColor { get; set; } = "primary"; // primary, success, warning, purple
+        public MetricChartData Chart { get; set; } = new();
+    }
+
+    public class MetricChartData
+    {
+        /// <summary>line | bar | doughnut</summary>
+        public string Type { get; set; } = "line";
+        public string[] Labels { get; set; } = Array.Empty<string>();
+        public double[] Values { get; set; } = Array.Empty<double>();
     }
 
     public class QuickAccessModule

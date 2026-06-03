@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Hevelab2026.Models;
 using Hevelab2026.Models.Modulos;
+using Hevelab2026.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -10,55 +12,22 @@ namespace Hevelab2026.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IDashboardService _dashboardService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IDashboardService dashboardService)
         {
             _logger = logger;
+            _dashboardService = dashboardService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var empresaId = ObtenerEmpresaId();
+            var metrics = await _dashboardService.ObtenerMetricasAsync(empresaId);
+
             var model = new DashboardViewModel
             {
-                Metrics = new List<MetricCard>
-                {
-                    new MetricCard
-                    {
-                        Title = "Ventas Mensuales",
-                        Value = "$24,850.00",
-                        TrendText = "+12.4% vs mes anterior",
-                        TrendType = "up",
-                        ThemeColor = "primary",
-                        IconSvg = @"<circle cx='9' cy='21' r='1'/><circle cx='20' cy='21' r='1'/><path d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6'/>"
-                    },
-                    new MetricCard
-                    {
-                        Title = "Nuevos Clientes",
-                        Value = "184",
-                        TrendText = "+8.2% vs mes anterior",
-                        TrendType = "up",
-                        ThemeColor = "success",
-                        IconSvg = @"<path d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M23 21v-2a4 4 0 0 0-3-3.87'/><path d='M16 3.13a4 4 0 0 1 0 7.75'/>"
-                    },
-                    new MetricCard
-                    {
-                        Title = "Stock Almacén",
-                        Value = "1,420 u.",
-                        TrendText = "12 productos stock crítico",
-                        TrendType = "warning",
-                        ThemeColor = "warning",
-                        IconSvg = @"<path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'/><polyline points='7.5 4.21 12 6.81 16.5 4.21'/>"
-                    },
-                    new MetricCard
-                    {
-                        Title = "Facturas Cobrar",
-                        Value = "$3,420.00",
-                        TrendText = "8 facturas pendientes",
-                        TrendType = "danger",
-                        ThemeColor = "danger",
-                        IconSvg = @"<line x1='18' y1='20' x2='18' y2='10'/><line x1='12' y1='20' x2='12' y2='4'/><line x1='6' y1='20' x2='6' y2='14'/>"
-                    }
-                },
+                Metrics = metrics,
                 QuickAccessModules = ModuloRegistry.ToQuickAccessModules(),
                 RecentSales = new List<RecentSale>
                 {
@@ -88,6 +57,12 @@ namespace Hevelab2026.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private int ObtenerEmpresaId()
+        {
+            var claim = User.FindFirstValue("EmpresaId");
+            return int.TryParse(claim, out var id) && id > 0 ? id : 1;
         }
     }
 }

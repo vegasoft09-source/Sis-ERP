@@ -1,0 +1,37 @@
+@model Hevelab2026.Models.Configuracion.CorreoConfigForm
+
+<div class="cfg-section">
+    <h2 class="cfg-section-title">Correos salientes</h2>
+
+    @if (Model.ModuloEnDesarrollo)
+    {
+        <p class="cfg-dev-banner mb-3">
+            Módulo preparado para tabla <code>config_correo</code> en BD. Los campos se habilitarán en la siguiente iteración.
+        </p>
+    }
+
+    <div class="row g-3">
+        <div class="col-md-8">
+            <label class="cfg-label">Servidor SMTP</label>
+            <input class="cfg-input" asp-for="Servidor" disabled placeholder="smtp.ejemplo.com" />
+        </div>
+        <div class="col-md-4">
+            <label class="cfg-label">Puerto</label>
+            <input class="cfg-input" asp-for="Puerto" type="number" disabled />
+        </div>
+        <div class="col-md-6">
+            <label class="cfg-label">Usuario</label>
+            <input class="cfg-input" asp-for="Usuario" disabled />
+        </div>
+        <div class="col-md-6">
+            <label class="cfg-label">Correo remitente</label>
+            <input class="cfg-input" asp-for="Remitente" type="email" disabled />
+        </div>
+        <div class="col-12">
+            <label class="form-check">
+                <input class="form-check-input" type="checkbox" asp-for="UsarSsl" disabled />
+                <span class="form-check-label">Usar SSL/TLS</span>
+            </label>
+        </div>
+    </div>
+</div>

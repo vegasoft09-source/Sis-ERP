@@ -1,0 +1,34 @@
+@model Hevelab2026.Models.Configuracion.SeguridadConfigForm
+
+<div class="cfg-section">
+    <h2 class="cfg-section-title">Sesiones y contraseñas</h2>
+
+    @if (Model.ModuloEnDesarrollo)
+    {
+        <p class="cfg-dev-banner mb-3">
+            Políticas de contraseña y sesión: se persistirán cuando exista la tabla de parámetros del sistema.
+            Hoy la sesión usa cookies (8 h / 30 días con “Recordarme”).
+        </p>
+    }
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="cfg-label">Duración de sesión (horas)</label>
+            <input class="cfg-input" asp-for="HorasSesion" type="number" min="1" max="24" disabled />
+        </div>
+        <div class="col-md-4">
+            <label class="cfg-label">Longitud mínima contraseña</label>
+            <input class="cfg-input" asp-for="LongitudMinimaPassword" type="number" disabled />
+        </div>
+        <div class="col-12">
+            <label class="form-check">
+                <input class="form-check-input" type="checkbox" asp-for="RequiereMayuscula" disabled />
+                <span class="form-check-label">Requerir mayúscula en contraseña</span>
+            </label>
+            <label class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" asp-for="RequiereNumero" disabled />
+                <span class="form-check-label">Requerir número en contraseña</span>
+            </label>
+        </div>
+    </div>
+</div>

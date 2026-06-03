@@ -1,0 +1,604 @@
+/* ═══ Configuración del sistema — HeveLab ═══ */
+
+.cfg-shell {
+
+    --cfg-accent: var(--sys-primary, #4338ca);
+
+    --cfg-accent-soft: var(--sys-soft-bg, #eef2ff);
+
+    --cfg-radius: 12px;
+
+}
+
+
+
+.cfg-hero {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 1.25rem;
+
+    margin-bottom: 1.25rem;
+
+    padding-bottom: 1.25rem;
+
+    border-bottom: 1px solid var(--border-color);
+
+}
+
+.cfg-hero-kicker {
+
+    display: inline-block;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.08em;
+
+    text-transform: uppercase;
+
+    color: var(--cfg-accent);
+
+    margin-bottom: 0.35rem;
+
+}
+
+.cfg-hero-title {
+
+    font-size: 1.65rem;
+
+    font-weight: 700;
+
+    letter-spacing: -0.03em;
+
+    color: var(--text-primary);
+
+    margin: 0 0 0.35rem;
+
+}
+
+.cfg-hero-desc {
+
+    font-size: 14px;
+
+    color: var(--text-muted);
+
+    margin: 0;
+
+    max-width: 520px;
+
+    line-height: 1.5;
+
+}
+
+
+
+.cfg-btn-primary {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 0.5rem;
+
+    padding: 0.55rem 1.25rem;
+
+    background: var(--cfg-accent);
+
+    color: var(--sys-on-primary, #fff);
+
+    border: none;
+
+    border-radius: var(--radius-md);
+
+    font-weight: 600;
+
+    font-size: 14px;
+
+    cursor: pointer;
+
+    transition: transform 0.15s ease, opacity 0.15s ease;
+
+}
+
+.cfg-btn-primary:hover {
+
+    transform: translateY(-1px);
+
+    opacity: 0.95;
+
+}
+
+.cfg-btn-primary svg {
+
+    width: 17px;
+
+    height: 17px;
+
+    stroke: currentColor;
+
+    fill: none;
+
+    stroke-width: 2;
+
+}
+
+
+
+/* Resumen del entorno — minimalista */
+
+.cfg-status {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 0.5rem 1.25rem;
+
+    margin-bottom: 1.25rem;
+
+    padding: 0.65rem 0;
+
+}
+
+.cfg-status-item {
+
+    display: inline-flex;
+
+    align-items: baseline;
+
+    gap: 0.45rem;
+
+    flex-wrap: wrap;
+
+}
+
+.cfg-status-label {
+
+    font-size: 12px;
+
+    color: var(--text-muted);
+
+    font-weight: 500;
+
+}
+
+.cfg-status-value {
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: var(--text-primary);
+
+    font-variant-numeric: tabular-nums;
+
+}
+
+.cfg-status-value--muted {
+
+    font-weight: 500;
+
+    color: var(--text-secondary);
+
+}
+
+.cfg-status-dot {
+
+    width: 6px;
+
+    height: 6px;
+
+    border-radius: 50%;
+
+    flex-shrink: 0;
+
+    align-self: center;
+
+    margin-right: -0.15rem;
+
+}
+
+.cfg-status-dot--ok {
+
+    background: #22c55e;
+
+    box-shadow: 0 0 0 2px color-mix(in srgb, #22c55e 25%, transparent);
+
+}
+
+.cfg-status-dot--err {
+
+    background: #ef4444;
+
+    box-shadow: 0 0 0 2px color-mix(in srgb, #ef4444 25%, transparent);
+
+}
+
+.cfg-status-sep {
+
+    width: 1px;
+
+    height: 14px;
+
+    background: var(--border-color);
+
+    flex-shrink: 0;
+
+}
+
+@media (max-width: 575px) {
+
+    .cfg-status-sep {
+
+        display: none;
+
+    }
+
+    .cfg-status-item {
+
+        width: 100%;
+
+    }
+
+}
+
+
+
+/* Panel único: tabs + contenido */
+
+.cfg-panel {
+
+    background: var(--bg-topbar);
+
+    border: 1px solid var(--border-color);
+
+    border-radius: var(--cfg-radius);
+
+    overflow: hidden;
+
+}
+
+
+
+.cfg-tabs {
+
+    display: flex;
+
+    flex-wrap: nowrap;
+
+    gap: 0;
+
+    padding: 0 0.5rem;
+
+    border-bottom: 1px solid var(--border-color);
+
+    overflow-x: auto;
+
+    -webkit-overflow-scrolling: touch;
+
+    scrollbar-width: none;
+
+}
+
+.cfg-tabs::-webkit-scrollbar {
+
+    display: none;
+
+}
+
+.cfg-tab {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 0.45rem;
+
+    padding: 0.85rem 1rem;
+
+    margin-bottom: -1px;
+
+    border: none;
+
+    border-bottom: 2px solid transparent;
+
+    background: transparent;
+
+    text-decoration: none;
+
+    color: var(--text-muted);
+
+    font-size: 13.5px;
+
+    font-weight: 500;
+
+    white-space: nowrap;
+
+    transition: color 0.15s ease, border-color 0.15s ease;
+
+}
+
+.cfg-tab:hover {
+
+    color: var(--text-primary);
+
+}
+
+.cfg-tab.is-active {
+
+    color: var(--cfg-accent);
+
+    border-bottom-color: var(--cfg-accent);
+
+    font-weight: 600;
+
+}
+
+.cfg-tab-icon {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    opacity: 0.85;
+
+}
+
+.cfg-tab.is-active .cfg-tab-icon {
+
+    opacity: 1;
+
+}
+
+.cfg-tab-icon svg {
+
+    width: 15px;
+
+    height: 15px;
+
+    stroke: currentColor;
+
+    fill: none;
+
+    stroke-width: 2;
+
+}
+
+
+
+.cfg-tab-content {
+
+    padding: 1.5rem 1.75rem 1.75rem;
+
+}
+
+@media (max-width: 575px) {
+
+    .cfg-tab-content {
+
+        padding: 1.25rem 1rem 1.5rem;
+
+    }
+
+}
+
+
+
+.cfg-section-title {
+
+    font-size: 0.95rem;
+
+    font-weight: 600;
+
+    color: var(--text-primary);
+
+    margin: 0 0 1.25rem;
+
+    letter-spacing: -0.01em;
+
+}
+
+
+
+.cfg-label {
+
+    display: block;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: var(--text-secondary);
+
+    margin-bottom: 0.4rem;
+
+}
+
+.cfg-input,
+
+.cfg-select {
+
+    width: 100%;
+
+    padding: 0.6rem 0.85rem;
+
+    font-size: 14px;
+
+    border: 1px solid var(--border-color);
+
+    border-radius: 10px;
+
+    background: var(--bg-app);
+
+    color: var(--text-primary);
+
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+}
+
+.cfg-input:focus,
+
+.cfg-select:focus {
+
+    outline: none;
+
+    border-color: var(--cfg-accent);
+
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--cfg-accent) 18%, transparent);
+
+}
+
+
+
+.cfg-logo-drop {
+
+    border: 2px dashed color-mix(in srgb, var(--cfg-accent) 28%, var(--border-color));
+
+    border-radius: 10px;
+
+    padding: 2rem 1rem;
+
+    text-align: center;
+
+    color: var(--text-muted);
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    background: color-mix(in srgb, var(--cfg-accent-soft) 50%, var(--bg-app));
+
+    transition: border-color 0.2s;
+
+}
+
+.cfg-logo-drop:hover {
+
+    border-color: var(--cfg-accent);
+
+}
+
+.cfg-logo-drop img {
+
+    max-height: 72px;
+
+    max-width: 200px;
+
+    object-fit: contain;
+
+    margin-bottom: 0.5rem;
+
+    border-radius: 8px;
+
+}
+
+
+
+.cfg-toast {
+
+    padding: 0.75rem 1rem;
+
+    border-radius: 10px;
+
+    font-size: 13.5px;
+
+    font-weight: 500;
+
+    margin-bottom: 1rem;
+
+    border-left: 4px solid;
+
+}
+
+.cfg-toast--ok {
+
+    background: color-mix(in srgb, #16a34a 10%, var(--bg-topbar));
+
+    color: #15803d;
+
+    border-left-color: #16a34a;
+
+}
+
+.cfg-toast--err {
+
+    background: color-mix(in srgb, #dc2626 10%, var(--bg-topbar));
+
+    color: #b91c1c;
+
+    border-left-color: #dc2626;
+
+}
+
+.cfg-toast--warn {
+
+    background: color-mix(in srgb, #d97706 10%, var(--bg-topbar));
+
+    color: #b45309;
+
+    border-left-color: #d97706;
+
+}
+
+
+
+.cfg-dev-banner {
+
+    font-size: 13px;
+
+    color: var(--text-muted);
+
+    padding: 0.85rem 1rem;
+
+    background: var(--bg-app);
+
+    border-radius: 8px;
+
+    border: 1px solid var(--border-color);
+
+    line-height: 1.55;
+
+}
+
+.cfg-dev-banner code {
+
+    font-size: 12px;
+
+    color: var(--cfg-accent);
+
+}
+
+
+
+[data-theme="dark"] .cfg-status-dot--ok { background: #4ade80; }
+
+[data-theme="dark"] .cfg-status-dot--err { background: #f87171; }
+
+
+
+.cfg-shell.animate-fade-in {
+
+    animation: cfgFadeIn 0.35s ease-out;
+
+}
+
+@keyframes cfgFadeIn {
+
+    from { opacity: 0; transform: translateY(6px); }
+
+    to { opacity: 1; transform: translateY(0); }
+
+}
+

@@ -1,0 +1,61 @@
+@model Hevelab2026.Models.Configuracion.EmpresaConfigForm
+
+<form id="form-empresa" asp-controller="Configuracion" asp-action="GuardarEmpresa" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div class="cfg-section">
+        <h2 class="cfg-section-title">Datos de la organización</h2>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="cfg-label" asp-for="RazonSocial"></label>
+                <input class="cfg-input" asp-for="RazonSocial" />
+                <span asp-validation-for="RazonSocial" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="cfg-label" asp-for="NombreComercial"></label>
+                <input class="cfg-input" asp-for="NombreComercial" />
+            </div>
+            <div class="col-md-6">
+                <label class="cfg-label" asp-for="Ruc"></label>
+                <input class="cfg-input" asp-for="Ruc" placeholder="20XXXXXXXXX" />
+            </div>
+            <div class="col-12">
+                <label class="cfg-label" asp-for="Direccion"></label>
+                <input class="cfg-input" asp-for="Direccion" />
+            </div>
+            <div class="col-md-6">
+                <label class="cfg-label" asp-for="Ciudad"></label>
+                <input class="cfg-input" asp-for="Ciudad" />
+            </div>
+            <div class="col-md-6">
+                <label class="cfg-label" asp-for="Telefono"></label>
+                <input class="cfg-input" asp-for="Telefono" placeholder="+51 ..." />
+            </div>
+            <div class="col-md-6">
+                <label class="cfg-label" asp-for="Correo"></label>
+                <input class="cfg-input" asp-for="Correo" type="email" />
+            </div>
+            <div class="col-md-6">
+                <label class="cfg-label" asp-for="SitioWeb"></label>
+                <input class="cfg-input" asp-for="SitioWeb" placeholder="https://" />
+            </div>
+            <div class="col-12">
+                <label class="cfg-label">Logo de la empresa</label>
+                <label class="cfg-logo-drop d-block mb-0" for="logo-upload">
+                    @if (Model.TieneLogo)
+                    {
+                        <img src="@Url.Action("Logo", "Configuracion")" alt="Logo actual" />
+                    }
+                    else
+                    {
+                        <svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:var(--text-muted);fill:none;margin:0 auto 8px;display:block"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    }
+                    Arrastra tu logo aquí o haz clic (PNG, JPG, SVG — máx. 2 MB)
+                </label>
+                <input type="file" id="logo-upload" name="logo" accept=".png,.jpg,.jpeg,.svg,.webp" class="d-none" />
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,51 @@
+@model Hevelab2026.Models.Configuracion.ConfiguracionIndexViewModel
+
+<form id="form-regional" asp-controller="Configuracion" asp-action="GuardarRegional" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Regional.EmpresaId" />
+
+    <div class="cfg-section">
+        <h2 class="cfg-section-title">Localización y moneda</h2>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="cfg-label" asp-for="Regional.PaisId"></label>
+                <select class="cfg-select" asp-for="Regional.PaisId" asp-items="@(new SelectList(Model.Paises, "Id", "Nombre", Model.Regional.PaisId))">
+                    <option value="">— Seleccionar —</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="cfg-label" asp-for="Regional.DepartamentoId"></label>
+                <select class="cfg-select" asp-for="Regional.DepartamentoId" asp-items="@(new SelectList(Model.Departamentos, "Id", "Nombre", Model.Regional.DepartamentoId))">
+                    <option value="">— Seleccionar —</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="cfg-label" asp-for="Regional.MonedaId"></label>
+                <select class="cfg-select" asp-for="Regional.MonedaId" asp-items="@(new SelectList(Model.Monedas, "Id", "Nombre", Model.Regional.MonedaId))">
+                    <option value="">— Seleccionar —</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="cfg-label" asp-for="Regional.CodigoPostal"></label>
+                <input class="cfg-input" asp-for="Regional.CodigoPostal" />
+            </div>
+            <div class="col-md-6">
+                <label class="cfg-label" asp-for="Regional.ZonaHoraria"></label>
+                <select class="cfg-select" asp-for="Regional.ZonaHoraria">
+                    <option value="America/Lima">America/Lima (Perú)</option>
+                    <option value="America/Mexico_City">America/Mexico_City</option>
+                    <option value="America/Bogota">America/Bogota</option>
+                    <option value="UTC">UTC</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="cfg-label" asp-for="Regional.Idioma"></label>
+                <select class="cfg-select" asp-for="Regional.Idioma">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</form>

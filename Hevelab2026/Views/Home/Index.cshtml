@@ -1,83 +1,96 @@
 @model Hevelab2026.Models.DashboardViewModel
 @using Hevelab2026.Models.Modulos
+@using System.Text.Json
 @{
     ViewData["Title"] = "Dashboard";
     var categorias = ModuloCategoria.Filtros;
     var totalModulos = ModuloRegistry.Total;
+    var nombreUsuario = User.Identity?.Name ?? "Usuario";
+    var metricsChartsJson = JsonSerializer.Serialize(
+        Model.Metrics.Select(m => new { m.Chart.Type, m.Chart.Labels, m.Chart.Values, m.ThemeColor }),
+        new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 }
 
 <div class="container-fluid p-0 animate-fade-in">
-    <!-- Header Section -->
-    <div class="row mb-4">
-        <div class="col-12 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
-            <div>
-                <h1 class="h3 fw-bold m-0" style="color: var(--text-primary);">Panel General</h1>
-                <p class="m-0 mt-1" style="color: var(--text-muted); font-size: 13.5px;">Resumen ejecutivo y accesos rápidos de HeveLab ERP.</p>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="hl-status-badge hl-badge-success px-3 py-2 d-flex align-items-center" style="font-size: 12px; gap: 6px;">
-                    <span class="d-inline-block rounded-circle" style="width: 6px; height: 6px; background-color: currentColor;"></span>
-                    Conectado a Producción
-                </span>
-            </div>
+    <!-- Header -->
+    <header class="hl-dash-header mb-4">
+        <div class="hl-dash-header-text">
+            <h1 class="hl-dash-greeting">Bienvenido, @nombreUsuario</h1>
+            <p class="hl-dash-subtitle">Resumen ejecutivo y accesos rápidos de HeveLab ERP.</p>
         </div>
-    </div>
+        <span class="hl-dash-pill hl-dash-pill--status">
+            <span class="hl-dash-status-dot" aria-hidden="true"></span>
+            Conectado a Producción
+        </span>
+    </header>
 
-    <!-- ═══════════ METRICS GRID ═══════════ -->
+    <!-- KPI cards -->
     <div class="row g-3 mb-4">
-        @foreach (var metric in Model.Metrics)
+        @for (var mi = 0; mi < Model.Metrics.Count; mi++)
         {
+            var metric = Model.Metrics[mi];
             <div class="col-12 col-sm-6 col-xxl-3">
-                <div class="card border-0 shadow-sm rounded-3 hl-metric-card h-100" style="background: var(--bg-topbar); border: 1px solid var(--border-color) !important; transition: transform 0.2s ease, box-shadow 0.2s ease;">
-                    <div class="card-body p-4 d-flex flex-column justify-content-between">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <span class="fw-medium d-block mb-1" style="color: var(--text-muted); font-size: 13px;">@metric.Title</span>
-                                <h3 class="fw-bold m-0" style="font-size: 24px; color: var(--text-primary); letter-spacing: -0.02em;">@metric.Value</h3>
-                            </div>
-                            <div class="hl-card-icon-wrap rounded-3 d-flex align-items-center justify-content-center">
-                                <svg class="hl-icon" viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke-width: 2;">
-                                    @Html.Raw(metric.IconSvg)
-                                </svg>
-                            </div>
+                <article class="hl-kpi-card hl-metric-card">
+                    <div class="hl-kpi-top">
+                        <div class="hl-kpi-top-left">
+                            <span class="hl-kpi-icon hl-kpi-icon--@metric.ThemeColor" aria-hidden="true">
+                                <svg viewBox="0 0 24 24">@Html.Raw(metric.IconSvg)</svg>
+                            </span>
+                            <span class="hl-kpi-title">@metric.Title</span>
                         </div>
-                        <div class="d-flex align-items-center mt-2" style="font-size: 12px; gap: 6px;">
+                        <button type="button" class="hl-kpi-menu" aria-label="Opciones de @metric.Title">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                        </button>
+                    </div>
+                    <p class="hl-kpi-value">@metric.Value</p>
+                    <div class="hl-kpi-footer">
+                        <p class="hl-kpi-trend hl-kpi-trend--@metric.TrendType">
                             @if (metric.TrendType == "up")
                             {
-                                <span class="text-success fw-semibold d-inline-flex align-items-center gap-0.5">
-                                    <svg class="hl-icon" viewBox="0 0 24 24" style="width: 14px; height: 14px; stroke: currentColor;"><polyline points="18 15 12 9 6 15"/></svg>
-                                </span>
-                                <span style="color: var(--text-secondary);">@metric.TrendText</span>
+                                <span class="hl-kpi-trend-icon" aria-hidden="true">▲</span>
                             }
                             else if (metric.TrendType == "warning")
                             {
-                                <span class="text-warning fw-semibold d-inline-flex align-items-center gap-0.5">
-                                    <svg class="hl-icon" viewBox="0 0 24 24" style="width: 14px; height: 14px; stroke: currentColor;"><circle cx="12" cy="12" r="10"/><line x1="12" y1='8' x2='12' y2='12'/><line x1='12' y1='16' x2='12.01' y2='16'/></svg>
-                                </span>
-                                <span style="color: var(--text-secondary);">@metric.TrendText</span>
+                                <span class="hl-kpi-trend-icon" aria-hidden="true">!</span>
                             }
                             else
                             {
-                                <span class="text-danger fw-semibold d-inline-flex align-items-center gap-0.5">
-                                    <svg class="hl-icon" viewBox="0 0 24 24" style="width: 14px; height: 14px; stroke: currentColor;"><polyline points="6 9 12 15 18 9"/></svg>
-                                </span>
-                                <span style="color: var(--text-secondary);">@metric.TrendText</span>
+                                <span class="hl-kpi-trend-icon" aria-hidden="true">▼</span>
                             }
+                            @metric.TrendText
+                        </p>
+                        <div class="hl-kpi-spark" role="img" aria-label="Tendencia de @metric.Title">
+                            <canvas id="hl-metric-chart-@mi"></canvas>
                         </div>
                     </div>
-                </div>
+                </article>
             </div>
         }
     </div>
 
     <!-- ═══════════ MÓDULOS DEL SISTEMA (catálogo modular) ═══════════ -->
     <div class="hl-modulos-section mb-5">
-        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4">
-            <div>
-                <h2 class="h5 fw-bold m-0" style="color: var(--text-primary);">Módulos del Sistema</h2>
-                <p class="m-0 mt-1" style="color: var(--text-muted); font-size: 13.5px;">
-                    Accede a cada área funcional del ERP · <span id="hl-modulos-count">@totalModulos</span> módulos
-                </p>
+        <div class="mb-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
+                <div>
+                    <h2 class="h5 fw-bold m-0" style="color: var(--text-primary);">Módulos del Sistema</h2>
+                    <p class="m-0 mt-1" style="color: var(--text-muted); font-size: 13.5px;">
+                        Accede a cada área funcional del ERP · <span id="hl-modulos-count">@totalModulos</span> módulos
+                    </p>
+                </div>
+                <label class="hl-modulos-search" for="hl-modulos-search-input">
+                    <svg class="hl-modulos-search-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="search"
+                           id="hl-modulos-search-input"
+                           class="hl-modulos-search-input"
+                           placeholder="Buscar módulos..."
+                           autocomplete="off"
+                           aria-label="Buscar módulos" />
+                    <button type="button" id="hl-modulos-search-clear" class="hl-modulos-search-clear d-none" aria-label="Limpiar búsqueda">&times;</button>
+                </label>
             </div>
             <div class="hl-modulos-filters d-flex flex-wrap gap-2" role="tablist" aria-label="Filtrar módulos por categoría">
                 @foreach (var cat in categorias)
@@ -97,7 +110,10 @@
             @foreach (var module in Model.QuickAccessModules)
             {
                 var catLabel = categorias.FirstOrDefault(c => c.Id == module.Category).Label ?? module.Category;
-                <div class="col-12 col-md-6 col-lg-4 col-xxl-3 hl-modulo-item" data-category="@module.Category">
+                var searchText = $"{module.Name} {module.Description} {catLabel} {module.BadgeText} {module.Controller}".ToLowerInvariant();
+                <div class="col-12 col-md-6 col-lg-4 col-xxl-3 hl-modulo-item"
+                     data-category="@module.Category"
+                     data-search="@searchText">
                     <a asp-controller="@module.Controller" asp-action="@module.Action"
                        class="text-decoration-none hl-module-card-link"
                        aria-label="Ir a @module.Name">
@@ -142,7 +158,7 @@
         </div>
 
         <p id="hl-modulos-empty" class="text-center py-4 m-0 d-none" style="color: var(--text-muted); font-size: 14px;">
-            No hay módulos en esta categoría.
+            No se encontraron módulos con ese criterio.
         </p>
     </div>
 
@@ -222,6 +238,232 @@
 </div>
 
 <style>
+    /* Dashboard header */
+    .hl-dash-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem 1.5rem;
+    }
+    .hl-dash-greeting {
+        font-size: 1.65rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: var(--text-primary);
+        margin: 0 0 0.35rem;
+        line-height: 1.2;
+    }
+    .hl-dash-subtitle {
+        margin: 0;
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+    .hl-dash-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 0.9rem;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        background: var(--bg-topbar);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-full);
+        white-space: nowrap;
+    }
+    .hl-dash-pill svg {
+        width: 15px;
+        height: 15px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        flex-shrink: 0;
+    }
+    .hl-dash-pill--status {
+        color: #15803d;
+        border-color: color-mix(in srgb, #22c55e 35%, var(--border-color));
+    }
+    .hl-dash-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 0 2px color-mix(in srgb, #22c55e 30%, transparent);
+    }
+
+    /* KPI cards (mockup) */
+    .hl-kpi-card {
+        background: var(--bg-topbar);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.15rem 1.25rem 1rem;
+        height: 100%;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hl-kpi-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.85rem;
+    }
+    .hl-kpi-top-left {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        min-width: 0;
+    }
+    .hl-kpi-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .hl-kpi-icon svg {
+        width: 18px;
+        height: 18px;
+        stroke: #fff;
+        fill: none;
+        stroke-width: 2;
+    }
+    .hl-kpi-icon--primary { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .hl-kpi-icon--success { background: linear-gradient(135deg, #22c55e, #16a34a); }
+    .hl-kpi-icon--warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .hl-kpi-icon--purple { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+    .hl-kpi-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .hl-kpi-menu {
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        padding: 0.2rem 0.35rem;
+        border-radius: 6px;
+        cursor: pointer;
+        line-height: 1;
+        opacity: 0.6;
+        transition: opacity 0.15s, background 0.15s;
+    }
+    .hl-kpi-menu:hover {
+        opacity: 1;
+        background: var(--bg-app);
+    }
+    .hl-kpi-menu svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+        stroke: none;
+    }
+    .hl-kpi-value {
+        font-size: 1.65rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: var(--text-primary);
+        margin: 0 0 0.75rem;
+        line-height: 1.1;
+    }
+    .hl-kpi-footer {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+    .hl-kpi-trend {
+        margin: 0;
+        font-size: 11.5px;
+        font-weight: 600;
+        line-height: 1.35;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.25rem;
+        flex: 1;
+        min-width: 0;
+    }
+    .hl-kpi-trend-icon {
+        font-size: 10px;
+        line-height: 1.5;
+        flex-shrink: 0;
+    }
+    .hl-kpi-trend--up { color: #16a34a; }
+    .hl-kpi-trend--warning { color: #d97706; }
+    .hl-kpi-trend--down { color: #dc2626; }
+    .hl-kpi-spark {
+        width: 108px;
+        height: 44px;
+        flex-shrink: 0;
+    }
+    .hl-kpi-spark canvas {
+        display: block;
+        width: 108px !important;
+        height: 44px !important;
+    }
+
+    .hl-modulos-search {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        max-width: 320px;
+        padding: 0.5rem 0.85rem 0.5rem 0.75rem;
+        background: var(--bg-topbar);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-full);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        margin: 0;
+        cursor: text;
+    }
+    .hl-modulos-search:focus-within {
+        border-color: var(--sys-ring);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--sys-primary) 15%, transparent);
+    }
+    .hl-modulos-search-icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        stroke: var(--text-muted);
+        fill: none;
+        stroke-width: 2;
+    }
+    .hl-modulos-search-input {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        background: transparent;
+        font-size: 14px;
+        color: var(--text-primary);
+        outline: none;
+    }
+    .hl-modulos-search-input::placeholder {
+        color: var(--text-muted);
+    }
+    .hl-modulos-search-clear {
+        border: none;
+        background: var(--bg-app);
+        color: var(--text-muted);
+        width: 22px;
+        height: 22px;
+        border-radius: var(--radius-full);
+        font-size: 16px;
+        line-height: 1;
+        padding: 0;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    .hl-modulos-search-clear:hover {
+        color: var(--text-primary);
+        background: var(--border-color);
+    }
+
     .hl-modulos-filters .hl-modulo-filter {
         border: 1px solid var(--border-color);
         background: var(--bg-topbar);
@@ -264,9 +506,9 @@
     }
 
     /* Premium micro-interactions & transitions */
-    .hl-metric-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg) !important;
+    .hl-kpi-card.hl-metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
     }
     
     .hl-module-card:hover {
@@ -346,36 +588,126 @@
 </style>
 
 @section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
+(function () {
+    var chartsPayload = @Html.Raw(metricsChartsJson);
+    var palette = {
+        primary: { main: '#3b82f6', soft: 'rgba(59, 130, 246, 0.14)' },
+        success: { main: '#22c55e', soft: 'rgba(34, 197, 94, 0.14)' },
+        warning: { main: '#f59e0b', soft: 'rgba(245, 158, 11, 0.14)' },
+        purple: { main: '#8b5cf6', soft: 'rgba(139, 92, 246, 0.14)' }
+    };
+
+    function initMetricCharts() {
+        if (typeof Chart === 'undefined' || !chartsPayload || !chartsPayload.length) return;
+
+        chartsPayload.forEach(function (cfg, i) {
+            var canvas = document.getElementById('hl-metric-chart-' + i);
+            if (!canvas || !cfg.values || !cfg.values.length) return;
+
+            var theme = palette[cfg.themeColor] || palette.primary;
+            var labels = (cfg.labels && cfg.labels.length) ? cfg.labels : cfg.values.map(function (_, j) { return String(j + 1); });
+
+            new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: cfg.values,
+                        borderColor: theme.main,
+                        backgroundColor: theme.soft,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.42,
+                        pointRadius: 0,
+                        pointHoverRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    animation: { duration: 600 },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    },
+                    interaction: { mode: 'index', intersect: false }
+                }
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMetricCharts);
+    } else {
+        initMetricCharts();
+    }
+})();
+
 (function () {
     var filters = document.querySelectorAll('.hl-modulo-filter');
     var items = document.querySelectorAll('.hl-modulo-item');
     var countEl = document.getElementById('hl-modulos-count');
     var emptyEl = document.getElementById('hl-modulos-empty');
-    if (!filters.length) return;
+    var searchInput = document.getElementById('hl-modulos-search-input');
+    var searchClear = document.getElementById('hl-modulos-search-clear');
+    var activeCategory = 'todos';
 
-    function applyFilter(category) {
+    if (!items.length) return;
+
+    function normalize(str) {
+        return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function applyFilters() {
+        var query = normalize(searchInput ? searchInput.value.trim() : '');
         var visible = 0;
+
         items.forEach(function (el) {
-            var show = category === 'todos' || el.getAttribute('data-category') === category;
+            var matchCategory = activeCategory === 'todos' || el.getAttribute('data-category') === activeCategory;
+            var haystack = normalize(el.getAttribute('data-search') || '');
+            var matchSearch = !query || haystack.indexOf(query) !== -1;
+            var show = matchCategory && matchSearch;
             el.classList.toggle('is-hidden', !show);
             if (show) visible++;
         });
+
         if (countEl) countEl.textContent = String(visible);
         if (emptyEl) emptyEl.classList.toggle('d-none', visible > 0);
+        if (searchClear) searchClear.classList.toggle('d-none', !query);
     }
 
     filters.forEach(function (btn) {
         btn.addEventListener('click', function () {
-            var cat = btn.getAttribute('data-category');
+            activeCategory = btn.getAttribute('data-category') || 'todos';
             filters.forEach(function (b) {
                 var active = b === btn;
                 b.classList.toggle('active', active);
                 b.setAttribute('aria-selected', active ? 'true' : 'false');
             });
-            applyFilter(cat);
+            applyFilters();
         });
     });
+
+    if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+        searchInput.addEventListener('search', applyFilters);
+    }
+
+    if (searchClear && searchInput) {
+        searchClear.addEventListener('click', function () {
+            searchInput.value = '';
+            searchInput.focus();
+            applyFilters();
+        });
+    }
+
+    applyFilters();
 })();
 </script>
 }
