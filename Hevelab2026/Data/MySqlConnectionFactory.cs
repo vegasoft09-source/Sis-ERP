@@ -30,8 +30,7 @@ public static class MySqlConnectionFactory
             return builder.ConnectionString;
         }
 
-        return configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Configura MySql:Host o ConnectionStrings:DefaultConnection.");
+        throw new InvalidOperationException("Configura la sección MySql (Host, Database, User, Password).");
     }
 
     public static async Task ValidateConnectionAsync(string connectionString, CancellationToken ct = default)

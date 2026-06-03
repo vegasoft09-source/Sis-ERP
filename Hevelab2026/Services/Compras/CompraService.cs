@@ -173,12 +173,21 @@ public class CompraService : ICompraService
             estadoId = est.Id;
         }
 
+        var comprador = compradorId ?? await _db.Usuarios
+            .Where(u => u.EmpresaId == empresaId && u.Activo)
+            .Select(u => (int?)u.Id)
+            .FirstOrDefaultAsync(ct)
+            ?? await _db.Usuarios.Select(u => (int?)u.Id).FirstOrDefaultAsync(ct);
+
+        if (comprador is null or 0)
+            throw new InvalidOperationException("No hay usuarios en la base de datos para asignar como comprador.");
+
         var count = await _db.PedidosCompra.CountAsync(ct);
         var pedido = new PedidoCompra
         {
             EmpresaId = empresaId,
             ProveedorId = proveedorId,
-            CompradorId = compradorId,
+            CompradorId = comprador,
             EstadoPedidoCompraId = estadoId,
             NumeroDocumento = referencia ?? $"SOL-{(count + 1):D4}",
             FechaEmision = DateTime.UtcNow,

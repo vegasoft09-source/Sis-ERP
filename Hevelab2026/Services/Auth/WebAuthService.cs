@@ -21,7 +21,8 @@ public class WebAuthService : IWebAuthService
         if (usuario == null)
             return null;
 
-        if (!BCrypt.Net.BCrypt.Verify(contrasena, usuario.ContrasenaHash))
+        if (string.IsNullOrEmpty(usuario.ContrasenaHash)
+            || !BCrypt.Net.BCrypt.Verify(contrasena, usuario.ContrasenaHash))
             return null;
 
         var permisos = await _db.RolPermisos
@@ -37,14 +38,14 @@ public class WebAuthService : IWebAuthService
             EmpresaNombre = usuario.Empresa?.NombreComercial ?? usuario.Empresa?.RazonSocial ?? "Empresa",
             RolId = usuario.RolId,
             RolNombre = usuario.Rol?.Nombre ?? "Usuario",
-            Nombre = usuario.Nombre,
-            Apellido = usuario.Apellido,
+            Nombre = usuario.Nombre ?? string.Empty,
+            Apellido = usuario.Apellido ?? string.Empty,
             NombreUsuario = usuario.NombreUsuario,
-            Correo = usuario.Correo,
+            Correo = usuario.Correo ?? string.Empty,
             Telefono = usuario.Telefono,
-            Foto = usuario.Foto,
-            Idioma = usuario.Idioma,
-            ZonaHoraria = usuario.ZonaHoraria,
+            Foto = null,
+            Idioma = usuario.Idioma ?? "es-PE",
+            ZonaHoraria = usuario.ZonaHoraria ?? "America/Lima",
             Permisos = permisos
         };
     }

@@ -1,0 +1,685 @@
+@{
+    ViewData["Title"] = "Recursos Humanos";
+}
+
+@section Styles {
+    <!-- Reutilizamos forms.css para mantener la estructura limpia y premium -->
+    <link rel="stylesheet" href="~/css/forms.css" />
+    <!-- Agregamos los estilos específicos para RRHH -->
+    <link rel="stylesheet" href="~/css/rrhh.css" />
+}
+
+<div class="frm-wrap rrhh-dashboard">
+    <!-- Header de la sección -->
+    <div class="frm-header rrhh-header">
+        <div>
+            <h1 class="frm-title">Recursos Humanos</h1>
+            <p class="frm-subtitle">Gestión integral de personal, contratos, asistencias y ausencias</p>
+        </div>
+        <div class="frm-actions">
+            <!-- Botón de Registro Rápido que abre el modal -->
+            <button class="frm-btn-save" id="btnNuevoEmpleado" data-bs-toggle="modal" data-bs-target="#modalNuevoEmpleado">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <line x1="19" y1="8" x2="19" y2="14"></line>
+                    <line x1="22" y1="11" x2="16" y2="11"></line>
+                </svg>
+                Registrar Empleado
+            </button>
+        </div>
+    </div>
+
+    <!-- Indicadores / Analytics Premium -->
+    <div class="frm-analytics">
+        <div class="frm-analytic-item">
+            <span class="frm-analytic-label">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                Empleados Activos
+            </span>
+            <span class="frm-analytic-value" id="kpiEmpleados">0</span>
+        </div>
+        <div class="frm-analytic-item">
+            <span class="frm-analytic-label">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Contratos Activos
+            </span>
+            <span class="frm-analytic-value" id="kpiContratos">0</span>
+        </div>
+        <div class="frm-analytic-item">
+            <span class="frm-analytic-label">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Asistencias Hoy
+            </span>
+            <span class="frm-analytic-value" id="kpiAsistencias">0</span>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal (Tabs y Tablas) -->
+    <div class="frm-panel-clean">
+        <!-- Navegación por pestañas -->
+        <div class="frm-tabs" id="rrhhTabs">
+            <button class="frm-tab active" data-target="#tab-empleados">Directorio</button>
+            <button class="frm-tab" data-target="#tab-departamentos">Departamentos</button>
+            <button class="frm-tab" data-target="#tab-cargos">Cargos</button>
+            <button class="frm-tab" data-target="#tab-contratos">Contratos</button>
+            <button class="frm-tab" data-target="#tab-asistencia">Asistencia</button>
+            <button class="frm-tab" data-target="#tab-ausencias">Ausencias</button>
+        </div>
+
+        <!-- Tab: Empleados -->
+        <div id="tab-empleados" class="tab-content active">
+            <div class="tab-section-header">
+                <span class="tab-section-title">Directorio de Empleados</span>
+            </div>
+            <div class="table-responsive">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>Empleado</th>
+                            <th>Departamento</th>
+                            <th>Cargo</th>
+                            <th>Documento</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbEmpleados">
+                        <!-- Llenado dinámicamente vía JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Tab: Departamentos -->
+        <div id="tab-departamentos" class="tab-content" style="display: none;">
+            <div class="tab-section-header">
+                <span class="tab-section-title">Lista de Departamentos</span>
+                <button class="frm-btn-save frm-btn-sm" id="btnNuevoDepartamento" data-bs-toggle="modal" data-bs-target="#modalNuevoDepartamento">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nuevo Departamento
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre del Departamento</th>
+                            <th>Responsable</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbDepartamentos">
+                        <!-- Llenado dinámicamente vía JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Cargos -->
+        <div id="tab-cargos" class="tab-content" style="display: none;">
+            <div class="tab-section-header">
+                <span class="tab-section-title">Lista de Cargos</span>
+                <button class="frm-btn-save frm-btn-sm" id="btnNuevoCargo" data-bs-toggle="modal" data-bs-target="#modalNuevoCargo">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nuevo Cargo
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre del Cargo</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbCargos">
+                        <!-- Llenado dinámicamente vía JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Contratos -->
+        <div id="tab-contratos" class="tab-content" style="display: none;">
+            <div class="tab-section-header align-items-end">
+                <div class="flex-grow-1 me-3">
+                    <label class="frm-label mb-1">Filtrar por Empleado <span class="frm-req">*</span></label>
+                    <select class="frm-input frm-select" id="selectEmpleadoContratos" style="max-width: 350px;">
+                        <option value="">Seleccione un empleado...</option>
+                    </select>
+                </div>
+                <button class="frm-btn-save frm-btn-sm" id="btnNuevoContrato" data-bs-toggle="modal" data-bs-target="#modalNuevoContrato">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nuevo Contrato
+                </button>
+            </div>
+            <div class="table-responsive mt-3">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre del Contrato</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Sueldo</th>
+                            <th>Moneda</th>
+                            <th>Tipo Contrato</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbContratos">
+                        <tr><td colspan="8" class="text-center py-4 text-muted">Seleccione un empleado para ver sus contratos.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Asistencia -->
+        <div id="tab-asistencia" class="tab-content" style="display: none;">
+            <div class="tab-section-header">
+                <div class="flex-grow-1 me-3">
+                    <label class="frm-label mb-1">Empleado <span class="frm-req">*</span></label>
+                    <select class="frm-input frm-select" id="selectEmpleadoAsistencias" style="max-width: 350px;">
+                        <option value="">Seleccione un empleado...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Panel de Marcación de Entrada/Salida -->
+            <div class="row mt-4" id="pnlMarcacion" style="display: none;">
+                <div class="col-md-5 mb-4">
+                    <div class="asistencia-clock-card">
+                        <div class="clock-label">Heredando hora del servidor</div>
+                        <div class="clock-time" id="asistenciaReloj">00:00:00</div>
+                        <div class="clock-date" id="asistenciaFecha">Cargando fecha...</div>
+                        <div class="d-flex gap-2 justify-content-center mt-4">
+                            <button class="frm-btn-save" id="btnMarcarEntrada">
+                                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" width="16" height="16"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                                Marcar Entrada
+                            </button>
+                            <button class="frm-btn-cancel text-danger" id="btnMarcarSalida" style="border-color: rgba(220,38,38,0.2);">
+                                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                Marcar Salida
+                            </button>
+                        </div>
+                        <div id="asistenciaMsg" class="mt-3 text-center text-muted small">Seleccione una opción para registrar asistencia de hoy.</div>
+                    </div>
+                </div>
+                <div class="col-md-7 mb-4">
+                    <div class="table-responsive">
+                        <table class="frm-table-clean">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Entrada</th>
+                                    <th>Salida</th>
+                                    <th>Hrs Trabajadas</th>
+                                    <th>Observaciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbAsistencias">
+                                <!-- Llenado dinámicamente vía JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="pnlMarcacionPlaceholder" class="text-center py-5 text-muted">
+                Seleccione un empleado para habilitar la marcación de asistencia y visualizar su historial.
+            </div>
+        </div>
+
+        <!-- Tab: Ausencias -->
+        <div id="tab-ausencias" class="tab-content" style="display: none;">
+            <div class="tab-section-header align-items-end flex-wrap gap-2">
+                <div class="flex-grow-1 me-3" style="min-width: 250px;">
+                    <label class="frm-label mb-1">Filtrar por Empleado <span class="frm-req">*</span></label>
+                    <select class="frm-input frm-select" id="selectEmpleadoAusencias" style="max-width: 350px;">
+                        <option value="">Seleccione un empleado...</option>
+                    </select>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="frm-btn-cancel" id="btnNuevoTipoAusencia" data-bs-toggle="modal" data-bs-target="#modalNuevoTipoAusencia">
+                        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        Tipos Ausencia
+                    </button>
+                    <button class="frm-btn-save frm-btn-sm" id="btnSolicitarAusencia" data-bs-toggle="modal" data-bs-target="#modalSolicitarAusencia">
+                        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Solicitar Ausencia
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive mt-3">
+                <table class="frm-table-clean">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo Ausencia</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Días</th>
+                            <th>Motivo</th>
+                            <th>Aprobador</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbAusencias">
+                        <tr><td colspan="9" class="text-center py-4 text-muted">Seleccione un empleado para ver sus ausencias.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     MODALES BOOTSTRAP 5
+     ========================================== -->
+
+<!-- Modal: Registrar Nuevo Empleado -->
+<div class="modal fade" id="modalNuevoEmpleado" tabindex="-1" aria-labelledby="modalNuevoEmpleadoLabel" aria-hidden="true" data-bs-theme="light">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title" id="modalNuevoEmpleadoLabel" style="font-weight: 700; font-size: 1.1rem;">Nuevo Empleado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="frmNuevoEmpleado">
+                <div class="modal-body p-4">
+                    <div class="frm-grid">
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Nombres <span class="frm-req">*</span></label>
+                            <input type="text" class="frm-input" id="empNombres" placeholder="Nombres" required>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Apellidos <span class="frm-req">*</span></label>
+                            <input type="text" class="frm-input" id="empApellidos" placeholder="Apellidos" required>
+                        </div>
+                        
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Tipo Documento <span class="frm-req">*</span></label>
+                            <select class="frm-input frm-select" id="empTipoDoc" required>
+                                <option value="DNI">DNI</option>
+                                <option value="CE">Carné de Extranjería</option>
+                                <option value="Pasaporte">Pasaporte</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Número Documento <span class="frm-req">*</span></label>
+                            <input type="text" class="frm-input" id="empNumDoc" placeholder="Número de documento" required>
+                        </div>
+
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Departamento <span class="frm-req">*</span></label>
+                            <select class="frm-input frm-select" id="empDepto" required>
+                                <option value="">Cargando...</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Cargo <span class="frm-req">*</span></label>
+                            <select class="frm-input frm-select" id="empCargo" required>
+                                <option value="">Cargando...</option>
+                            </select>
+                        </div>
+
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Usuario Asociado (Opcional)</label>
+                            <select class="frm-input frm-select" id="empUsuario">
+                                <option value="">Ninguno</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Fecha de Ingreso <span class="frm-req">*</span></label>
+                            <input type="date" class="frm-input" id="empFechaIngreso" required>
+                        </div>
+
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Tipo de Contrato Inicial <span class="frm-req">*</span></label>
+                            <select class="frm-input frm-select" id="empTipoContrato" required>
+                                <option value="FIJO">FIJO</option>
+                                <option value="TEMPORAL">TEMPORAL</option>
+                                <option value="PRACTICAS">PRACTICAS</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Régimen Laboral <span class="frm-req">*</span></label>
+                            <input type="text" class="frm-input" id="empRegimenLaboral" value="General" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="frm-btn-save">Guardar Empleado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Nuevo Departamento -->
+<div class="modal fade" id="modalNuevoDepartamento" tabindex="-1" aria-labelledby="modalNuevoDepartamentoLabel" aria-hidden="true" data-bs-theme="light">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title" id="modalNuevoDepartamentoLabel" style="font-weight: 700; font-size: 1.1rem;">Nuevo Departamento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="frmNuevoDepartamento">
+                <div class="modal-body p-4">
+                    <div class="frm-grid">
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Nombre del Departamento <span class="frm-req">*</span></label>
+                            <input type="text" class="frm-input" id="deptNombre" placeholder="Ej: Operaciones" required>
+                        </div>
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Responsable (Usuario - Opcional)</label>
+                            <select class="frm-input frm-select" id="deptResponsable">
+                                <option value="">Sin responsable</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="frm-btn-save">Guardar Departamento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Nuevo Cargo -->
+<div class="modal fade" id="modalNuevoCargo" tabindex="-1" aria-labelledby="modalNuevoCargoLabel" aria-hidden="true" data-bs-theme="light">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title" id="modalNuevoCargoLabel" style="font-weight: 700; font-size: 1.1rem;">Nuevo Cargo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="frmNuevoCargo">
+                <div class="modal-body p-4">
+                    <div class="frm-grid">
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Nombre del Cargo <span class="frm-req">*</span></label>
+                            <input type="text" class="frm-input" id="cargoNombre" placeholder="Ej: Analista de Sistemas" required>
+                        </div>
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Descripción</label>
+                            <textarea class="frm-input" id="cargoDescripcion" placeholder="Escriba los detalles o responsabilidades..." rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="frm-btn-save">Guardar Cargo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Nuevo Contrato -->
+<div class="modal fade" id="modalNuevoContrato" tabindex="-1" aria-labelledby="modalNuevoContratoLabel" aria-hidden="true" data-bs-theme="light">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title" id="modalNuevoContratoLabel" style="font-weight: 700; font-size: 1.1rem;">Nuevo Contrato</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="frmNuevoContrato">
+                <div class="modal-body p-4">
+                    <div class="frm-grid">
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Empleado <span class="frm-req">*</span></label>
+                            <select class="frm-input frm-select" id="contratoEmpleado" required>
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Nombre de Contrato <span class="frm-req">*</span></label>
+                            <input type="text" class="frm-input" id="contratoNombre" placeholder="Ej: Contrato Anual de Trabajo" required>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Fecha de Inicio <span class="frm-req">*</span></label>
+                            <input type="date" class="frm-input" id="contratoFechaInicio" required>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Fecha de Fin (Opcional)</label>
+                            <input type="date" class="frm-input" id="contratoFechaFin">
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Sueldo <span class="frm-req">*</span></label>
+                            <input type="number" class="frm-input" id="contratoSueldo" placeholder="0.00" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Moneda <span class="frm-req">*</span></label>
+                            <select class="frm-input frm-select" id="contratoMoneda" required>
+                                <option value="">Cargando...</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Tipo de Contrato <span class="frm-req">*</span></label>
+                            <select class="frm-input frm-select" id="contratoTipo" required>
+                                <option value="FIJO">FIJO</option>
+                                <option value="TEMPORAL">TEMPORAL</option>
+                                <option value="PRACTICAS">PRACTICAS</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="frm-btn-save">Guardar Contrato</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Solicitar Ausencia -->
+<div class="modal fade" id="modalSolicitarAusencia" tabindex="-1" aria-labelledby="modalSolicitarAusenciaLabel" aria-hidden="true" data-bs-theme="light">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title" id="modalSolicitarAusenciaLabel" style="font-weight: 700; font-size: 1.1rem;">Solicitar Ausencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="frmSolicitarAusencia">
+                <div class="modal-body p-4">
+                    <div class="frm-grid">
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Empleado <span class="frm-req">*</span></label>
+                            <select class="frm-input frm-select" id="ausenciaEmpleado" required>
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Tipo de Ausencia <span class="frm-req">*</span></label>
+                            <select class="frm-input frm-select" id="ausenciaTipo" required>
+                                <option value="">Cargando...</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Aprobador Autorizado <span class="frm-req">*</span></label>
+                            <select class="frm-input frm-select" id="ausenciaAprobador" required>
+                                <option value="">Seleccione un usuario...</option>
+                            </select>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Fecha de Inicio <span class="frm-req">*</span></label>
+                            <input type="date" class="frm-input" id="ausenciaFechaInicio" required>
+                        </div>
+                        <div class="frm-field frm-field--half">
+                            <label class="frm-label">Fecha de Fin <span class="frm-req">*</span></label>
+                            <input type="date" class="frm-input" id="ausenciaFechaFin" required>
+                        </div>
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Motivo de Solicitud <span class="frm-req">*</span></label>
+                            <textarea class="frm-input" id="ausenciaMotivo" placeholder="Describa brevemente el motivo..." rows="3" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="frm-btn-save">Enviar Solicitud</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Configurar Nuevo Tipo Ausencia -->
+<div class="modal fade" id="modalNuevoTipoAusencia" tabindex="-1" aria-labelledby="modalNuevoTipoAusenciaLabel" aria-hidden="true" data-bs-theme="light">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title" id="modalNuevoTipoAusenciaLabel" style="font-weight: 700; font-size: 1.1rem;">Nuevo Tipo de Ausencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="frmNuevoTipoAusencia">
+                <div class="modal-body p-4">
+                    <div class="frm-grid">
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Nombre del Tipo de Ausencia <span class="frm-req">*</span></label>
+                            <input type="text" class="frm-input" id="tipoAusNombre" placeholder="Ej: Licencia por Paternidad" required>
+                        </div>
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-switch-label">
+                                <span>¿Requiere Aprobación?</span>
+                                <div class="frm-switch">
+                                    <input type="checkbox" class="frm-switch__chk" id="tipoAusAprobacion" checked>
+                                    <span class="frm-switch__track"></span>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Días Máximos Permitidos <span class="frm-req">*</span></label>
+                            <input type="number" class="frm-input" id="tipoAusDiasMax" placeholder="30" min="1" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="frm-btn-save">Guardar Tipo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Resolver Ausencia (Aprobar/Rechazar) -->
+<div class="modal fade" id="modalResolverAusencia" tabindex="-1" aria-labelledby="modalResolverAusenciaLabel" aria-hidden="true" data-bs-theme="light">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title" id="modalResolverAusenciaLabel" style="font-weight: 700; font-size: 1.1rem;">Resolver Solicitud de Ausencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="frmResolverAusencia">
+                <input type="hidden" id="resolverAusenciaId">
+                <input type="hidden" id="resolverDecision">
+                <div class="modal-body p-4">
+                    <div class="frm-grid">
+                        <div class="frm-field frm-field--full">
+                            <label class="frm-label">Aprobador <span class="frm-req">*</span></label>
+                            <select class="frm-input frm-select" id="resolverAprobador" required>
+                                <option value="">Seleccione un usuario...</option>
+                            </select>
+                            <span class="frm-hint mt-2">Debe seleccionar el mismo aprobador asignado a esta ausencia en la base de datos para confirmar la resolución.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="frm-btn-save" id="btnConfirmarResolucion">Confirmar Acción</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Ficha Detalle Empleado -->
+<div class="modal fade" id="modalDetalleEmpleado" tabindex="-1" aria-labelledby="modalDetalleEmpleadoLabel" aria-hidden="true" data-bs-theme="light">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div class="modal-header" style="background: var(--bg-app); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title" id="modalDetalleEmpleadoLabel" style="font-weight: 700; font-size: 1.1rem;">Ficha del Empleado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="empleado-detalle-card mb-4">
+                    <div class="empleado-detalle-avatar" id="detAvatar">EM</div>
+                    <div class="empleado-detalle-header">
+                        <h4 id="detNombreCompleto" class="m-0" style="font-weight: 700; font-size: 1.2rem; color: var(--text-primary);">Cargando...</h4>
+                        <span id="detCargo" class="text-muted" style="font-size: 0.9rem;">Cargo</span>
+                    </div>
+                </div>
+                <div class="frm-grid">
+                    <div class="frm-field frm-field--half">
+                        <span class="frm-label">Tipo y Nro. Documento</span>
+                        <div class="det-val" id="detDocumento">-</div>
+                    </div>
+                    <div class="frm-field frm-field--half">
+                        <span class="frm-label">Departamento</span>
+                        <div class="det-val" id="detDepartamento">-</div>
+                    </div>
+                    <div class="frm-field frm-field--half">
+                        <span class="frm-label">Fecha de Ingreso</span>
+                        <div class="det-val" id="detFechaIngreso">-</div>
+                    </div>
+                    <div class="frm-field frm-field--half">
+                        <span class="frm-label">Régimen Laboral</span>
+                        <div class="det-val" id="detRegimenLaboral">-</div>
+                    </div>
+                    <div class="frm-field frm-field--half">
+                        <span class="frm-label">Usuario Asociado ID</span>
+                        <div class="det-val" id="detUsuarioId">-</div>
+                    </div>
+                    <div class="frm-field frm-field--half">
+                        <span class="frm-label">Estado actual</span>
+                        <div class="det-val" id="detEstado">-</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                <button type="button" class="frm-btn-cancel" data-bs-dismiss="modal">Cerrar Ficha</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/rrhh.js"></script>
+}

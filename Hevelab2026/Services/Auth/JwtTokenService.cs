@@ -25,7 +25,7 @@ public class JwtTokenService : IJwtTokenService
         {
             new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
             new(ClaimTypes.Name, usuario.NombreUsuario),
-            new(ClaimTypes.Email, usuario.Correo),
+            new(ClaimTypes.Email, usuario.Correo ?? string.Empty),
             new(ClaimTypes.Role, rolNombre),
             new("empresa_id", usuario.EmpresaId.ToString())
         };
@@ -51,10 +51,10 @@ public class JwtTokenService : IJwtTokenService
             Usuario = new UsuarioDto
             {
                 Id = usuario.Id,
-                Nombre = usuario.Nombre,
-                Apellido = usuario.Apellido,
+                Nombre = usuario.Nombre ?? string.Empty,
+                Apellido = usuario.Apellido ?? string.Empty,
                 NombreUsuario = usuario.NombreUsuario,
-                Correo = usuario.Correo,
+                Correo = usuario.Correo ?? string.Empty,
                 Rol = rolNombre,
                 EmpresaId = usuario.EmpresaId
             }

@@ -176,18 +176,16 @@ using (var scope = app.Services.CreateScope())
             "MySQL (Hostinger): se usa el esquema existente en el servidor; no se ejecuta EnsureCreated.");
     }
 
-    if (effectiveProvider.Equals("MySql", StringComparison.OrdinalIgnoreCase))
-        await MySqlBootstrap.EnsureAdminAndConnectionAsync(db, logger);
-    else
+    try
     {
-        try
-        {
+        if (effectiveProvider.Equals("MySql", StringComparison.OrdinalIgnoreCase))
+            await MySqlBootstrap.EnsureAdminAndConnectionAsync(db, logger);
+        else
             await DbSeeder.SeedAsync(db);
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "Seed omitido o parcial (la BD puede tener datos importados).");
-        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex, "Inicialización de datos omitida; la aplicación continuará.");
     }
 }
 

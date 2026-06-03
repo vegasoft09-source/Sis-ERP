@@ -206,11 +206,14 @@ public static class DbSeeder
         });
 
         var borrador = estados.First(e => e.Codigo == "BORRADOR");
+        var compradorId = db.Usuarios.Select(u => u.Id).FirstOrDefault();
+        if (compradorId == 0) compradorId = 1;
         db.PedidosCompra.Add(new PedidoCompra
         {
             EmpresaId = empresaId,
             NumeroDocumento = "OC-2023-089",
             ProveedorId = prov.Id,
+            CompradorId = compradorId,
             EstadoPedidoCompraId = borrador.Id,
             Subtotal = 5000,
             Total = 5900

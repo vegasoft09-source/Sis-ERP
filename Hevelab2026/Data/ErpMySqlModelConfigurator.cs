@@ -59,10 +59,10 @@ public static class ErpMySqlModelConfigurator
             e.Ignore(x => x.Eliminado);
             e.Ignore(x => x.RefreshToken);
             e.Ignore(x => x.RefreshTokenExpira);
+            e.Ignore(x => x.Foto); // en Hostinger suele ser LONGBLOB, no ruta de archivo
             e.Property(x => x.ContrasenaHash).HasColumnName("contrasena");
             e.Property(x => x.NombreUsuario).HasColumnName("nombre_usuario");
             e.Property(x => x.UltimoAcceso).HasColumnName("ultimo_acceso");
-            e.Property(x => x.Foto).HasColumnName("foto");
             e.Property(x => x.Idioma).HasColumnName("idioma");
             e.Property(x => x.ZonaHoraria).HasColumnName("zona_horaria");
             e.Property(x => x.DepartamentoEmpresaId).HasColumnName("departamento_empresa_id");

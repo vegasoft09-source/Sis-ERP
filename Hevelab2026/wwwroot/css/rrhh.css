@@ -1,0 +1,314 @@
+/* ======================================================
+   RRHH Dashboard Styles (rrhh.css)
+   ====================================================== */
+
+.rrhh-dashboard {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.rrhh-header {
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+/* Transiciones para los contenidos de las pestañas */
+.tab-content {
+    animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Componente visual del Empleado (Avatar + Textos) */
+.empleado-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.empleado-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--sys-soft, #e0e7ff);
+    color: var(--sys-primary, #4338ca);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.empleado-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.empleado-name {
+    font-weight: 600;
+    color: var(--text-primary, #0f172a);
+    font-size: 13.5px;
+    margin-bottom: 2px;
+}
+
+.empleado-date {
+    font-size: 11.5px;
+    color: var(--text-muted, #94a3b8);
+}
+
+/* Badges de Estado Premium */
+.frm-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Estado Empleados & Contratos */
+.frm-badge-activo {
+    background-color: #dcfce7 !important;
+    color: #15803d !important;
+}
+
+.frm-badge-inactivo {
+    background-color: #ffe4e6 !important;
+    color: #be123c !important;
+}
+
+.frm-badge-cerrado {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+}
+
+/* Estado Ausencias */
+.frm-badge-pendiente {
+    background-color: #fef3c7 !important;
+    color: #d97706 !important;
+}
+
+.frm-badge-aprobada {
+    background-color: #dcfce7 !important;
+    color: #15803d !important;
+}
+
+.frm-badge-rechazada {
+    background-color: #ffe4e6 !important;
+    color: #be123c !important;
+}
+
+/* Modificadores de botones en tabla */
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, transform 0.1s, color 0.2s;
+    cursor: pointer;
+    color: var(--text-secondary, #64748b);
+}
+
+.action-btn:hover {
+    background-color: #f1f5f9;
+    transform: scale(1.05);
+}
+
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+.action-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2.2;
+}
+
+.action-btn.text-primary:hover {
+    color: #2563eb !important;
+    background-color: #eff6ff;
+}
+
+.action-btn.text-danger:hover {
+    color: #dc2626 !important;
+    background-color: #fef2f2;
+}
+
+/* Fix para responsive tables */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ── Encabezado interno de cada tab ── */
+.tab-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    margin-bottom: 4px;
+}
+
+.tab-section-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-primary, #0f172a);
+    letter-spacing: 0.01em;
+}
+
+/* Variante compacta del botón guardar */
+.frm-btn-sm {
+    padding: 6px 14px !important;
+    font-size: 12.5px !important;
+    gap: 6px !important;
+    height: auto !important;
+    min-height: unset !important;
+}
+
+.frm-btn-sm svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Card Reloj de Asistencia */
+.asistencia-clock-card {
+    background: #ffffff;
+    color: var(--text-primary, #0f172a);
+    padding: 30px 24px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.asistencia-clock-card::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    left: -30%;
+    width: 85%;
+    height: 85%;
+    background: radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.clock-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted, #94a3b8);
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.clock-time {
+    font-size: 2.3rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--text-primary, #0f172a);
+    font-family: 'Monaco', 'Courier New', Courier, monospace;
+    text-shadow: none;
+    margin: 5px 0;
+}
+
+.clock-date {
+    font-size: 12.5px;
+    color: #64748b;
+    margin-top: 8px;
+    text-transform: capitalize;
+}
+
+/* Ficha de Detalles de Empleado */
+.empleado-detalle-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #f8fafc;
+    padding: 18px;
+    border-radius: var(--radius-lg, 12px);
+    border: 1px solid #e2e8f0;
+}
+
+.empleado-detalle-avatar {
+    width: 52px;
+    height: 52px;
+    background: var(--sys-primary, #4338ca);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 4px 6px -1px rgba(67, 56, 202, 0.2);
+    flex-shrink: 0;
+}
+
+.empleado-detalle-header {
+    display: flex;
+    flex-direction: column;
+}
+
+.det-val {
+    padding: 10px 14px;
+    background: #f8fafc;
+    border-radius: var(--radius-md, 8px);
+    font-size: 13px;
+    color: var(--text-primary, #0f172a);
+    border: 1px dashed #cbd5e1;
+    font-weight: 500;
+    min-height: 40px;
+}
+
+/* Modificaciones de Modales */
+.modal-content {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Toast Notificaciones Flotantes */
+@keyframes slideInToast {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideOutToast {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
