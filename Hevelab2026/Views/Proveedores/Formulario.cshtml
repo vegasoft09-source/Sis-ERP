@@ -1,0 +1,643 @@
+@model Hevelab2026.Models.Compras.ProveedorFormModel
+@{
+    ViewData["Title"] = "Registrar Proveedor";
+}
+
+<div class="w-full h-full bg-slate-50/50 p-2 md:p-6 antialiased">
+    <div class="w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <a href="/Proveedores" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </a>
+                <h2 class="text-lg font-bold text-[#4c3ce4]">Registrar Proveedor</h2>
+            </div>
+            <a href="/Proveedores" class="text-slate-400 hover:text-slate-600 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </a>
+        </div>
+
+        <form method="post" class="p-6 md:p-8" novalidate>
+            @Html.AntiForgeryToken()
+
+            <!-- Top Section -->
+            <div class="flex flex-col md:flex-row gap-10">
+                
+                <!-- Left Column (Photo) -->
+                <div class="flex flex-col items-center gap-3 md:w-48 shrink-0">
+                    <div class="w-32 h-32 rounded-full border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50 text-slate-300">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+                    <button type="button" class="text-[10px] font-bold text-[#4c3ce4] uppercase tracking-wider hover:underline">AGREGAR UNA FOTOGRAFÍA</button>
+                </div>
+
+                <!-- Right Column (Fields) -->
+                <div class="flex-1 space-y-6">
+                    
+
+
+                    <!-- Row 1 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                        <div class="md:col-span-2">
+                            <label asp-for="RazonSocial" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Nombre Completo / Razón Social</label>
+                            <input asp-for="RazonSocial" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="Ej. Juan Pérez" />
+                            <span asp-validation-for="RazonSocial" class="text-red-500 text-xs mt-1 block"></span>
+                        </div>
+
+                        <div>
+                            <label asp-for="Email" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Correo Electrónico</label>
+                            <input asp-for="Email" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="nombre@empresa.com" />
+                            <span asp-validation-for="Email" class="text-red-500 text-xs mt-1 block"></span>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Puesto de trabajo</label>
+                            <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="Ej. Gerente" />
+                        </div>
+
+                        <!-- ID Number with selector -->
+                        <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                    Número de Identificación
+                                    <svg class="w-3 h-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4m0-4h.01" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                </label>
+                                <div class="flex">
+                                    <div class="w-24 px-3 py-2 text-sm bg-slate-50/50 border border-r-0 border-slate-200 rounded-l-lg flex items-center justify-center font-bold text-slate-700 select-none">
+                                        RUC
+                                        <input type="hidden" asp-for="TipoDocumento" value="RUC" />
+                                    </div>
+                                    <input asp-for="NumeroDocumento" class="flex-1 px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="Número..." />
+                                </div>
+                                <span asp-validation-for="NumeroDocumento" class="text-red-500 text-xs mt-1 block"></span>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Grupo Proveedor</label>
+                                <select class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>');">
+                                    <option>Seleccionar...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Grupo Proveedores</label>
+                            <select class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>');">
+                                <option>Seleccionar...</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Código</label>
+                            <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="Cod-001" />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Separator -->
+            <hr class="my-8 border-slate-100" />
+
+            <!-- Dirección de entrega -->
+            <div class="mb-8">
+                <h3 class="flex items-center gap-2 text-[#4c3ce4] font-extrabold uppercase tracking-wider text-xs mb-5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Dirección de entrega
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="md:col-span-2">
+                        <label asp-for="Direccion" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Dirección</label>
+                        <input asp-for="Direccion" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Distrito</label>
+                        <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" />
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Provincia</label>
+                        <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Zip</label>
+                        <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" />
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">País</label>
+                        <select class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>');">
+                            <option>Perú</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="border-b border-slate-200 mb-6 flex overflow-x-auto">
+                <nav class="flex gap-8" id="proveedor-tabs" aria-label="Tabs">
+                    <button type="button" class="tab-btn border-b-2 border-[#4c3ce4] text-[#4c3ce4] py-3 px-1 text-xs font-bold whitespace-nowrap" data-target="tab-contactos">Contactos</button>
+                    <button type="button" class="tab-btn border-b-2 border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-300 py-3 px-1 text-xs font-bold whitespace-nowrap transition-colors" data-target="tab-compras">Compras</button>
+                    <button type="button" class="tab-btn border-b-2 border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-300 py-3 px-1 text-xs font-bold whitespace-nowrap transition-colors" data-target="tab-contabilidad">Contabilidad</button>
+                    <button type="button" class="tab-btn border-b-2 border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-300 py-3 px-1 text-xs font-bold whitespace-nowrap transition-colors" data-target="tab-asignacion">Asignación de socio</button>
+                    <button type="button" class="tab-btn border-b-2 border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-300 py-3 px-1 text-xs font-bold whitespace-nowrap transition-colors" data-target="tab-notas">Notas</button>
+                </nav>
+            </div>
+
+            <!-- Tab Content: Contactos -->
+            <div id="tab-contactos" class="tab-content block space-y-4">
+                <div class="border border-slate-200 rounded-xl overflow-hidden bg-white">
+                    <div class="bg-[#f1f5f9] px-4 py-3 flex items-center text-[10px] font-bold text-[#64748b] uppercase tracking-wider">
+                        <div class="w-12">ID</div>
+                        <div class="flex-1">NOMBRE</div>
+                        <div class="flex-1">RAZÓN SOCIAL</div>
+                        <div class="flex-1">DISTRITO</div>
+                        <div class="flex-1">CORREO ELECTRÓ...</div>
+                        <div class="w-32">TELÉFONO</div>
+                        <div class="flex-1">ACTIVIDADES</div>
+                        <div class="w-24">PAÍS</div>
+                    </div>
+                    <div class="py-14 flex items-center justify-center text-[#cbd5e1] text-sm font-semibold italic">
+                        No hay contactos registrados
+                    </div>
+                    <div class="border-t border-slate-200 px-4 py-3 bg-white">
+                        <button id="btn-agregar-contacto" type="button" class="flex items-center gap-1.5 text-[#4c3ce4] text-xs font-bold uppercase tracking-wide hover:underline">
+                            <div class="border border-[#4c3ce4] rounded-full p-0.5"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg></div>
+                            AGREGAR CONTACTO
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Compras -->
+            <div id="tab-compras" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                    
+                    <!-- Left: Bloque Compras & Punto de Venta -->
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="flex items-center gap-2 text-slate-600 font-extrabold uppercase tracking-wider text-[10px] mb-4">
+                                <svg class="w-4 h-4 text-[#4c3ce4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                                BLOQUE COMPRAS
+                            </h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Comprador Asignado</label>
+                                    <select class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>');">
+                                        <option>Seleccionar...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Condiciones de pago</label>
+                                    <select class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>');">
+                                        <option>45 días netos</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Método de pago</label>
+                                    <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="Ejem: Transferencia Bancaria" />
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Lista de precios (proveedor)</label>
+                                    <select class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>');">
+                                        <option>Tarifa Distribuidor</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="flex items-center gap-2 text-slate-600 font-extrabold uppercase tracking-wider text-[10px] mb-4">
+                                <svg class="w-4 h-4 text-[#4c3ce4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                                BLOQUE PUNTO DE VENTA
+                            </h4>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Código de barras</label>
+                                <div class="relative">
+                                    <input type="text" class="w-full pl-3 pr-10 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" value="775849302111" />
+                                    <div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-[2px]">
+                                        <div class="w-0.5 h-3.5 bg-slate-400"></div><div class="w-0.5 h-3.5 bg-slate-400"></div><div class="w-1 h-3.5 bg-slate-400"></div><div class="w-0.5 h-3.5 bg-slate-400"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Bloque Información Fiscal & Varios -->
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="flex items-center gap-2 text-slate-600 font-extrabold uppercase tracking-wider text-[10px] mb-4">
+                                <svg class="w-4 h-4 text-[#4c3ce4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                BLOQUE INFORMACIÓN FISCAL
+                            </h4>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Posición fiscal</label>
+                                <select class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>');">
+                                    <option>Régimen General</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="flex items-center gap-2 text-slate-600 font-extrabold uppercase tracking-wider text-[10px] mb-4">
+                                <span class="text-[#4c3ce4] font-bold text-sm leading-none mr-1">...</span>
+                                BLOQUE VARIOS
+                            </h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Referencia interna</label>
+                                    <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="Referencia interna del proveedor" />
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Políticas de entrega</label>
+                                    <select class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>');">
+                                        <option>Puerta a puerta</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tab Content: Contabilidad -->
+            <div id="tab-contabilidad" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                    
+                    <!-- Left: General -->
+                    <div class="space-y-6">
+                        <h4 class="text-slate-600 font-extrabold uppercase tracking-wider text-[10px] mb-2 border-b border-slate-100 pb-2">GENERAL</h4>
+                        
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Bancos del Proveedor</label>
+                            <select class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>');">
+                                <option>Seleccione un banco...</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Cuenta por cobrar</label>
+                            <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" value="1213000..." />
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Cuenta por pagar</label>
+                            <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" value="4212000..." />
+                        </div>
+                    </div>
+
+                    <!-- Right: Seguimiento -->
+                    <div class="space-y-6">
+                        <h4 class="text-slate-600 font-extrabold uppercase tracking-wider text-[10px] mb-2 border-b border-slate-100 pb-2">SEGUIMIENTO DE FACTURAS</h4>
+                        
+                        <div class="flex rounded-lg overflow-hidden border border-slate-200 bg-[#eef1f6] p-1">
+                            <button type="button" class="flex-1 py-1.5 text-xs font-bold bg-white text-[#4c3ce4] rounded shadow-sm">15 días</button>
+                            <button type="button" class="flex-1 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700 transition-colors">30 días</button>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-6">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ESTADO DEL SEGUIMIENTO</span>
+                            <span class="bg-[#e2e6ff] text-[#4c3ce4] px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider">AL DÍA</span>
+                        </div>
+
+                        <div class="mt-6">
+                            <label class="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                                Responsable de Pagos
+                                <svg class="w-3 h-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4m0-4h.01" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                </span>
+                                <input type="text" class="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="Buscar responsable por nombre..." />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab Content: Asignacion -->
+            <div id="tab-asignacion" class="tab-content hidden py-6">
+                <h3 class="flex items-center gap-2 text-[#4c3ce4] font-extrabold uppercase tracking-wider text-xs mb-5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Geolocalización del Proveedor
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Latitud</label>
+                        <input type="text" id="input-latitud" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" value="-12.1282368" />
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Longitud</label>
+                        <input type="text" id="input-longitud" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" value="-77.0267254" />
+                    </div>
+                </div>
+
+                <button type="button" id="btn-actualizar-mapa" class="flex items-center gap-2 px-4 py-2 border border-[#4c3ce4] text-[#4c3ce4] rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#4c3ce4] hover:text-white transition-colors mb-6">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Actualizar
+                </button>
+
+                <div id="mapa-container" class="w-full h-80 bg-slate-50/80 border border-slate-200 rounded-xl flex items-center justify-center overflow-hidden">
+                    <span class="text-slate-400 text-sm font-semibold italic">Vista de mapa no disponible</span>
+                </div>
+            </div>
+
+            <!-- Tab Content: Notas -->
+            <div id="tab-notas" class="tab-content hidden py-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <h3 class="text-slate-800 font-extrabold text-sm">Notas de Proveedor</h3>
+                        <span class="px-2 py-0.5 rounded bg-indigo-50 text-[#4c3ce4] text-[10px] font-bold tracking-wider uppercase">Interno</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 font-semibold italic">Última edición: hace 10 minutos</span>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl overflow-hidden bg-white">
+                    <!-- Toolbar -->
+                    <div class="flex items-center gap-1 px-3 py-2 border-b border-slate-100 bg-slate-50/50">
+                        <button type="button" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors font-serif font-bold w-7 h-7 flex items-center justify-center">B</button>
+                        <button type="button" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors font-serif italic w-7 h-7 flex items-center justify-center">I</button>
+                        <button type="button" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors font-serif underline w-7 h-7 flex items-center justify-center">U</button>
+                        <div class="w-px h-4 bg-slate-200 mx-1"></div>
+                        <button type="button" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors w-7 h-7 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        </button>
+                        <button type="button" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors w-7 h-7 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                        </button>
+                    </div>
+                    <!-- Editor Area -->
+                    <textarea class="w-full h-64 p-4 text-sm text-slate-600 focus:outline-none resize-none placeholder-slate-400" placeholder="Escriba para agregar notas internas sobre el proveedor..."></textarea>
+                </div>
+            </div>
+
+            <!-- Footer Save Button -->
+            <div class="mt-10 flex justify-end">
+                <button type="submit" class="bg-[#4c3ce4] hover:bg-[#3b2fc9] text-white px-8 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-colors">Guardar Proveedor</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Agregar Contacto -->
+<div id="modal-contacto" class="fixed inset-0 z-50 hidden">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" id="modal-contacto-backdrop"></div>
+    
+    <!-- Modal Content -->
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-5xl border border-slate-200">
+                
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white">
+                    <div class="flex items-center gap-3">
+                        <button type="button" class="text-slate-400 hover:text-slate-600 transition-colors btn-cerrar-modal">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        </button>
+                        <h2 class="text-lg font-bold text-[#4c3ce4]">Registrar Contacto de Proveedor</h2>
+                    </div>
+                    <button type="button" class="text-slate-400 hover:text-slate-600 transition-colors btn-cerrar-modal">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="p-6 md:p-8 bg-white">
+                    <!-- Top Section -->
+                    <div class="flex flex-col md:flex-row gap-10">
+                        
+                        <!-- Left Column (Photo) -->
+                        <div class="flex flex-col items-center gap-3 md:w-48 shrink-0">
+                            <div class="w-32 h-32 rounded-full border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50 text-slate-300">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </div>
+                            <button type="button" class="text-[10px] font-bold text-[#4c3ce4] uppercase tracking-wider hover:underline">AGREGAR UNA FOTOGRAFÍA</button>
+                        </div>
+
+                        <!-- Right Column (Fields) -->
+                        <div class="flex-1 space-y-6">
+                            
+                            <!-- Type of supplier -->
+                            <div class="flex items-center gap-6">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" id="radio-contacto-persona" name="ContactoTipoPersona" value="Persona" checked class="w-4 h-4 text-[#4c3ce4] focus:ring-[#4c3ce4] border-slate-300" />
+                                    <span id="label-contacto-persona" class="text-sm font-semibold text-slate-700">Persona</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" id="radio-contacto-empresa" name="ContactoTipoPersona" value="Empresa" class="w-4 h-4 text-[#4c3ce4] focus:ring-[#4c3ce4] border-slate-300" />
+                                    <span id="label-contacto-empresa" class="text-sm font-semibold text-slate-400">Empresa</span>
+                                </label>
+                            </div>
+
+                            <!-- Row 1 -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                                <div class="md:col-span-2">
+                                    <label id="lbl-contacto-nombre" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Nombre Completo</label>
+                                    <input id="input-contacto-nombre" type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="Ej. Juan Pérez" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Correo Electrónico</label>
+                                    <input type="email" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="nombre@empresa.com" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Puesto de trabajo</label>
+                                    <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="Ej. Gerente" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Número de Identificación</label>
+                                    <input id="input-contacto-documento" type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="DNI" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Grupo Proveedor</label>
+                                    <select class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>');">
+                                        <option>Seleccionar...</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Grupo Proveedores</label>
+                                    <select class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>');">
+                                        <option>Seleccionar...</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Código</label>
+                                    <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" placeholder="Cod-001" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Separator -->
+                    <hr class="my-8 border-slate-100" />
+
+                    <!-- Dirección de entrega -->
+                    <div class="mb-4">
+                        <h3 class="flex items-center gap-2 text-[#4c3ce4] font-extrabold uppercase tracking-wider text-xs mb-5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            Dirección de entrega
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Dirección</label>
+                                <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" />
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Distrito</label>
+                                <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" />
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Provincia</label>
+                                <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" />
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Zip</label>
+                                <input type="text" class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800" />
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">País</label>
+                                <select class="w-full px-3 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4c3ce4]/20 focus:border-[#4c3ce4] transition-colors font-semibold text-slate-800 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>');">
+                                    <option>Perú</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal Footer -->
+                <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 rounded-b-xl">
+                    <button type="button" class="btn-cerrar-modal px-5 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors">Cancelar</button>
+                    <button type="button" class="bg-[#4c3ce4] hover:bg-[#3b2fc9] text-white px-6 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors">Guardar Contacto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Reset all buttons
+                    tabBtns.forEach(b => {
+                        b.classList.remove('border-[#4c3ce4]', 'text-[#4c3ce4]');
+                        b.classList.add('border-transparent', 'text-slate-400');
+                    });
+                    
+                    // Activate clicked button
+                    btn.classList.remove('border-transparent', 'text-slate-400');
+                    btn.classList.add('border-[#4c3ce4]', 'text-[#4c3ce4]');
+
+                    // Hide all contents
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                        content.classList.remove('block');
+                    });
+
+                    // Show target content
+                    const targetId = btn.getAttribute('data-target');
+                    const targetContent = document.getElementById(targetId);
+                    if (targetContent) {
+                        targetContent.classList.remove('hidden');
+                        targetContent.classList.add('block');
+                    }
+                });
+            });
+
+            // Modal Contacto Logic
+            const btnAgregarContacto = document.getElementById('btn-agregar-contacto');
+            const modalContacto = document.getElementById('modal-contacto');
+            const btnsCerrarModal = document.querySelectorAll('.btn-cerrar-modal');
+            const backdrop = document.getElementById('modal-contacto-backdrop');
+
+            function openModal() {
+                modalContacto.classList.remove('hidden');
+            }
+
+            function closeModal() {
+                modalContacto.classList.add('hidden');
+            }
+
+            if(btnAgregarContacto) {
+                btnAgregarContacto.addEventListener('click', openModal);
+            }
+
+            btnsCerrarModal.forEach(btn => {
+                btn.addEventListener('click', closeModal);
+            });
+
+            if(backdrop) {
+                backdrop.addEventListener('click', closeModal);
+            }
+
+            // Logic for Contacto Modal Type Switch
+            const radioContactoPersona = document.getElementById('radio-contacto-persona');
+            const radioContactoEmpresa = document.getElementById('radio-contacto-empresa');
+            const labelContactoPersona = document.getElementById('label-contacto-persona');
+            const labelContactoEmpresa = document.getElementById('label-contacto-empresa');
+            const lblContactoNombre = document.getElementById('lbl-contacto-nombre');
+            const inputContactoNombre = document.getElementById('input-contacto-nombre');
+            const inputContactoDocumento = document.getElementById('input-contacto-documento');
+
+            function updateContactoType() {
+                if(radioContactoPersona && radioContactoPersona.checked) {
+                    labelContactoPersona.classList.replace('text-slate-400', 'text-slate-700');
+                    labelContactoEmpresa.classList.replace('text-slate-700', 'text-slate-400');
+                    
+                    lblContactoNombre.textContent = "Nombre Completo";
+                    inputContactoNombre.placeholder = "Ej. Juan Pérez";
+                    inputContactoDocumento.placeholder = "DNI";
+                } else if(radioContactoEmpresa && radioContactoEmpresa.checked) {
+                    labelContactoEmpresa.classList.replace('text-slate-400', 'text-slate-700');
+                    labelContactoPersona.classList.replace('text-slate-700', 'text-slate-400');
+                    
+                    lblContactoNombre.textContent = "Razón Social";
+                    inputContactoNombre.placeholder = "Ej. Mi Empresa S.A.C.";
+                    inputContactoDocumento.placeholder = "RUC";
+                }
+            }
+
+            if(radioContactoPersona) radioContactoPersona.addEventListener('change', updateContactoType);
+            if(radioContactoEmpresa) radioContactoEmpresa.addEventListener('change', updateContactoType);
+            
+            // initialize
+            updateContactoType();
+
+            // Logic for Map
+            const inputLat = document.getElementById('input-latitud');
+            const inputLng = document.getElementById('input-longitud');
+            const btnActualizarMapa = document.getElementById('btn-actualizar-mapa');
+            const mapaContainer = document.getElementById('mapa-container');
+
+            if(btnActualizarMapa && inputLat && inputLng && mapaContainer) {
+                btnActualizarMapa.addEventListener('click', () => {
+                    const lat = parseFloat(inputLat.value);
+                    const lng = parseFloat(inputLng.value);
+
+                    if(!isNaN(lat) && !isNaN(lng)) {
+                        const src = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.005}%2C${lat-0.005}%2C${lng+0.005}%2C${lat+0.005}&layer=mapnik&marker=${lat}%2C${lng}`;
+                        mapaContainer.innerHTML = `<iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="${src}" style="border:0"></iframe>`;
+                    } else {
+                        mapaContainer.innerHTML = `<span class="text-slate-400 text-sm font-semibold italic">Coordenadas inválidas</span>`;
+                    }
+                });
+            }
+        });
+    </script>
+}

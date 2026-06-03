@@ -1,0 +1,594 @@
+@model Hevelab2026.Models.Compras.SolicitudCompraFormModel
+@{
+    ViewData["Title"] = "Nueva orden de compra";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/cotizacion-create.css" asp-append-version="true" />
+    <style>
+        @@media print {
+            body { font-size: 10px; }
+            .flex-col.gap-5.mb-8 { display: none !important; }
+            .flex.flex-wrap.items-center.gap-6.mt-4.pt-4 { display: none !important; }
+            .px-8.mb-10, .px-8.mt-12.mb-4, .px-8.mt-6 { padding: 0 !important; margin: 10px 0 !important; }
+            nav, header, footer, aside, .shadow-sm { box-shadow: none !important; border: none !important; }
+            .bg-[#eef1f6] { background: transparent !important; }
+        }
+    </style>
+}
+
+<div class="w-full px-4 md:px-8 mx-auto pt-4 pb-12 font-sans text-slate-700">
+    <!-- Top Action Bar -->
+    <div class="flex flex-col gap-5 mb-8">
+        <!-- Top Row -->
+        <div class="flex items-center gap-4">
+            <a href="/OrdenesDeCompra" class="flex items-center text-[#4c3ce4] hover:text-indigo-800 font-bold text-sm">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Regresar
+            </a>
+            <div class="h-4 w-px bg-slate-200"></div>
+            <div class="flex items-center gap-2 text-slate-400">
+                <svg class="w-5 h-5 cursor-pointer hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <svg class="w-5 h-5 cursor-pointer hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                <svg class="w-5 h-5 cursor-pointer hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </div>
+        </div>
+
+        <!-- Bottom Row -->
+        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-3">
+                <button form="form-solicitud" type="submit" class="flex items-center gap-2 bg-[#4c3ce4] hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-colors text-center leading-tight">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    Confirmar<br/>orden
+                </button>
+                <button type="button" id="btnSendEmail" class="flex items-center gap-2 bg-[#eef1f6] hover:bg-slate-200 text-[#45506a] px-5 py-2.5 rounded-lg text-sm font-bold transition-colors text-center leading-tight">
+                    <svg class="w-4 h-4 text-[#45506a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                    Enviar por<br/>correo
+                </button>
+                <button type="button" onclick="window.print()" class="flex items-center gap-2 bg-[#eef1f6] hover:bg-slate-200 text-[#45506a] px-5 py-3.5 rounded-lg text-sm font-bold transition-colors">
+                    <svg class="w-4 h-4 text-[#45506a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Imprimir
+                </button>
+                
+                <div class="h-6 w-px bg-slate-200 mx-2"></div>
+
+                <a href="/OrdenesDeCompra" class="flex items-center gap-1.5 text-[#ff4b55] hover:text-red-600 px-2 py-2.5 rounded-lg text-sm font-bold transition-colors">
+                    <div class="bg-[#ff4b55] text-white rounded-full p-0.5 flex items-center justify-center"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg></div>
+                    Cancelar
+                </a>
+            </div>
+            
+            <div class="hidden md:flex flex-1 w-full xl:w-auto items-center bg-[#eef1f6] rounded-lg p-1.5 text-[10px] xl:text-[11px] font-extrabold tracking-wider uppercase text-center xl:ml-8">
+                <div class="flex-1 bg-white text-[#0f172a] shadow-sm py-3.5 px-2 rounded-md relative z-10">
+                    SOLICITUD DE COTIZACIÓN
+                    <div class="absolute right-[-4px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[8px] border-t-transparent border-l-[8px] border-l-white border-b-[8px] border-b-transparent z-10"></div>
+                </div>
+                <div class="flex-1 text-[#8997b6] py-3.5 px-2 border-r border-[#d8dce8] pl-4">SOLICITUD DE COTIZACIÓN ENVIADA</div>
+                <div class="flex-1 text-[#8997b6] py-3.5 px-2">ORDEN DE COMPRA</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Card -->
+    <form id="form-solicitud" method="post" class="bg-white border border-slate-200 rounded-xl shadow-sm pt-8 pb-4" novalidate>
+        @Html.AntiForgeryToken()
+        
+        <!-- Headers Section -->
+        <div class="px-8 mb-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8">
+                <!-- Left Column -->
+                <div class="flex flex-col gap-6">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-1">Referencia</label>
+                        <input asp-for="Referencia" class="w-full text-3xl font-extrabold text-[#4c3ce4] bg-transparent border-0 border-b border-transparent hover:border-slate-300 focus:border-[#4c3ce4] focus:ring-0 p-0 placeholder-slate-300 transition-colors uppercase" placeholder="ORD-00452" value="@(Model.Referencia ?? "ORD-00001")" readonly />
+                        <span asp-validation-for="Referencia" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-1">Proveedor</label>
+                        <select asp-for="ProveedorId" asp-items="ViewBag.Proveedores" class="w-full text-[15px] font-bold text-slate-800 bg-transparent border-0 border-b border-transparent hover:border-slate-300 focus:border-[#4c3ce4] focus:ring-0 p-0 pb-1 cursor-pointer transition-colors appearance-none" id="proveedorSelect">
+                            <option value="">Selecciona un proveedor...</option>
+                        </select>
+                        <span asp-validation-for="ProveedorId" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-1">Referencia de proveedor</label>
+                        <input asp-for="ReferenciaProveedor" class="w-full text-[15px] font-bold text-slate-800 bg-transparent border-0 border-b border-transparent hover:border-slate-300 focus:border-[#4c3ce4] focus:ring-0 p-0 pb-1 transition-colors" placeholder="REF-8822" id="referenciaProveedorInput" />
+                        <span asp-validation-for="ReferenciaProveedor" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-1">Entregar a</label>
+                        <input asp-for="EntregarA" class="w-full text-[15px] font-bold text-slate-800 bg-transparent border-0 border-b border-transparent hover:border-slate-300 focus:border-[#4c3ce4] focus:ring-0 p-0 pb-1 transition-colors" />
+                        <span asp-validation-for="EntregarA" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="flex flex-col gap-6 md:pt-10">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-1">Fecha límite de la orden</label>
+                        <input asp-for="FechaLimite" type="date" class="w-full text-[15px] font-bold text-slate-800 bg-transparent border-0 border-b border-transparent hover:border-slate-300 focus:border-[#4c3ce4] focus:ring-0 p-0 pb-1 transition-colors" />
+                        <span asp-validation-for="FechaLimite" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-1">Entrega esperada</label>
+                        <input asp-for="EntregaEsperada" type="date" class="w-full text-[15px] font-bold text-slate-800 bg-transparent border-0 border-b border-transparent hover:border-slate-300 focus:border-[#4c3ce4] focus:ring-0 p-0 pb-1 transition-colors" />
+                        <span asp-validation-for="EntregaEsperada" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-1">Comprador</label>
+                        <input asp-for="Comprador" class="w-full text-[15px] font-bold text-slate-800 bg-transparent border-0 border-b border-transparent hover:border-slate-300 focus:border-[#4c3ce4] focus:ring-0 p-0 pb-1 transition-colors" placeholder="Eduardo Valenzuela" />
+                        <span asp-validation-for="Comprador" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-1">Términos de pago</label>
+                        <input asp-for="TerminosPago" class="w-full text-[15px] font-bold text-slate-800 bg-transparent border-0 border-b border-transparent hover:border-slate-300 focus:border-[#4c3ce4] focus:ring-0 p-0 pb-1 transition-colors" placeholder="30 días netos" />
+                        <span asp-validation-for="TerminosPago" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="px-8 mt-12 mb-4">
+            <h3 class="text-[11px] font-bold text-slate-500 tracking-widest uppercase mb-4">Detalle de productos y servicios</h3>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="text-[10px] font-bold text-slate-500 uppercase bg-slate-100 tracking-wider">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 text-center w-16">Item</th>
+                            <th scope="col" class="px-4 py-3 w-32">Código</th>
+                            <th scope="col" class="px-4 py-3 min-w-[250px]">Descripción</th>
+                            <th scope="col" class="px-4 py-3 text-center w-24">Stock</th>
+                            <th scope="col" class="px-4 py-3 text-center w-24">Cantidad</th>
+                            <th scope="col" class="px-4 py-3 text-center w-24">Unidad</th>
+                            <th scope="col" class="px-4 py-3 text-right w-36">Precio Unitario</th>
+                            <th scope="col" class="px-4 py-3 text-right w-36">Importe</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100" id="mainTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table Actions -->
+            <div class="flex flex-wrap items-center gap-6 mt-4 pt-4 border-t border-slate-100">
+                <button type="button" id="btnOpenProductModal" class="flex items-center gap-1.5 text-[#4c3ce4] hover:text-blue-800 text-[11px] font-bold tracking-wide uppercase transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    Agregar un producto
+                </button>
+                <button type="button" id="btnOpenSectionModal" class="flex items-center gap-1.5 text-[#4c3ce4] hover:text-blue-800 text-[11px] font-bold tracking-wide uppercase transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    Agregar una sección
+                </button>
+                <button type="button" id="btnOpenNoteModal" class="flex items-center gap-1.5 text-[#4c3ce4] hover:text-blue-800 text-[11px] font-bold tracking-wide uppercase transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Agregar una nota
+                </button>
+                <a href="/Producto" class="flex items-center gap-1.5 text-[#4c3ce4] hover:text-blue-800 text-[11px] font-bold tracking-wide uppercase transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253"></path></svg>
+                    Catálogo
+                </a>
+            </div>
+        </div>
+
+        <!-- Totals Footer Section -->
+        <div class="px-8 mt-6 grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 items-end">
+            <!-- Left: Terms -->
+            <div class="bg-slate-50 rounded-r-xl border-l-[4px] border-[#4c3ce4] p-5">
+                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Términos y condiciones del proveedor</h4>
+                <p class="text-[13px] text-slate-600 leading-relaxed font-medium">
+                    Esta orden está sujeta a los términos de compra de HeveLab ERP. Por favor, confirme la recepción de esta orden y la fecha estimada de entrega. La factura debe incluir el número de referencia ORD-00452.
+                </p>
+            </div>
+
+            <!-- Right: Totals -->
+            <div class="flex flex-col gap-2.5">
+                <div class="flex justify-between items-center text-[13px] font-bold text-slate-500 px-2">
+                    <span>Subtotal:</span>
+                    <span id="globalSubtotal" class="text-slate-900">$86,510.00</span>
+                </div>
+                <div class="flex justify-between items-center text-[13px] font-bold text-slate-500 px-2">
+                    <span>IVA / IGV (18%):</span>
+                    <span id="globalTax" class="text-slate-900">$13,841.60</span>
+                </div>
+                <div class="flex justify-between items-center text-[13px] font-bold text-slate-500 px-2 mb-2">
+                    <span>Retención:</span>
+                    <span class="text-slate-900">$0.00</span>
+                </div>
+                <div class="bg-[#e9eaff] rounded-xl px-5 py-4 flex justify-between items-center border border-[#d2d4f8]">
+                    <span class="text-[11px] font-extrabold text-[#4c3ce4] uppercase tracking-widest">Total Orden</span>
+                    <span id="globalTotal" class="text-3xl font-extrabold text-[#4c3ce4]">$100,351.60</span>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<!-- Modal Agregar Producto -->
+<div id="productModal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl flex flex-col max-h-[90vh]">
+        
+        <!-- Modal Header / Search -->
+        <div class="p-6 border-b border-slate-100 shrink-0 relative">
+            <div class="relative">
+                <svg class="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="productSearchInput" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-lg focus:ring-[#4c3ce4] focus:border-[#4c3ce4] block pl-10 py-3 pr-3 placeholder-slate-400 transition-colors" placeholder="Buscar por código o descripción...">
+            </div>
+        </div>
+
+        <!-- Modal Body (Table) -->
+        <div class="p-6 overflow-y-auto grow">
+            <table class="w-full text-sm text-left">
+                <thead class="text-[10px] font-bold text-slate-500 uppercase bg-slate-100 tracking-wider">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 text-center w-12"></th>
+                        <th scope="col" class="px-4 py-3 w-32">Código</th>
+                        <th scope="col" class="px-4 py-3">Descripción</th>
+                        <th scope="col" class="px-4 py-3 text-center w-24">Stock</th>
+                        <th scope="col" class="px-4 py-3 text-center w-24">Unidad</th>
+                        <th scope="col" class="px-4 py-3 text-right w-32">Precio Unitario</th>
+                    </tr>
+                </thead>
+                <tbody id="productModalTableBody" class="divide-y divide-slate-100">
+                    <tr><td colspan="6" class="text-center py-6 text-slate-400">Cargando productos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-6 border-t border-slate-100 shrink-0 flex justify-end gap-3 bg-white rounded-b-xl">
+            <button type="button" id="btnCancelProductModal" class="px-5 py-2.5 text-sm font-bold text-[#45506a] hover:bg-slate-50 rounded-lg transition-colors">
+                Cancelar
+            </button>
+            <button type="button" id="btnAddSelectedProducts" class="px-6 py-2.5 text-sm font-bold text-white bg-[#4c3ce4] hover:bg-blue-700 rounded-lg shadow-sm transition-colors">
+                Agregar seleccionados
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Agregar Sección -->
+<div id="sectionModal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md flex flex-col">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
+            <div>
+                <h3 class="text-[15px] font-bold text-slate-800">Agregar Sección</h3>
+                <p class="text-[11px] font-semibold text-slate-400 tracking-wider uppercase mt-1">NUEVO GRUPO</p>
+            </div>
+            <button type="button" id="btnCancelSection" class="text-slate-400 hover:text-slate-600 transition-colors p-2 bg-white rounded-full hover:bg-slate-100 border border-slate-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <div class="p-6">
+            <label class="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-2">Nombre de la sección</label>
+            <input type="text" id="sectionNameInput" class="w-full text-sm font-bold text-slate-800 border border-slate-200 rounded-lg focus:border-[#4c3ce4] focus:ring-1 focus:ring-[#4c3ce4] px-4 py-2.5 transition-colors" placeholder="Ej. MATERIALES ELÉCTRICOS" />
+        </div>
+        <div class="px-6 py-4 border-t border-slate-100 flex justify-end">
+            <button type="button" id="btnAddSection" class="bg-[#4c3ce4] hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-[13px] font-bold shadow-sm transition-colors">
+                Agregar Sección
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Agregar Nota -->
+<div id="noteModal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md flex flex-col">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
+            <div>
+                <h3 class="text-[15px] font-bold text-slate-800">Agregar Nota</h3>
+                <p class="text-[11px] font-semibold text-slate-400 tracking-wider uppercase mt-1">NOTA INFORMATIVA</p>
+            </div>
+            <button type="button" id="btnCancelNote" class="text-slate-400 hover:text-slate-600 transition-colors p-2 bg-white rounded-full hover:bg-slate-100 border border-slate-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <div class="p-6">
+            <label class="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-2">Contenido de la nota</label>
+            <textarea id="noteTextInput" rows="4" class="w-full text-sm font-medium text-slate-800 border border-slate-200 rounded-lg focus:border-[#4c3ce4] focus:ring-1 focus:ring-[#4c3ce4] px-4 py-2.5 transition-colors resize-none" placeholder="Escribe una nota aquí..."></textarea>
+        </div>
+        <div class="px-6 py-4 border-t border-slate-100 flex justify-end">
+            <button type="button" id="btnAddNote" class="bg-[#4c3ce4] hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-[13px] font-bold shadow-sm transition-colors">
+                Agregar Nota
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts { 
+    <partial name="_ValidationScriptsPartial" /> 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const proveedoresData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProveedoresList));
+            
+            const proveedorSelect = document.getElementById('proveedorSelect');
+            const referenciaProveedorInput = document.getElementById('referenciaProveedorInput');
+
+            if (proveedorSelect && referenciaProveedorInput) {
+                proveedorSelect.addEventListener('change', function() {
+                    const selectedId = this.value;
+                    if (selectedId) {
+                        const provider = proveedoresData.find(p => p.Id == selectedId);
+                        if (provider && provider.Codigo) {
+                            referenciaProveedorInput.value = provider.Codigo;
+                        } else {
+                            referenciaProveedorInput.value = '';
+                        }
+                    } else {
+                        referenciaProveedorInput.value = '';
+                    }
+                });
+            }
+
+            const modal = document.getElementById('productModal');
+            const btnOpen = document.getElementById('btnOpenProductModal');
+            const btnCancel = document.getElementById('btnCancelProductModal');
+            const btnAdd = document.getElementById('btnAddSelectedProducts');
+            const tbody = document.getElementById('productModalTableBody');
+            const searchInput = document.getElementById('productSearchInput');
+            
+            // Tabla principal del formulario donde se agregarán los items
+            const mainTableBody = document.querySelector('tbody.divide-y.divide-slate-100');
+
+            let allProducts = [];
+
+            const loadProducts = async (search = '') => {
+                try {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400">Cargando productos...</td></tr>';
+                    const res = await fetch(`/Producto/Buscar?search=${encodeURIComponent(search)}`);
+                    if (res.ok) {
+                        allProducts = await res.json();
+                        renderProducts(allProducts);
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-red-500">Error al cargar productos</td></tr>';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-red-500">Error de conexión</td></tr>';
+                }
+            };
+
+            const renderProducts = (products) => {
+                if (products.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400">No se encontraron productos</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = products.map(p => {
+                    const stockClass = p.stock < 10 ? 'text-red-500' : 'text-slate-600';
+                    return `
+                        <tr class="hover:bg-slate-50 transition-colors cursor-pointer group" onclick="toggleCheckbox('${p.sku}')">
+                            <td class="px-4 py-4 text-center">
+                                <div class="relative flex items-center justify-center">
+                                    <input type="checkbox" id="chk_${p.sku}" value='${JSON.stringify(p).replace(/'/g, "&#39;")}' class="peer sr-only product-checkbox" />
+                                    <div class="w-5 h-5 border border-slate-300 rounded-full flex items-center justify-center peer-checked:bg-[#4c3ce4] peer-checked:border-[#4c3ce4] transition-colors">
+                                        <svg class="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 text-[#4c3ce4] font-bold text-xs">${p.sku}</td>
+                            <td class="px-4 py-4">
+                                <div class="font-bold text-slate-800">${p.nombre}</div>
+                                <div class="text-xs text-slate-400 mt-0.5">${p.descripcion || p.marca || ''}</div>
+                            </td>
+                            <td class="px-4 py-4 text-center font-semibold ${stockClass}">${p.stock}</td>
+                            <td class="px-4 py-4 text-center font-bold text-slate-600 text-[10px] tracking-wider uppercase">${p.unidad || 'PZA'}</td>
+                            <td class="px-4 py-4 text-right font-extrabold text-slate-800">$${p.precio.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }).join('');
+            };
+
+            window.toggleCheckbox = (sku) => {
+                const chk = document.getElementById(`chk_${sku}`);
+                if (chk) {
+                    chk.checked = !chk.checked;
+                }
+            };
+
+            btnOpen.addEventListener('click', () => {
+                modal.classList.remove('hidden');
+                loadProducts();
+            });
+
+            const closeModal = () => {
+                modal.classList.add('hidden');
+                searchInput.value = '';
+            };
+
+            btnCancel.addEventListener('click', closeModal);
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            let timeoutId;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    loadProducts(e.target.value);
+                }, 300);
+            });
+
+            btnAdd.addEventListener('click', () => {
+                const selected = Array.from(document.querySelectorAll('.product-checkbox:checked'))
+                                      .map(c => JSON.parse(c.value));
+                
+                if (selected.length === 0) {
+                    alert('Selecciona al menos un producto.');
+                    return;
+                }
+
+                // Obtener número de fila actual para seguir la cuenta (opcional)
+                const currentRowCount = mainTableBody.querySelectorAll('tr.group').length;
+
+                const newRowsHtml = selected.map((p, index) => {
+                    const idx = currentRowCount + index + 1;
+                    return `
+                        <tr class="hover:bg-slate-50 transition-colors group">
+                            <td class="px-4 py-5 text-center text-slate-400 text-xs font-semibold">${idx}</td>
+                            <td class="px-4 py-5 text-[#4c3ce4] font-bold text-xs">${p.sku}</td>
+                            <td class="px-4 py-5">
+                                <div class="font-bold text-slate-800">${p.nombre}</div>
+                                <div class="text-xs text-slate-400 mt-0.5">${p.descripcion || p.marca || ''}</div>
+                            </td>
+                            <td class="px-4 py-5 text-center font-semibold text-slate-600">${p.stock}</td>
+                            <td class="px-4 py-5 text-center">
+                                <input type="number" class="w-16 text-center font-bold text-slate-800 border-0 bg-transparent focus:ring-0 p-0 row-qty" value="1" min="1" onchange="updateRowTotal(this, ${p.precio})" />
+                            </td>
+                            <td class="px-4 py-5 text-center">
+                                <input type="text" class="w-16 text-center font-bold text-slate-600 border-0 bg-transparent focus:ring-0 p-0 text-xs uppercase row-unit" value="${p.unidad || 'PZA'}" />
+                            </td>
+                            <td class="px-4 py-5 text-right font-bold text-slate-800">
+                                <div class="flex items-center justify-end">
+                                    <span class="text-[#4c3ce4] mr-1">$</span>
+                                    <input type="text" class="w-20 text-right font-bold text-slate-800 border-0 bg-transparent focus:ring-0 p-0 row-price" value="${p.precio.toFixed(2)}" onchange="updateRowTotal(this, null)" />
+                                </div>
+                            </td>
+                            <td class="px-4 py-5 text-right font-extrabold text-slate-900 row-total">$${p.precio.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                mainTableBody.insertAdjacentHTML('beforeend', newRowsHtml);
+                closeModal();
+                updateGlobalTotals();
+            });
+
+            // Section Modal Logic
+            const sectionModal = document.getElementById('sectionModal');
+            document.getElementById('btnOpenSectionModal').addEventListener('click', () => {
+                sectionModal.classList.remove('hidden');
+                document.getElementById('sectionNameInput').focus();
+            });
+            document.getElementById('btnCancelSection').addEventListener('click', () => {
+                sectionModal.classList.add('hidden');
+                document.getElementById('sectionNameInput').value = '';
+            });
+            document.getElementById('btnAddSection').addEventListener('click', () => {
+                const sectionName = document.getElementById('sectionNameInput').value.trim();
+                if (!sectionName) return;
+                
+                const sectionRowHtml = `
+                    <tr class="bg-slate-100/80 group">
+                        <td colspan="8" class="px-4 py-3 font-extrabold text-[11px] text-[#4c3ce4] tracking-widest uppercase">
+                            --- ${sectionName} ---
+                        </td>
+                    </tr>
+                `;
+                mainTableBody.insertAdjacentHTML('beforeend', sectionRowHtml);
+                sectionModal.classList.add('hidden');
+                document.getElementById('sectionNameInput').value = '';
+            });
+
+            // Note Modal Logic
+            const noteModal = document.getElementById('noteModal');
+            document.getElementById('btnOpenNoteModal').addEventListener('click', () => {
+                noteModal.classList.remove('hidden');
+                document.getElementById('noteTextInput').focus();
+            });
+            document.getElementById('btnCancelNote').addEventListener('click', () => {
+                noteModal.classList.add('hidden');
+                document.getElementById('noteTextInput').value = '';
+            });
+            document.getElementById('btnAddNote').addEventListener('click', () => {
+                const noteText = document.getElementById('noteTextInput').value.trim();
+                if (!noteText) return;
+                
+                const noteRowHtml = `
+                    <tr class="bg-[#fffdf0] border-l-2 border-yellow-400 group">
+                        <td colspan="8" class="px-4 py-3">
+                            <div class="flex items-start gap-2">
+                                <svg class="w-4 h-4 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span class="text-xs font-semibold text-slate-700 whitespace-pre-line">${noteText}</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                mainTableBody.insertAdjacentHTML('beforeend', noteRowHtml);
+                noteModal.classList.add('hidden');
+                document.getElementById('noteTextInput').value = '';
+            });
+
+            // Email Send Logic
+            document.getElementById('btnSendEmail').addEventListener('click', async (e) => {
+                const btn = e.currentTarget;
+                const originalText = btn.innerHTML;
+                const proveedorId = document.getElementById('ProveedorId').value;
+                
+                if(!proveedorId) {
+                    alert('Por favor, selecciona un proveedor primero.');
+                    return;
+                }
+
+                btn.innerHTML = `<svg class="animate-spin w-4 h-4 text-[#45506a]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Enviando...`;
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('/OrdenesDeCompra/EnviarCorreo', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify({ proveedorId: parseInt(proveedorId) })
+                    });
+                    
+                    if (res.ok) {
+                        const data = await res.json();
+                        alert('¡Correo enviado exitosamente a ' + (data.email || 'el proveedor') + '!');
+                    } else {
+                        alert('Error al simular el envío del correo.');
+                    }
+                } catch(err) {
+                    alert('Error en la conexión.');
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            });
+
+            window.updateGlobalTotals = () => {
+                let subtotal = 0;
+                document.querySelectorAll('.row-total').forEach(el => {
+                    const val = parseFloat(el.textContent.replace(/[^0-9.-]+/g, ''));
+                    if (!isNaN(val)) subtotal += val;
+                });
+                
+                const tax = subtotal * 0.18;
+                const total = subtotal + tax;
+                
+                document.getElementById('globalSubtotal').textContent = '$' + subtotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                document.getElementById('globalTax').textContent = '$' + tax.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                document.getElementById('globalTotal').textContent = '$' + total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            };
+
+            window.updateRowTotal = (element, basePrice) => {
+                const tr = element.closest('tr');
+                const qtyInput = tr.querySelector('.row-qty');
+                const priceInput = tr.querySelector('.row-price');
+                const totalSpan = tr.querySelector('.row-total');
+                
+                const qty = parseFloat(qtyInput.value) || 0;
+                let price = parseFloat(priceInput.value.replace(/,/g, '')) || basePrice || 0;
+                
+                const total = qty * price;
+                totalSpan.textContent = '$' + total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                updateGlobalTotals();
+            };
+
+            // Calculate initial totals on load
+            updateGlobalTotals();
+        });
+    </script>
+}
+
