@@ -1,6 +1,9 @@
 @model Hevelab2026.Models.DashboardViewModel
+@using Hevelab2026.Models.Modulos
 @{
     ViewData["Title"] = "Dashboard";
+    var categorias = ModuloCategoria.Filtros;
+    var totalModulos = ModuloRegistry.Total;
 }
 
 <div class="container-fluid p-0 animate-fade-in">
@@ -67,49 +70,74 @@
         }
     </div>
 
-    <!-- ═══════════ QUICK ACCESS MODULES ═══════════ -->
-    <div class="row mb-3">
-        <div class="col-12">
-            <h2 class="h5 fw-bold m-0 mb-3" style="color: var(--text-primary);">Accesos Rápidos a Módulos</h2>
+    <!-- ═══════════ MÓDULOS DEL SISTEMA (catálogo modular) ═══════════ -->
+    <div class="hl-modulos-section mb-5">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4">
+            <div>
+                <h2 class="h5 fw-bold m-0" style="color: var(--text-primary);">Módulos del Sistema</h2>
+                <p class="m-0 mt-1" style="color: var(--text-muted); font-size: 13.5px;">
+                    Accede a cada área funcional del ERP · <span id="hl-modulos-count">@totalModulos</span> módulos
+                </p>
+            </div>
+            <div class="hl-modulos-filters d-flex flex-wrap gap-2" role="tablist" aria-label="Filtrar módulos por categoría">
+                @foreach (var cat in categorias)
+                {
+                    <button type="button"
+                            class="hl-modulo-filter@(cat.Id == ModuloCategoria.Todos ? " active" : "")"
+                            data-category="@cat.Id"
+                            role="tab"
+                            aria-selected="@(cat.Id == ModuloCategoria.Todos ? "true" : "false")">
+                        @cat.Label
+                    </button>
+                }
+            </div>
         </div>
-    </div>
-    
-    <div class="row g-3 mb-5">
-        @foreach (var module in Model.QuickAccessModules)
-        {
-            <div class="col-12 col-md-6 col-lg-4">
-                <a href="/@module.Controller" class="text-decoration-none hl-module-card-link">
-                    <div class="card border-0 shadow-sm rounded-3 h-100 hl-module-card" 
-                         style="background: var(--bg-topbar); border: 1px solid var(--border-color); transition: all 0.2s ease;">
-                        <div class="card-body p-4 d-flex flex-column justify-content-between">
-                            <div>
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div class="hl-card-icon-wrap rounded-3 d-flex align-items-center justify-content-center">
-                                        <svg class="hl-icon" viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke-width: 2;">
-                                            @Html.Raw(module.IconSvg)
-                                        </svg>
+
+        <div class="row g-3" id="hl-modulos-grid">
+            @foreach (var module in Model.QuickAccessModules)
+            {
+                var catLabel = categorias.FirstOrDefault(c => c.Id == module.Category).Label ?? module.Category;
+                <div class="col-12 col-md-6 col-lg-4 col-xxl-3 hl-modulo-item" data-category="@module.Category">
+                    <a asp-controller="@module.Controller" asp-action="@module.Action" class="text-decoration-none hl-module-card-link">
+                        <div class="card border-0 shadow-sm rounded-3 h-100 hl-module-card"
+                             style="background: var(--bg-topbar); border: 1px solid var(--border-color); transition: all 0.2s ease;">
+                            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-start mb-3 gap-2">
+                                        <div class="hl-card-icon-wrap rounded-3 d-flex align-items-center justify-content-center flex-shrink-0">
+                                            <svg class="hl-icon" viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke-width: 2;">
+                                                @Html.Raw(module.IconSvg)
+                                            </svg>
+                                        </div>
+                                        <div class="d-flex flex-column align-items-end gap-1">
+                                            <span class="hl-modulo-tag">@catLabel</span>
+                                            @if (!string.IsNullOrEmpty(module.BadgeText))
+                                            {
+                                                <span class="hl-status-badge hl-badge-@module.BadgeType px-2.5 py-1" style="font-size: 11px;">
+                                                    @module.BadgeText
+                                                </span>
+                                            }
+                                        </div>
                                     </div>
-                                    @if (!string.IsNullOrEmpty(module.BadgeText))
-                                    {
-                                        <span class="hl-status-badge hl-badge-@module.BadgeType px-2.5 py-1" style="font-size: 11px;">
-                                            @module.BadgeText
-                                        </span>
-                                    }
+                                    <h4 class="h6 fw-bold mb-2" style="color: var(--text-primary); font-size: 15px;">@module.Name</h4>
+                                    <p class="m-0" style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; min-height: 52px;">
+                                        @module.Description
+                                    </p>
                                 </div>
-                                <h4 class="h6 fw-bold mb-2" style="color: var(--text-primary); font-size: 15px;">@module.Name</h4>
-                                <p class="m-0" style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; height: 60px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
-                                    @module.Description
-                                </p>
-                            </div>
-                            <div class="d-flex align-items-center gap-1 mt-3 fw-semibold text-primary" style="font-size: 13px; color: var(--sys-primary) !important;">
-                                Abrir módulo
-                                <svg class="hl-icon" viewBox="0 0 24 24" style="width: 14px; height: 14px; transition: transform 0.2s ease;"><polyline points="9 18 15 12 9 6"/></svg>
+                                <div class="d-flex align-items-center gap-1 mt-3 fw-semibold" style="font-size: 13px; color: var(--sys-primary) !important;">
+                                    Abrir módulo
+                                    <svg class="hl-icon" viewBox="0 0 24 24" style="width: 14px; height: 14px; transition: transform 0.2s ease;"><polyline points="9 18 15 12 9 6"/></svg>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </a>
-            </div>
-        }
+                    </a>
+                </div>
+            }
+        </div>
+
+        <p id="hl-modulos-empty" class="text-center py-4 m-0 d-none" style="color: var(--text-muted); font-size: 14px;">
+            No hay módulos en esta categoría.
+        </p>
     </div>
 
     <!-- ═══════════ DOUBLE-COLUMN DETAIL PANEL ═══════════ -->
@@ -188,6 +216,47 @@
 </div>
 
 <style>
+    .hl-modulos-filters .hl-modulo-filter {
+        border: 1px solid var(--border-color);
+        background: var(--bg-topbar);
+        color: var(--text-secondary);
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 6px 14px;
+        border-radius: var(--radius-full);
+        transition: background var(--transition), color var(--transition), border-color var(--transition);
+    }
+    .hl-modulos-filters .hl-modulo-filter:hover {
+        border-color: var(--sys-border);
+        color: var(--text-primary);
+    }
+    .hl-modulos-filters .hl-modulo-filter.active {
+        background: #0d9488;
+        border-color: #0d9488;
+        color: #fff;
+    }
+    [data-theme="dark"] .hl-modulos-filters .hl-modulo-filter.active {
+        background: #14b8a6;
+        border-color: #14b8a6;
+    }
+    .hl-modulo-tag {
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+        background: var(--bg-app);
+        border: 1px solid var(--border-color);
+        padding: 2px 8px;
+        border-radius: var(--radius-full);
+    }
+    .hl-modulo-item {
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .hl-modulo-item.is-hidden {
+        display: none !important;
+    }
+
     /* Premium micro-interactions & transitions */
     .hl-metric-card:hover {
         transform: translateY(-4px);
@@ -236,4 +305,40 @@
     @@keyframes fadeIn {
         from { opacity: 0; transform: translateY(8px); }
         to { opacity: 1; transform: translateY(0); }
+    }
 </style>
+
+@section Scripts {
+<script>
+(function () {
+    var filters = document.querySelectorAll('.hl-modulo-filter');
+    var items = document.querySelectorAll('.hl-modulo-item');
+    var countEl = document.getElementById('hl-modulos-count');
+    var emptyEl = document.getElementById('hl-modulos-empty');
+    if (!filters.length) return;
+
+    function applyFilter(category) {
+        var visible = 0;
+        items.forEach(function (el) {
+            var show = category === 'todos' || el.getAttribute('data-category') === category;
+            el.classList.toggle('is-hidden', !show);
+            if (show) visible++;
+        });
+        if (countEl) countEl.textContent = String(visible);
+        if (emptyEl) emptyEl.classList.toggle('d-none', visible > 0);
+    }
+
+    filters.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var cat = btn.getAttribute('data-category');
+            filters.forEach(function (b) {
+                var active = b === btn;
+                b.classList.toggle('active', active);
+                b.setAttribute('aria-selected', active ? 'true' : 'false');
+            });
+            applyFilter(cat);
+        });
+    });
+})();
+</script>
+}

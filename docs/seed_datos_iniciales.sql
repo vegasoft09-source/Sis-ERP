@@ -121,19 +121,19 @@ VALUES
   -- admin / contraseña: admin123
   (1, 1, 1,
    'Administrador', 'Sistema', 'admin', 'admin@hevelab.com',
-   '$2a$11$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+   '$2a$11$xpv8TYJG0UHc8fT8euemreJjkQZ3QYw1fRE/tJm/cnW0xe6NWrjhu',
    '999000001', 1, 'America/Lima', 1, NOW(), NOW()),
 
   -- vendedor / contraseña: vendedor123
   (1, 2, 2,
    'Juan', 'Pérez', 'jperez', 'jperez@hevelab.com',
-   '$2a$11$UbqU.cGlWKCxSDFMg7bfUOu9XMXxxBe9R5xU5v2LMqVXBlfPwMz2y',
+   '$2a$11$SPIPLlebCPD5MH9l/uojSu6LlUtQtx5b9JlfSdurw8XMHUO3k7U6y',
    '999000002', 1, 'America/Lima', 1, NOW(), NOW()),
 
   -- contador / contraseña: contador123
   (1, 3, 3,
    'María', 'García', 'mgarcia', 'mgarcia@hevelab.com',
-   '$2a$11$ov5b.7tBg1vS9P6w/9MwcO9pPOPaJF0LFdJSE0EMSTpZrfJi4ORnO',
+   '$2a$11$6uA/FmV7sQxD3vaxcXoJe.FzOzxN9.1YyALcUyb7N7TFU1ZSYyyce',
    '999000003', 1, 'America/Lima', 1, NOW(), NOW())
 ON DUPLICATE KEY UPDATE correo = VALUES(correo);
 

@@ -23,13 +23,16 @@ namespace Hevelab2026.Models
 
     public class QuickAccessModule
     {
+        public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string Controller { get; set; } = string.Empty;
         public string Action { get; set; } = "Index";
+        /// <summary>Tag de categoría: gestion, comercial, operaciones, finanzas, rrhh, sistema.</summary>
+        public string Category { get; set; } = string.Empty;
         public string IconSvg { get; set; } = string.Empty;
         public string BadgeText { get; set; } = string.Empty;
-        public string BadgeType { get; set; } = "secondary"; // primary, success, warning, danger
+        public string BadgeType { get; set; } = "secondary"; // primary, success, warning, danger, info
     }
 
     public class RecentActivity
